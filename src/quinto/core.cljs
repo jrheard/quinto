@@ -4,6 +4,7 @@
 
 (def BOARD-SIZE 10)
 
+
 (defonce app-state
          (atom {:grid (vec (repeat BOARD-SIZE (vec (repeat BOARD-SIZE nil))))}))
 
