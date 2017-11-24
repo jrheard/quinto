@@ -27,6 +27,7 @@
                            :asset-path "js/compiled/out"
                            :output-to "resources/public/js/compiled/quinto.js"
                            :output-dir "resources/public/js/compiled/out"
+                           :source-map true
                            :source-map-timestamp true
                            ;; To console.log CLJS data-structures make sure you enable devtools in Chrome
                            ;; https://github.com/binaryage/cljs-devtools
