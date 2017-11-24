@@ -5,6 +5,7 @@
 ; a value is a number between 0 and 9 or nil
 ; a cell is "empty" if its value is nil
 ; a cell is "open" if it is possible for a player to make a move on that cell
+; a cell is "blocked" if it is not possible for a player to make a move on that cell
 ; a cell is "filled" if it has a non-nil value
 ; several "filled" cells in a row are a "run" of filled cells
 
@@ -41,8 +42,8 @@
   (let [length-of-run-in-direction (fn [xdir ydir]
                                      ; xxx there's gotta be a saner way to write this
                                      (reduce (fn [cells-in-run steps-in-direction]
-                                               (let [run-x (+ x (* xdir steps-in-direction))
-                                                     run-y (+ y (* ydir steps-in-direction))]
+                                               (let [run-x (+ x (* xdir (inc steps-in-direction)))
+                                                     run-y (+ y (* ydir (inc steps-in-direction)))]
                                                  (if (or (cell-is-off-grid grid [run-x run-y])
                                                          (nil? (get-in grid [run-x run-y])))
                                                    (reduced cells-in-run)
@@ -50,6 +51,10 @@
                                              0
                                              (range)))]
 
+    (when (= [x y] [0 5])
+      (js/console.log "HI")
+      (js/console.log (length-of-run-in-direction 0 1) (length-of-run-in-direction 0 -1))
+      )
     (cond (> (+ (length-of-run-in-direction 1 0)
                 (length-of-run-in-direction -1 0))
              4)

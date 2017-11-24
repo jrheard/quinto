@@ -21,6 +21,7 @@
   (main))
 
 (comment
-  (take 5 (find-open-cells (@app-state :grid)))
+  (find-open-cells (@app-state :grid))
+  (contains? (set (find-open-cells (@app-state :grid))) [1 1])
 
   )
