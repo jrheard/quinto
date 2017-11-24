@@ -1,9 +1,20 @@
 (ns quinto.core
+    (:require [reagent.core :as r])
     )
 
 
-(defonce app-state (atom {:text "Hello world!"}))
+(defonce app-state
+         (atom {:grid []}))
 
 
+(defn draw-game [state]
+  [:div "butt"]
+  )
 
-(defn on-js-reload [])
+(defn ^:export main []
+  (r/render-component [draw-game @app-state]
+                      (js/document.getElementById "app")))
+
+
+(defn on-js-reload []
+  (main))
