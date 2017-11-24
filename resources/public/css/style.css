@@ -1,7 +1,7 @@
 #grid {
-    width: 520px;
+    width: 572px;
     margin: 0 auto;
-    background-color: #DDD;
+    background-color: #EEE;
 }
 
 .row {
@@ -13,5 +13,13 @@
     height: 50px;
     border: solid 1px #333;
     float: left;
+    color: #333;
+    font-family: helvetica;
+    font-size: 35px;
+    line-height: 50px;
+    text-align: center;
 }
 
+.cell.full {
+    background-color: #CCC;
+}

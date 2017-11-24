@@ -2,16 +2,27 @@
   (:require [reagent.core :as r])
   )
 
-(def BOARD-SIZE 10)
+(def BOARD-SIZE 11)
 
+
+(def empty-grid (vec (repeat BOARD-SIZE (vec (repeat BOARD-SIZE nil)))))
 
 (defonce app-state
-         (atom {:grid (vec (repeat BOARD-SIZE (vec (repeat BOARD-SIZE nil))))}))
+         (atom {:grid (-> empty-grid
+                          (assoc-in [5 5] 0)
+                          (assoc-in [5 4] 9)
+                          (assoc-in [5 3] 1))}))
 
 (defn draw-cell [cell]
-  [:div.cell (if (nil? cell)
-               ""
-               cell)])
+  (let [cell-class (str "cell "
+                        (if (nil? cell)
+                          "empty"
+                          "full"))]
+
+    [:div {:class cell-class}
+     (if (nil? cell)
+       ""
+       cell)]))
 
 (defn draw-row [row]
   [:div.row
@@ -31,7 +42,6 @@
 (defn ^:export main []
   (r/render-component [draw-game @app-state]
                       (js/document.getElementById "app")))
-
 
 
 (defn on-js-reload []
