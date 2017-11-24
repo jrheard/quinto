@@ -2,6 +2,15 @@
   (:require [reagent.core :as r]
             [quinto.html :refer [draw-game]]))
 
+; terminology to spec
+; a cell is an [x y] pair
+; a move is a [cell value] pair
+; a value is a number between 0 and 9 or nil
+; a cell is "empty" if its value is nil
+; a cell is "open" if it is possible for a player to make a move on that cell
+; a cell is "filled" if it has a non-nil value
+
+
 (def BOARD-SIZE 11)
 (def empty-grid (vec (repeat BOARD-SIZE (vec (repeat BOARD-SIZE nil)))))
 
@@ -24,18 +33,12 @@
               (when (nil? (get-in grid [x y]))
                 [x y])))))
 
-; XXX change to find-valid-moves
-; make (is-valid-move? grid x y) function
-(defn find-invalid-moves [grid]
-  ; an invalid move is one that would cause a series
-  ; of more than 5 tiles in a row to be connected.
-
-
-
-
-  ; TODO first find only the empty cells, then check those
-
+(defn cell-is-open? [grid cell]
+  ; TODO a cell is open if filling it will _not_ cause a streak of 6 or more filled cells to exist
   )
+
+(defn find-open-cells [grid]
+  (filter cell-is-open? (find-empty-cells grid)))
 
 
 
