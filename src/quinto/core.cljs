@@ -18,7 +18,11 @@
 
 (defn find-empty-cells [grid]
   ; return a list of [x y] values
-  )
+  (mapcat identity
+          (for [x (range (count grid))]
+            (for [y (range (count (grid x)))]
+              (when (nil? (get-in grid [x y]))
+                [x y])))))
 
 ; XXX change to find-valid-moves
 ; make (is-valid-move? grid x y) function
@@ -30,7 +34,6 @@
 
 
   ; TODO first find only the empty cells, then check those
-
 
   )
 
@@ -50,5 +53,6 @@
   (main))
 
 (comment
+  (take 5 (find-empty-cells (@app-state :grid)))
 
   )
