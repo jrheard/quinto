@@ -12,15 +12,15 @@
        ""
        cell)]))
 
-(defn draw-row [row]
-  [:div.row
-   (for [index (range (count row))]
-     ^{:key index} [draw-cell (row index)])])
+(defn draw-column [column]
+  [:div.column
+   (for [index (range (count column))]
+     ^{:key index} [draw-cell (column index)])])
 
 (defn draw-grid [grid]
   [:div#grid
    (for [index (range (count grid))]
-     ^{:key index} [draw-row (grid index)])])
+     ^{:key index} [draw-column (grid index)])])
 
 (defn draw-game [state]
   [draw-grid (state :grid)])

@@ -2,10 +2,13 @@
     width: 572px;
     margin: 0 auto;
     background-color: #EEE;
+    overflow: hidden;
 }
 
-.row {
+.column {
     overflow: hidden;
+    float: left;
+    width: 52px;
 }
 
 .cell {
