@@ -9,7 +9,8 @@
                         (if (nil? cell)
                           "empty "
                           "full ")
-                        (when-not (contains? (set open-cells) [x y])
+                        (when (and (not (contains? (set open-cells) [x y]))
+                                   (nil? cell))
                           "blocked"))]
 
     [:div {:class cell-class}

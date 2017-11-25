@@ -30,7 +30,7 @@
               (when (nil? (get-in grid [x y]))
                 [x y])))))
 
-(defn cell-is-off-grid [grid [x y]]
+(defn cell-is-on-grid [grid [x y]]
   (and (>= x 0)
        (< x (count grid))
        (>= y 0)
@@ -42,19 +42,15 @@
   (let [length-of-run-in-direction (fn [xdir ydir]
                                      ; xxx there's gotta be a saner way to write this
                                      (reduce (fn [cells-in-run steps-in-direction]
-                                               (let [run-x (+ x (* xdir (inc steps-in-direction)))
-                                                     run-y (+ y (* ydir (inc steps-in-direction)))]
-                                                 (if (or (cell-is-off-grid grid [run-x run-y])
+                                               (let [run-x (+ x (* xdir steps-in-direction))
+                                                     run-y (+ y (* ydir steps-in-direction))]
+                                                 (if (or (not (cell-is-on-grid grid [run-x run-y]))
                                                          (nil? (get-in grid [run-x run-y])))
                                                    (reduced cells-in-run)
                                                    (inc cells-in-run))))
                                              0
-                                             (range)))]
+                                             (map inc (range))))]
 
-    (when (= [x y] [0 5])
-      (js/console.log "HI")
-      (js/console.log (length-of-run-in-direction 0 1) (length-of-run-in-direction 0 -1))
-      )
     (cond (> (+ (length-of-run-in-direction 1 0)
                 (length-of-run-in-direction -1 0))
              4)

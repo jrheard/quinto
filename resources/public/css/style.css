@@ -26,3 +26,7 @@
 .cell.full {
     background-color: #CCC;
 }
+
+.cell.blocked {
+    background-color: pink;
+}
