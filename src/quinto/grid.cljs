@@ -1,8 +1,7 @@
-(ns quinto.grid)
-; terminology to spec
-; a cell is an [x y] pair
-; a move is a [cell value] pair
-; a value is a number between 0 and 9 or nil
+(ns quinto.grid
+  (:require [clojure.spec.alpha :as s]
+            [quinto.specs :as sp]))
+; terminology:
 ; a cell is "empty" if its value is nil
 ; a cell is "filled" if it has a non-nil value
 ; a cell is "playable" if it is possible for a player to make a move on that cell
@@ -10,10 +9,11 @@
 ; several "filled" cells in a row are a "run" of filled cells
 
 
-; XX rename grid-size
-; note: should be an odd number!
-(def BOARD-SIZE 11)
-(def empty-grid (vec (repeat BOARD-SIZE (vec (repeat BOARD-SIZE nil)))))
+; There's some confusion as to what the canonical board size is. Picking 13x13 arbitrarily.
+; See https://boardgamegeek.com/thread/24859/tile-distribution for some actual board sizes.
+(def GRID-WIDTH 13)
+(def GRID-HEIGHT 13)
+(def empty-grid (vec (repeat GRID-WIDTH (vec (repeat GRID-HEIGHT nil)))))
 
 
 (defn make-move [grid move]
@@ -23,6 +23,9 @@
           grid
           move))
 
+(s/fdef make-move
+  :args (s/cat :grid ::sp/grid :move ::sp/move)
+  :ret ::sp/grid)
 
 (defn find-empty-cells [grid]
   ; return a list of [x y] values

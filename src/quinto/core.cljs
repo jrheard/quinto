@@ -14,14 +14,16 @@
          (r/atom {:grid g/empty-grid}))
 
 (defn ^:export main []
-  (swap! app-state update-in [:grid] g/make-move [[[5 5] 0]
-                                                [[5 4] 9]
-                                                [[5 3] 1]
-                                                [[5 2] 5]
-                                                [[5 1] 5]])
+  (swap! app-state update-in [:grid] g/make-move [[[6 6] 0]
+                                                [[6 5] 9]
+                                                [[6 4] 1]
+                                                [[6 3] 5]
+                                                [[6 2] 5]])
 
 
-  (r/render-component [draw-game @app-state (g/find-blocked-cells (@app-state :grid))]
+  (r/render-component [draw-game
+                       @app-state
+                       (set (g/find-blocked-cells (@app-state :grid)))]
                       (js/document.getElementById "app")))
 
 (def on-js-reload main)

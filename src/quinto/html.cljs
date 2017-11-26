@@ -7,7 +7,7 @@
                         (if (nil? cell)
                           "empty "
                           "full ")
-                        (when (and (contains? (set blocked-cells) [x y])
+                        (when (and (contains? blocked-cells [x y])
                                    (nil? cell))
                           "blocked"))]
 
