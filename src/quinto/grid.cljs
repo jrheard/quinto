@@ -25,7 +25,7 @@
 
 (s/fdef make-move
   :args (s/cat :grid ::sp/grid :move ::sp/move)
-  :ret ::sp/grid)
+  :ret nat-int?)
 
 (defn find-empty-cells [grid]
   ; return a list of [x y] values

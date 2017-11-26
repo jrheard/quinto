@@ -10,6 +10,7 @@
                  [org.clojure/clojurescript "1.9.946"]
                  [org.clojure/core.async  "0.3.443"]
                  [org.clojure/spec.alpha "0.1.143"]
+                 [org.clojure/test.check "0.10.0-alpha2"]
                  [reagent "0.8.0-alpha2"]
                  [figwheel-sidecar "0.5.0"]]
 

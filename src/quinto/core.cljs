@@ -1,5 +1,6 @@
 (ns quinto.core
-  (:require [reagent.core :as r]
+  (:require [clojure.spec.test.alpha :as stest]
+            [reagent.core :as r]
             [quinto.html :refer [draw-game]]
             [quinto.grid :as g]))
 
@@ -14,11 +15,12 @@
          (r/atom {:grid g/empty-grid}))
 
 (defn ^:export main []
+  (stest/instrument)
   (swap! app-state update-in [:grid] g/make-move [[[6 6] 0]
-                                                [[6 5] 9]
-                                                [[6 4] 1]
-                                                [[6 3] 5]
-                                                [[6 2] 5]])
+                                                  [[6 5] 9]
+                                                  [[6 4] 1]
+                                                  [[6 3] 5]
+                                                  [[6 2] 5]])
 
 
   (r/render-component [draw-game
