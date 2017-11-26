@@ -17,7 +17,6 @@
 
 
 (defn make-move [grid move]
-  ; a move is a list of [[x y] value] lists indicating where tiles should be placed.
   (reduce (fn [grid [[x y] value]]
             (assoc-in grid [x y] value))
           grid
@@ -28,12 +27,15 @@
   :ret nat-int?)
 
 (defn find-empty-cells [grid]
-  ; return a list of [x y] values
   (mapcat identity
           (for [x (range (count grid))]
             (for [y (range (count (grid x)))]
               (when (nil? (get-in grid [x y]))
                 [x y])))))
+
+(s/fdef find-empty-cells
+  :args (s/cat :grid ::sp/grid)
+  :ret (s/coll-of ::sp/cell))
 
 (defn cell-is-on-grid [grid [x y]]
   (and (>= x 0)
@@ -41,6 +43,9 @@
        (>= y 0)
        (< y (count (first grid)))))
 
+(s/fdef cell-is-on-grid
+  :args (s/cat :grid ::sp/grid :cell ::sp/cell)
+  :ret boolean?)
 
 (defn cell-is-playable? [grid [x y]]
   ; a cell is playable if filling it will _not_ cause a streak of 6 or more filled cells to exist
@@ -72,10 +77,14 @@
           false
           :else true)))
 
+(s/fdef cell-is-playable?
+  :args (s/cat :grid ::sp/grid :cell ::sp/cell)
+  :ret boolean?)
+
 (defn find-playable-cells [grid]
   (filter #(cell-is-playable? grid %) (find-empty-cells grid)))
 
 (defn find-blocked-cells [grid]
   (filter #(not (cell-is-playable? grid %)) (find-empty-cells grid)))
 
-; TODO a validate-grid function? perhaps unnecessary but likely very useful
+; TODO a validate-grid function
