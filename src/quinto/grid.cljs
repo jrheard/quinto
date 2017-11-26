@@ -27,11 +27,13 @@
   :ret nat-int?)
 
 (defn find-empty-cells [grid]
-  (mapcat identity
-          (for [x (range (count grid))]
-            (for [y (range (count (grid x)))]
-              (when (nil? (get-in grid [x y]))
-                [x y])))))
+  ; XXXX take a look at this fn, likely rewrite
+  (filter identity
+          (mapcat identity
+                  (for [x (range (count grid))]
+                    (for [y (range (count (grid x)))]
+                      (when (nil? (get-in grid [x y]))
+                        [x y]))))))
 
 (s/fdef find-empty-cells
   :args (s/cat :grid ::sp/grid)
@@ -44,7 +46,7 @@
        (< y (count (first grid)))))
 
 (s/fdef cell-is-on-grid
-  :args (s/cat :grid ::sp/grid :cell ::sp/cell)
+  :args (s/cat :grid ::sp/grid :cell (s/tuple int? int?))
   :ret boolean?)
 
 (defn cell-is-playable? [grid [x y]]
@@ -66,6 +68,10 @@
                                              0
                                              (map inc (range))))]
 
+    ; XXXXX needs to be >= 1
+    ; make vars like horizontal-run-length, vertical-run-length
+    ; also check if cell value is nil
+    ; maybe this can't be reused by both playable and empty fns, maybe these three functions' relationship needs to be rethought
     (cond (> (+ (length-of-run-in-direction 1 0)
                 (length-of-run-in-direction -1 0))
              ; TODO break this magic number out into its own well-named self-documenting var

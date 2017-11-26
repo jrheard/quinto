@@ -5,7 +5,6 @@
             [quinto.grid :as g]))
 
 ; next up:
-; * spec
 ; * draw playable cells as green
 ; * make board a little more complicated, with some potential multimoves and some blocked,
 ;   to verify that blocked checking works like i expect
@@ -25,6 +24,7 @@
 
   (r/render-component [draw-game
                        @app-state
+                       (set (g/find-playable-cells (@app-state :grid)))
                        (set (g/find-blocked-cells (@app-state :grid)))]
                       (js/document.getElementById "app")))
 
@@ -33,5 +33,4 @@
 (comment
   (find-open-cells (@app-state :grid))
   (contains? (set (find-open-cells (@app-state :grid))) [1 1])
-
   )
