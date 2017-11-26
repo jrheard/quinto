@@ -1,15 +1,13 @@
 (ns quinto.html
-  ; XXXX REARRANGE CALLS INTO THIS MODULE SO THAT HTML NO LONGER IMPORTS GRID
-  (:require [quinto.grid :as g]
-            [reagent.core :as r]))
+  (:require [reagent.core :as r]))
 
-(defn draw-cell [grid x y open-cells]
+(defn draw-cell [grid x y blocked-cells]
   (let [cell (get-in grid [x y])
         cell-class (str "cell "
                         (if (nil? cell)
                           "empty "
                           "full ")
-                        (when (and (not (contains? (set open-cells) [x y]))
+                        (when (and (contains? (set blocked-cells) [x y])
                                    (nil? cell))
                           "blocked"))]
 
@@ -18,17 +16,16 @@
        ""
        cell)]))
 
-(defn draw-column [grid x open-cells]
+(defn draw-column [grid x blocked-cells]
   [:div.column
    (for [y (range (count (grid x)))]
-     ^{:key y} [draw-cell grid x y open-cells])])
+     ^{:key y} [draw-cell grid x y blocked-cells])])
 
-(defn draw-grid [grid]
-  (let [open-cells (g/find-open-cells grid)]
-    [:div#grid
-     (for [x (range (count grid))]
-       ^{:key x} [draw-column grid x open-cells])]))
+(defn draw-grid [grid blocked-cells]
+  [:div#grid
+   (for [x (range (count grid))]
+     ^{:key x} [draw-column grid x blocked-cells])])
 
-(defn draw-game [state]
-  [draw-grid (state :grid)])
+(defn draw-game [state blocked-cells]
+  [draw-grid (state :grid) blocked-cells])
 

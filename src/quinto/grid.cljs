@@ -10,6 +10,8 @@
 ; several "filled" cells in a row are a "run" of filled cells
 
 
+; XX rename grid-size
+; note: should be an odd number!
 (def BOARD-SIZE 11)
 (def empty-grid (vec (repeat BOARD-SIZE (vec (repeat BOARD-SIZE nil)))))
 
@@ -37,8 +39,8 @@
        (< y (count (first grid)))))
 
 
-(defn cell-is-open? [grid [x y]]
-  ; a cell is open if filling it will _not_ cause a streak of 6 or more filled cells to exist
+(defn cell-is-playable? [grid [x y]]
+  ; a cell is playable if filling it will _not_ cause a streak of 6 or more filled cells to exist
   (let [length-of-run-in-direction (fn [xdir ydir]
                                      ; xxx there's gotta be a saner way to write this
                                      ; TODO will need to reuse this function when calculating
@@ -67,7 +69,10 @@
           false
           :else true)))
 
-(defn find-open-cells [grid]
-  (filter #(cell-is-open? grid %) (find-empty-cells grid)))
+(defn find-playable-cells [grid]
+  (filter #(cell-is-playable? grid %) (find-empty-cells grid)))
+
+(defn find-blocked-cells [grid]
+  (filter #(not (cell-is-playable? grid %)) (find-empty-cells grid)))
 
 ; TODO a validate-grid function? perhaps unnecessary but likely very useful
