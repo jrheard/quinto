@@ -4,9 +4,9 @@
 ; a move is a [cell value] pair
 ; a value is a number between 0 and 9 or nil
 ; a cell is "empty" if its value is nil
-; a cell is "open" if it is possible for a player to make a move on that cell
-; a cell is "blocked" if it is not possible for a player to make a move on that cell
 ; a cell is "filled" if it has a non-nil value
+; a cell is "playable" if it is possible for a player to make a move on that cell
+; a cell is "blocked" if it is not possible for a player to make a move on that cell
 ; several "filled" cells in a row are a "run" of filled cells
 
 
@@ -41,6 +41,11 @@
   ; a cell is open if filling it will _not_ cause a streak of 6 or more filled cells to exist
   (let [length-of-run-in-direction (fn [xdir ydir]
                                      ; xxx there's gotta be a saner way to write this
+                                     ; TODO will need to reuse this function when calculating
+                                     ; the possible values that a cell can hold
+                                     ; break it out into its defn and have it return
+                                     ; a 2-tuple of [run-length run-sum]
+                                     ; and always return runs in N E S W order
                                      (reduce (fn [cells-in-run steps-in-direction]
                                                (let [run-x (+ x (* xdir steps-in-direction))
                                                      run-y (+ y (* ydir steps-in-direction))]
@@ -53,6 +58,7 @@
 
     (cond (> (+ (length-of-run-in-direction 1 0)
                 (length-of-run-in-direction -1 0))
+             ; TODO break this magic number out into its own well-named self-documenting var
              4)
           false
           (> (+ (length-of-run-in-direction 0 1)
@@ -63,3 +69,5 @@
 
 (defn find-open-cells [grid]
   (filter #(cell-is-open? grid %) (find-empty-cells grid)))
+
+; TODO a validate-grid function? perhaps unnecessary but likely very useful

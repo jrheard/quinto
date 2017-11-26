@@ -3,6 +3,13 @@
             [quinto.html :refer [draw-game]]
             [quinto.grid :refer [empty-grid make-move find-open-cells]]))
 
+; next up:
+; * refactor (html shouldn't import grid)
+; * spec
+; * make board a little more complicated, with some potential multimoves and some blocked,
+;   to verify that blocked checking works like i expect
+; * start work on ai?
+
 (defonce app-state
          (r/atom {:grid empty-grid}))
 
