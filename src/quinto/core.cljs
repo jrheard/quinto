@@ -24,8 +24,7 @@
   (r/render-component [draw-game @app-state (g/find-blocked-cells (@app-state :grid))]
                       (js/document.getElementById "app")))
 
-(defn on-js-reload []
-  (main))
+(def on-js-reload main)
 
 (comment
   (find-open-cells (@app-state :grid))
