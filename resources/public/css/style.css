@@ -30,3 +30,7 @@
 .cell.blocked {
     background-color: pink;
 }
+
+.cell.playable {
+    background-color: #B4FFB4;
+}

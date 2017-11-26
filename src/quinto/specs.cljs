@@ -8,6 +8,10 @@
 (s/def ::move-component (s/cat :cell ::cell :value ::value))
 (s/def ::move (s/coll-of ::move-component))
 
+(s/def ::run-length nat-int?)
+(s/def ::run-sum pos-int?)
+(s/def ::run (s/tuple ::run-length ::run-sum))
+
 (s/def ::grid (s/coll-of (s/coll-of (s/or :value ::value :nil nil?))))
 
 (comment

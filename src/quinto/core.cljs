@@ -21,7 +21,6 @@
                                                   [[6 3] 5]
                                                   [[6 2] 5]])
 
-
   (r/render-component [draw-game
                        @app-state
                        (set (g/find-playable-cells (@app-state :grid)))

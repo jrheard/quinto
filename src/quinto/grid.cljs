@@ -15,6 +15,9 @@
 (def GRID-HEIGHT 13)
 (def empty-grid (vec (repeat GRID-WIDTH (vec (repeat GRID-HEIGHT nil)))))
 
+; XXXX document
+(def MAX-RUN-LENGTH 5)
+
 
 (defn make-move [grid move]
   (reduce (fn [grid [[x y] value]]
@@ -49,48 +52,49 @@
   :args (s/cat :grid ::sp/grid :cell (s/tuple int? int?))
   :ret boolean?)
 
+(defn find-run [grid [x y] axis]
+  (let [run-in-direction (fn [xdir ydir]
+                           ; xxx there's gotta be a saner way to write this
+                           (reduce (fn [[run-length run-sum] steps-in-direction]
+                                     (let [run-x (+ x (* xdir steps-in-direction))
+                                           run-y (+ y (* ydir steps-in-direction))]
+                                       (if (or (not (cell-is-on-grid grid [run-x run-y]))
+                                               (nil? (get-in grid [run-x run-y])))
+                                         (reduced [run-length run-sum])
+                                         [(inc run-length) (+ run-sum (get-in grid [run-x run-y]))])))
+                                   [0 0]
+                                   (map inc (range))))
+        [first-half-length first-half-sum] (if (= axis :x)
+                                             (run-in-direction -1 0)
+                                             (run-in-direction 0 -1))
+        [second-half-length second-half-sum] (if (= axis :x)
+                                               (run-in-direction 1 0)
+                                               (run-in-direction 0 1))]
+    [(+ first-half-length second-half-length)
+     (+ first-half-sum second-half-sum)]))
+
+(s/fdef find-run
+  :args (s/cat :grid ::sp/grid :cell ::sp/cell :axis #{:x :y})
+  :ret ::sp/run)
+
 (defn cell-is-playable? [grid [x y]]
-  ; a cell is playable if filling it will _not_ cause a streak of 6 or more filled cells to exist
-  (let [length-of-run-in-direction (fn [xdir ydir]
-                                     ; xxx there's gotta be a saner way to write this
-                                     ; TODO will need to reuse this function when calculating
-                                     ; the possible values that a cell can hold
-                                     ; break it out into its defn and have it return
-                                     ; a 2-tuple of [run-length run-sum]
-                                     ; and always return runs in N E S W order
-                                     (reduce (fn [cells-in-run steps-in-direction]
-                                               (let [run-x (+ x (* xdir steps-in-direction))
-                                                     run-y (+ y (* ydir steps-in-direction))]
-                                                 (if (or (not (cell-is-on-grid grid [run-x run-y]))
-                                                         (nil? (get-in grid [run-x run-y])))
-                                                   (reduced cells-in-run)
-                                                   (inc cells-in-run))))
-                                             0
-                                             (map inc (range))))]
-
-    ; XXXXX needs to be >= 1
-    ; make vars like horizontal-run-length, vertical-run-length
-    ; also check if cell value is nil
-    ; maybe this can't be reused by both playable and empty fns, maybe these three functions' relationship needs to be rethought
-    (cond (> (+ (length-of-run-in-direction 1 0)
-                (length-of-run-in-direction -1 0))
-             ; TODO break this magic number out into its own well-named self-documenting var
-             4)
-          false
-          (> (+ (length-of-run-in-direction 0 1)
-                (length-of-run-in-direction 0 -1))
-             4)
-          false
-          :else true)))
-
-(s/fdef cell-is-playable?
-  :args (s/cat :grid ::sp/grid :cell ::sp/cell)
-  :ret boolean?)
+  ; a cell is playable if at least one axis has a run length between 1 and 4 inclusive
+  (let [[x-run-length _] (find-run grid [x y] :x)
+        [y-run-length _] (find-run grid [x y] :y)]
+    (and (or (> x-run-length 0) (> y-run-length 0))
+         (and (< x-run-length MAX-RUN-LENGTH) (< y-run-length MAX-RUN-LENGTH)))))
 
 (defn find-playable-cells [grid]
   (filter #(cell-is-playable? grid %) (find-empty-cells grid)))
 
+(defn cell-is-blocked? [grid [x y]]
+  ; a cell is blocked if either axis has a run length of 5 or more
+  (let [[x-run-length _] (find-run grid [x y] :x)
+        [y-run-length _] (find-run grid [x y] :y)]
+    ; XXXXX double-check to make sure there isn't an off-by-one error here
+    (or (>= x-run-length MAX-RUN-LENGTH) (>= y-run-length MAX-RUN-LENGTH))))
+
 (defn find-blocked-cells [grid]
-  (filter #(not (cell-is-playable? grid %)) (find-empty-cells grid)))
+  (filter #(cell-is-blocked? grid %) (find-empty-cells grid)))
 
 ; TODO a validate-grid function
