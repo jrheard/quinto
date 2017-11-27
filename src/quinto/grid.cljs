@@ -40,11 +40,14 @@
   [grid [x y]]
   (let [run-in-direction (fn [xdir ydir]
                            (reduce (fn [[run-length run-sum] steps-in-direction]
+                                     ; Find the position of the cell we're currently examining.
                                      (let [run-x (+ x (* xdir steps-in-direction))
                                            run-y (+ y (* ydir steps-in-direction))]
                                        (if (or (not (cell-is-on-grid grid [run-x run-y]))
                                                (nil? (get-in grid [run-x run-y])))
+                                         ; If it's nil or this position is off the grid, the run is over.
                                          (reduced [run-length run-sum])
+                                         ; Otherwise, record this cell and continue following the run.
                                          [(inc run-length)
                                           (+ run-sum (get-in grid [run-x run-y]))])))
                                    [0 0]
