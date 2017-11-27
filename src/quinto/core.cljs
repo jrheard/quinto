@@ -5,9 +5,10 @@
             [quinto.grid :as g]))
 
 ; next up:
-; * draw playable cells as green
 ; * make board a little more complicated, with some potential multimoves and some blocked,
 ;   to verify that blocked checking works like i expect
+; * do another pass on quinto.grid, take a look at ways to make the function implementations saner,
+;   see if anything should be specced
 ; * start work on ai?
 
 (defonce app-state
