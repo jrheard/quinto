@@ -5,11 +5,8 @@
             [quinto.grid :as g]))
 
 ; next up:
-; * make board a little more complicated, with some potential multimoves and some blocked,
-;   to verify that blocked checking works like i expect
-; * do another pass on quinto.grid, take a look at ways to make the function implementations saner,
-;   see if anything should be specced
-; * start work on ai?
+; grid valiation fn
+; start work on ai
 
 (defonce app-state
          (r/atom {:grid g/empty-grid}))
@@ -21,7 +18,10 @@
                                                   [[6 4] 1]
                                                   [[6 3] 5]
                                                   [[6 2] 5]])
-
+  (swap! app-state update-in [:grid] g/make-move [[[2 6] 5]
+                                                  [[3 6] 9]
+                                                  [[4 6] 1]
+                                                  [[5 6] 5]])
   (r/render-component [draw-game
                        @app-state
                        (set (g/find-playable-cells (@app-state :grid)))
