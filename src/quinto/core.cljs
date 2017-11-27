@@ -34,6 +34,7 @@
 (def on-js-reload render-game)
 
 (comment
+  (g/is-grid-valid? (@app-state :grid))
   (find-open-cells (@app-state :grid))
   (contains? (set (find-open-cells (@app-state :grid))) [1 1])
   )

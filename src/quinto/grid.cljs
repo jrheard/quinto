@@ -16,11 +16,12 @@
   :ret nat-int?)
 
 (defn find-empty-cells [grid]
+  ; TODO is there some cool way to use specter for this?
   (apply concat
-          (for [x (range (count grid))]
-            (for [y (range (count (grid x)))
-                  :when (nil? (get-in grid [x y]))]
-              [x y]))))
+         (for [x (range (count grid))]
+           (for [y (range (count (grid x)))
+                 :when (nil? (get-in grid [x y]))]
+             [x y]))))
 
 (s/fdef find-empty-cells
   :args (s/cat :grid ::sp/grid)
@@ -38,16 +39,16 @@
 
 (defn find-runs
   [grid [x y]]
-  (let [run-in-direction (fn [xdir ydir]
+  (let [run-in-direction (fn [x-direction y-direction]
                            (reduce (fn [[run-length run-sum] steps-in-direction]
                                      ; Find the position of the cell we're currently examining.
-                                     (let [run-x (+ x (* xdir steps-in-direction))
-                                           run-y (+ y (* ydir steps-in-direction))]
+                                     (let [run-x (+ x (* x-direction steps-in-direction))
+                                           run-y (+ y (* y-direction steps-in-direction))]
                                        (if (or (not (cell-is-on-grid grid [run-x run-y]))
                                                (nil? (get-in grid [run-x run-y])))
-                                         ; If it's nil or this position is off the grid, the run is over.
+                                         ; If the cell's value is nil or this position is off the grid, the run is over.
                                          (reduced [run-length run-sum])
-                                         ; Otherwise, record this cell and continue following the run.
+                                         ; Otherwise, record this cell's value and continue following the run.
                                          [(inc run-length)
                                           (+ run-sum (get-in grid [run-x run-y]))])))
                                    [0 0]
@@ -61,6 +62,7 @@
       (+ y-sum-1 y-sum-2)]]))
 
 (s/fdef find-runs
+  ; XXXXX what if this took args [grid x y] instead of [grid [x y]]? then wouldn't need to s/spec here
   :args (s/cat :grid ::sp/grid :cell (s/spec ::sp/cell))
   :ret (s/cat :horizontal-run ::sp/run :vertical-run ::sp/run))
 
@@ -79,4 +81,17 @@
 (defn find-blocked-cells [grid]
   (filter #(cell-is-blocked? grid %) (find-empty-cells grid)))
 
-; TODO a validate-grid function
+(defn is-grid-valid? [grid]
+  (every?
+    identity
+    (for [x (range (count grid))]
+      (for [y (range (count (grid x)))]
+        (let [[[x-run-length x-run-sum] [y-run-length y-run-sum]] (find-runs grid [x y])]
+          (and (<= 0 x-run-length MAX-RUN-LENGTH)
+               (<= 0 y-run-length MAX-RUN-LENGTH)
+               (= 0 (mod x-run-sum 5))
+               (= 0 (mod y-run-sum 5))))))))
+
+(s/fdef is-grid-valid?
+  :args (s/cat :grid ::sp/grid)
+  :ret boolean?)
