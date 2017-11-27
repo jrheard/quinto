@@ -27,24 +27,24 @@
   :args (s/cat :grid ::sp/grid)
   :ret (s/coll-of ::sp/cell))
 
-(defn cell-is-on-grid [grid [x y]]
+(defn cell-is-on-grid [grid x y]
   (and (>= x 0)
        (< x (count grid))
        (>= y 0)
        (< y (count (first grid)))))
 
 (s/fdef cell-is-on-grid
-  :args (s/cat :grid ::sp/grid :cell (s/spec (s/cat :x int? :y int?)))
+  :args (s/cat :grid ::sp/grid :cell (s/cat :x int? :y int?))
   :ret boolean?)
 
 (defn find-runs
-  [grid [x y]]
+  [grid x y]
   (let [run-in-direction (fn [x-direction y-direction]
                            (reduce (fn [[run-length run-sum] steps-in-direction]
                                      ; Find the position of the cell we're currently examining.
                                      (let [run-x (+ x (* x-direction steps-in-direction))
                                            run-y (+ y (* y-direction steps-in-direction))]
-                                       (if (or (not (cell-is-on-grid grid [run-x run-y]))
+                                       (if (or (not (cell-is-on-grid grid run-x run-y))
                                                (nil? (get-in grid [run-x run-y])))
                                          ; If the cell's value is nil or this position is off the grid, the run is over.
                                          (reduced [run-length run-sum])
@@ -62,12 +62,11 @@
       (+ y-sum-1 y-sum-2)]]))
 
 (s/fdef find-runs
-  ; XXXXX what if this took args [grid x y] instead of [grid [x y]]? then wouldn't need to s/spec here
-  :args (s/cat :grid ::sp/grid :cell (s/spec ::sp/cell))
+  :args (s/cat :grid ::sp/grid :cell ::sp/cell)
   :ret (s/cat :horizontal-run ::sp/run :vertical-run ::sp/run))
 
 (defn cell-is-playable? [grid [x y]]
-  (let [[[x-run-length _] [y-run-length _]] (find-runs grid [x y])]
+  (let [[[x-run-length _] [y-run-length _]] (find-runs grid x y)]
     (and (or (> x-run-length 0) (> y-run-length 0))
          (and (< x-run-length MAX-RUN-LENGTH) (< y-run-length MAX-RUN-LENGTH)))))
 
@@ -75,7 +74,7 @@
   (filter #(cell-is-playable? grid %) (find-empty-cells grid)))
 
 (defn cell-is-blocked? [grid [x y]]
-  (let [[[x-run-length _] [y-run-length _]] (find-runs grid [x y])]
+  (let [[[x-run-length _] [y-run-length _]] (find-runs grid x y)]
     (or (>= x-run-length MAX-RUN-LENGTH) (>= y-run-length MAX-RUN-LENGTH))))
 
 (defn find-blocked-cells [grid]
@@ -86,7 +85,7 @@
     identity
     (for [x (range (count grid))]
       (for [y (range (count (grid x)))]
-        (let [[[x-run-length x-run-sum] [y-run-length y-run-sum]] (find-runs grid [x y])]
+        (let [[[x-run-length x-run-sum] [y-run-length y-run-sum]] (find-runs grid x y)]
           (and (<= 0 x-run-length MAX-RUN-LENGTH)
                (<= 0 y-run-length MAX-RUN-LENGTH)
                (= 0 (mod x-run-sum 5))

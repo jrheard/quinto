@@ -12,6 +12,7 @@
          (r/atom {:grid g/empty-grid}))
 
 (defn render-game []
+  (assert (g/is-grid-valid? (@app-state :grid)))
   (r/render-component [draw-game
                        @app-state
                        (set (g/find-playable-cells (@app-state :grid)))
