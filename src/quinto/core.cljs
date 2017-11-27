@@ -11,6 +11,13 @@
 (defonce app-state
          (r/atom {:grid g/empty-grid}))
 
+(defn render-game []
+  (r/render-component [draw-game
+                       @app-state
+                       (set (g/find-playable-cells (@app-state :grid)))
+                       (set (g/find-blocked-cells (@app-state :grid)))]
+                      (js/document.getElementById "app")))
+
 (defn ^:export main []
   (stest/instrument)
   (swap! app-state update-in [:grid] g/make-move [[[6 6] 0]
@@ -22,13 +29,9 @@
                                                   [[3 6] 9]
                                                   [[4 6] 1]
                                                   [[5 6] 5]])
-  (r/render-component [draw-game
-                       @app-state
-                       (set (g/find-playable-cells (@app-state :grid)))
-                       (set (g/find-blocked-cells (@app-state :grid)))]
-                      (js/document.getElementById "app")))
+  (render-game))
 
-(def on-js-reload main)
+(def on-js-reload render-game)
 
 (comment
   (find-open-cells (@app-state :grid))

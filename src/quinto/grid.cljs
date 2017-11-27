@@ -6,6 +6,7 @@
 
 (defn make-move [grid move]
   (reduce (fn [grid [[x y] value]]
+            (assert (nil? (get-in grid [x y])))
             (assoc-in grid [x y] value))
           grid
           move))
