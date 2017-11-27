@@ -12,12 +12,19 @@
 (s/def ::move-component (s/cat :cell (s/spec ::cell) :value ::value))
 (s/def ::move (s/coll-of ::move-component))
 
-; several "filled" cell
-(s/def ::run-length nat-int?)
+; A number of filled cells in a row is called a "run".
+(def MAX-RUN-LENGTH 5)
+(s/def ::run-length (and nat-int? #(<= % MAX-RUN-LENGTH)))
 (s/def ::run-sum pos-int?)
 (s/def ::run (s/cat :length ::run-length :sum ::run-sum))
 
-(s/def ::grid (s/coll-of (s/coll-of (s/or :value ::value :nil nil?))))
+; There's some confusion as to what the canonical board size is. Picking 13x13 arbitrarily.
+; See https://boardgamegeek.com/thread/24859/tile-distribution for some actual board sizes.
+(def GRID-WIDTH 13)
+(def GRID-HEIGHT 13)
+(s/def ::grid (s/coll-of
+                (s/coll-of (s/or :value ::value :nil nil?) :count GRID-HEIGHT)
+                :count GRID-WIDTH))
 
 (comment
   (s/valid? ::cell [1 5])

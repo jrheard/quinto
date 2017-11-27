@@ -1,15 +1,8 @@
 (ns quinto.grid
   (:require [clojure.spec.alpha :as s]
-            [quinto.specs :as sp]))
+            [quinto.specs :as sp :refer [MAX-RUN-LENGTH GRID-HEIGHT GRID-WIDTH]]))
 
-; There's some confusion as to what the canonical board size is. Picking 13x13 arbitrarily.
-; See https://boardgamegeek.com/thread/24859/tile-distribution for some actual board sizes.
-(def GRID-WIDTH 13)
-(def GRID-HEIGHT 13)
 (def empty-grid (vec (repeat GRID-WIDTH (vec (repeat GRID-HEIGHT nil)))))
-
-; XXXX document
-(def MAX-RUN-LENGTH 5)
 
 (defn make-move [grid move]
   (reduce (fn [grid [[x y] value]]
@@ -22,13 +15,11 @@
   :ret nat-int?)
 
 (defn find-empty-cells [grid]
-  ; XXXX take a look at this fn, likely rewrite
-  (filter identity
-          (mapcat identity
-                  (for [x (range (count grid))]
-                    (for [y (range (count (grid x)))]
-                      (when (nil? (get-in grid [x y]))
-                        [x y]))))))
+  (apply concat
+          (for [x (range (count grid))]
+            (for [y (range (count (grid x)))
+                  :when (nil? (get-in grid [x y]))]
+              [x y]))))
 
 (s/fdef find-empty-cells
   :args (s/cat :grid ::sp/grid)
