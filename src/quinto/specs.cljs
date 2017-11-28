@@ -9,6 +9,9 @@
 (s/def ::cell (s/cat :x nat-int? :y nat-int?))
 (s/def ::value (s/and nat-int? #(<= % 9)))
 
+(s/def ::deck (s/coll-of ::value))
+(s/def ::hand (s/coll-of ::value :min-count 0 :max-count 5))
+
 (s/def ::move-component (s/cat :cell (s/spec ::cell) :value ::value))
 (s/def ::move (s/coll-of ::move-component))
 

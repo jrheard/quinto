@@ -1,6 +1,7 @@
 (ns quinto.core
   (:require [clojure.spec.test.alpha :as stest]
             [reagent.core :as r]
+            [quinto.deck :refer [make-deck draw-tiles]]
             [quinto.html :refer [draw-game]]
             [quinto.grid :as g]))
 
@@ -8,7 +9,9 @@
 ; start work on ai
 
 (defonce app-state
-         (r/atom {:grid g/empty-grid}))
+         (r/atom {:grid g/empty-grid
+                  :deck (make-deck)
+                  :hand []}))
 
 (defn render-game []
   (assert (g/is-grid-valid? (@app-state :grid)))
@@ -21,6 +24,11 @@
 
 (defn ^:export main []
   (stest/instrument)
+
+  (let [[new-deck new-hand] (draw-tiles (@app-state :deck) 5)]
+    (swap! app-state assoc :deck new-deck)
+    (swap! app-state assoc :hand new-hand))
+
   (swap! app-state update-in [:grid] g/make-move [[[6 6] 0]
                                                   [[6 5] 9]
                                                   [[6 4] 1]
@@ -38,6 +46,8 @@
   (g/is-grid-valid? (@app-state :grid))
   (find-open-cells (@app-state :grid))
   (contains? (set (find-open-cells (@app-state :grid))) [1 1])
+  (@app-state :hand)
+  (count (@app-state :deck))
   )
 
 
