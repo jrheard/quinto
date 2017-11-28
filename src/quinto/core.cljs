@@ -5,7 +5,6 @@
             [quinto.grid :as g]))
 
 ; next up:
-; grid valiation fn
 ; start work on ai
 
 (defonce app-state
@@ -13,6 +12,7 @@
 
 (defn render-game []
   (assert (g/is-grid-valid? (@app-state :grid)))
+
   (r/render-component [draw-game
                        @app-state
                        (set (g/find-playable-cells (@app-state :grid)))
@@ -39,3 +39,5 @@
   (find-open-cells (@app-state :grid))
   (contains? (set (find-open-cells (@app-state :grid))) [1 1])
   )
+
+
