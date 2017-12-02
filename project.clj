@@ -23,8 +23,7 @@
               [{:id           "dev"
                 :source-paths ["src"]
 
-                :figwheel     {:on-jsload "quinto.core/on-js-reload"
-                               :open-urls ["http://localhost:3449/index.html"]}
+                :figwheel     {:on-jsload "quinto.core/on-js-reload"}
 
                 :compiler     {:main                 quinto.core
                                :asset-path           "js/compiled/out"
@@ -49,7 +48,9 @@
              ;; :server-port 3449 ;; default
              ;; :server-ip "127.0.0.1"
 
-             :css-dirs ["resources/public/css"]             ;; watch and update CSS
+             ;; :repl-eval-timeout 1000000000
+
+             :css-dirs          ["resources/public/css"]    ;; watch and update CSS
 
              ;; Start an nREPL server into the running figwheel process
              ;; :nrepl-port 7888

@@ -25,7 +25,7 @@
 (defn ^:export main []
   (stest/instrument)
 
-  (let [[new-deck new-hand] (draw-tiles (@app-state :deck) 5)]
+  (let [[new-deck new-hand] (draw-tiles (@app-state :deck) (@app-state :hand) 5)]
     (swap! app-state assoc :deck new-deck)
     (swap! app-state assoc :hand new-hand))
 
@@ -48,6 +48,9 @@
   (contains? (set (find-open-cells (@app-state :grid))) [1 1])
   (@app-state :hand)
   (count (@app-state :deck))
+
+  (stest/check)
+
   )
 
 

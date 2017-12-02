@@ -22,13 +22,13 @@
   :args (s/cat)
   :ret ::sp/deck)
 
-(defn draw-tiles [deck num-tiles]
+(defn draw-tiles [deck hand num-tiles]
   [(drop num-tiles deck)
-   (take num-tiles deck)])
+   (concat hand (take num-tiles deck))])
 
 (s/fdef draw-tiles
-  :args (s/cat :deck ::sp/deck :num-tiles (s/and nat-int? #(<= % 5)))
-  :ret (s/cat :new-deck ::sp/deck :hand ::sp/hand))
+  :args (s/cat :deck ::sp/deck :hand ::sp/hand :num-tiles (s/and nat-int? #(<= % 5)))
+  :ret (s/cat :new-deck ::sp/deck :new-hand ::sp/hand))
 
 (comment
   (count (make-deck))

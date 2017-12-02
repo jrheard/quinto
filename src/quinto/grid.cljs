@@ -37,6 +37,7 @@
   :args (s/cat :grid ::sp/grid :cell (s/cat :x int? :y int?))
   :ret boolean?)
 
+; memoize this?
 (defn find-runs
   [grid x y]
   (let [run-in-direction (fn [x-direction y-direction]
