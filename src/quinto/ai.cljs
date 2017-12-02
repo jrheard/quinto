@@ -1,47 +1,74 @@
 (ns quinto.ai
   (:require [clojure.spec.alpha :as s]
             [quinto.grid :as g]
-            [quinto.specs :as sp]))
+            [quinto.specs :as sp :refer [MAX-RUN-LENGTH]]))
+
+; things to remember and make sure to encode in this logic somewhere
+; sometimes, potential moves will have length that's smaller than (count available-cells-for-move)
+; sometimes, some of the cells available for a move in a direction _will be non-empty_
+
+; TODO - how do we collect all the disparate generated values of move-so-far?
+(defn all-moves-for-cells
+  ([grid hand available-cells-for-move]
+   (all-moves-for-cells grid hand available-cells-for-move []))
+
+  ([grid hand available-cells-for-move move-so-far]
+    ; so now we have a list of cells in a particular direction
+    ; for each of those cells, we want to generate:
+    ; the possible values for that cell
+    ; _predicated on_ any potential values that we're trying that might precede this cell along the move
+
+    ; so like
+    ; we want to get the concatenation of
+    ; * first, calculate potential-values-for-cell
+    ; then, for each value in potential-values-for-cell,
+    ; assoc that value onto the grid, go to the next available cell in the move, and repeat
+   (let [[x y] (first (available-cells-for-move))
+         [[horizontal-length horizontal-sum] [vertical-length vertical-sum]] (g/find-runs grid x y)
+         valid-values-for-cell (filter (fn [value]
+                                         (and
+                                           (= (mod (+ horizontal-sum value) 5) 0)
+                                           (= (mod (+ vertical-sum value) 5) 0)))
+                                       (range 0 10))]
+     (if (and (< horizontal-length MAX-RUN-LENGTH)
+              (< vertical-length MAX-RUN-LENGTH)))
+
+
+
+
+
+     []
+     ))
+
+  )
+
+(s/fdef all-moves-for-cells
+  :args (s/cat :grid ::sp/grid :hand ::sp/hand :available-cells-for-move (s/coll-of ::sp/cell) :move-so-far ::sp/move)
+  :ret (s/coll-of ::sp/move))
 
 (defn moves-in-direction [grid hand x y xdir ydir]
-  (let [[[horizontal-length horizontal-sum] [vertical-length vertical-sum]] (g/find-runs grid x y)
+  (let [[[horizontal-length _] [vertical-length _]] (g/find-runs grid x y)
         relevant-run-length (if (= xdir 0) vertical-length horizontal-length)
-        ; Naively generate a list of all the possible cells that we could use for a move in this direction.
-        potential-cells-for-move (for [i (range sp/MAX-RUN-LENGTH)]
+        ; Naively generate a list of all the possible cells that are potentially available for a move in this direction.
+        potential-cells-for-move (for [i (range MAX-RUN-LENGTH)]
                                    [(+ x (* xdir i))
                                     (+ y (* ydir i))])
-        ; Filter that list for only the cells that would allow this move to be valid:
+        ; Filter that list for only the cells that would allow this move to be valid.
         available-cells-for-move (reduce (fn [available-cells [x y]]
                                            ; A move can only consist of cells that are _on_ the grid in the first place,
-                                           ; and a move can't create a run that's >= sp/MAX-RUN-LENGTH.
+                                           ; and a move can't create a run that's >= MAX-RUN-LENGTH.
                                            (if (and (g/cell-is-on-grid grid x y)
                                                     (< (+ relevant-run-length (count available-cells))
-                                                       sp/MAX-RUN-LENGTH))
+                                                       MAX-RUN-LENGTH))
                                              (conj available-cells [x y])
                                              (reduced available-cells)))
                                          []
                                          potential-cells-for-move)]
     ; available-cells-for-move should contain _at least_ the cell [x y],
     ; because it's a precondition of this function that [x y] must be a playable cell.
-    (assert available-cells-for-move)
-    )
+    (assert (seq available-cells-for-move))
 
-
-
-  ; TODO reread, figure out what to do with this
-  (let [
-        valid-values-for-cell (filter (fn [value]
-                                        (and
-                                          (= (mod (+ horizontal-sum value) 5) 0)
-                                          (= (mod (+ vertical-sum value) 5) 0)))
-                                      (range 0 10))]
-
-
-
-
-    []
-    )
-  )
+    (all-moves-for-cells grid hand available-cells-for-move)))
 
 (s/fdef moves-in-direction
   :args (s/cat :grid ::sp/grid :hand ::sp/hand :cell ::sp/cell :xdir int? :ydir int?)
