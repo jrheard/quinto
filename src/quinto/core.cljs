@@ -1,6 +1,7 @@
 (ns quinto.core
   (:require [clojure.spec.test.alpha :as stest]
             [reagent.core :as r]
+            [quinto.ai :as ai]
             [quinto.deck :refer [make-deck draw-tiles]]
             [quinto.html :refer [draw-game]]
             [quinto.grid :as g]))
@@ -46,8 +47,18 @@
   (g/is-grid-valid? (@app-state :grid))
   (find-open-cells (@app-state :grid))
   (contains? (set (find-open-cells (@app-state :grid))) [1 1])
+
+  ((@app-state) :grid)
+
   (@app-state :hand)
+
   (count (@app-state :deck))
+
+  (ai/pick-move
+    (@app-state :grid)
+    (@app-state :hand)
+    )
+
 
   (stest/check)
 

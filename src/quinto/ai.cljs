@@ -11,56 +11,46 @@
     (take-while #(not= % value) hand)
     (rest (drop-while #(not= % value) hand))))
 
-; things to remember and make sure to encode in this logic somewhere
-; sometimes, potential moves will have length that's smaller than (count available-cells-for-move)
-; sometimes, some of the cells available for a move in a direction _will be non-empty_
-
 ; TODO - how do we collect all the disparate generated values of move-so-far?
 (defn all-moves-for-cells
   ([grid hand available-cells-for-move]
    (all-moves-for-cells grid hand available-cells-for-move []))
 
   ([grid hand available-cells-for-move move-so-far]
-    ; XXXX what if available-cells-for-move is nil?
+   (js/console.log "all-moves-for-cells" hand available-cells-for-move move-so-far)
+   (if (not (seq available-cells-for-move))
+     ; If there aren't any cells left for us to use, that's the end of this move.
+     [move-so-far]
 
+     (let [[x y] (first (available-cells-for-move))
+           [[horizontal-length horizontal-sum] [vertical-length vertical-sum]] (g/find-runs grid x y)
+           valid-values-for-cell (filter (fn [value]
+                                           (and
+                                             (= (mod (+ horizontal-sum value) 5) 0)
+                                             (= (mod (+ vertical-sum value) 5) 0)))
+                                         (range 10))
+           valid-values-in-hand (intersection (set hand) (set valid-values-for-cell))]
 
-    ; so now we have a list of cells in a particular direction
-    ; for each of those cells, we want to generate:
-    ; the possible values for that cell
-    ; _predicated on_ any potential values that we're trying that might precede this cell along the move
+       (cond
+         (nil? valid-values-in-hand)
+         [move-so-far]
 
-    ; so like
-    ; we want to get the concatenation of
-    ; * first, calculate potential-values-for-cell
-    ; then, for each value in potential-values-for-cell,
-    ; assoc that value onto the grid, go to the next available cell in the move, and repeat
-   (let [[x y] (first (available-cells-for-move))
-         [[horizontal-length horizontal-sum] [vertical-length vertical-sum]] (g/find-runs grid x y)
-         valid-values-for-cell (filter (fn [value]
-                                         (and
-                                           (= (mod (+ horizontal-sum value) 5) 0)
-                                           (= (mod (+ vertical-sum value) 5) 0)))
-                                       (range 0 10))
-         valid-values-in-hand (intersection (set hand) (set valid-values-for-cell))]
+         (or (>= horizontal-length MAX-RUN-LENGTH)
+             (>= vertical-length MAX-RUN-LENGTH))
+         [move-so-far]
 
-     (cond
-       (nil? valid-values-in-hand)
-       [move-so-far]
-
-       (or (>= horizontal-length MAX-RUN-LENGTH)
-           (>= vertical-length MAX-RUN-LENGTH))
-       [move-so-far]
-
-       ; TODO what if this cell already has a value?
-
-
-       ; TODO not sure if this is right
-       :else
-       (for [value valid-values-in-hand]
-         (all-moves-for-cells (assoc-in grid [x y] value)
-                              (remove-value-from-hand hand value)
+         (not (nil? (get-in grid [x y])))
+         (all-moves-for-cells grid
+                              hand
                               (rest available-cells-for-move)
-                              (conj move-so-far [[x y] value])))))))
+                              move-so-far)
+
+         :else
+         (for [value valid-values-in-hand]
+           (all-moves-for-cells (assoc-in grid [x y] value)
+                                (remove-value-from-hand hand value)
+                                (rest available-cells-for-move)
+                                (conj move-so-far [[x y] value]))))))))
 
 (s/fdef all-moves-for-cells
   :args (s/cat :grid ::sp/grid :hand ::sp/hand :available-cells-for-move (s/coll-of ::sp/cell) :move-so-far ::sp/move)
@@ -113,13 +103,10 @@
 
     ; then, compare them and return the one with the highest score
     ; TODO - a score-move function (in grid? maybe put it in grid to start, then eventually move to quinto.score if necessary)
+    moves
     )
   )
 
 (s/fdef pick-move
   :args (s/cat :grid ::sp/grid :hand ::sp/hand)
   :ret ::sp/move)
-
-(comment
-  (apply + 50 10 [20 30])
-  )
