@@ -1,7 +1,15 @@
 (ns quinto.ai
-  (:require [clojure.spec.alpha :as s]
+  (:require [clojure.set :refer [intersection]]
+            [clojure.spec.alpha :as s]
             [quinto.grid :as g]
             [quinto.specs :as sp :refer [MAX-RUN-LENGTH]]))
+
+; research project: write this in core.logic (haha don't though)
+
+(defn remove-value-from-hand [hand value]
+  (concat
+    (take-while #(not= % value) hand)
+    (rest (drop-while #(not= % value) hand))))
 
 ; things to remember and make sure to encode in this logic somewhere
 ; sometimes, potential moves will have length that's smaller than (count available-cells-for-move)
@@ -13,6 +21,9 @@
    (all-moves-for-cells grid hand available-cells-for-move []))
 
   ([grid hand available-cells-for-move move-so-far]
+    ; XXXX what if available-cells-for-move is nil?
+
+
     ; so now we have a list of cells in a particular direction
     ; for each of those cells, we want to generate:
     ; the possible values for that cell
@@ -29,18 +40,27 @@
                                          (and
                                            (= (mod (+ horizontal-sum value) 5) 0)
                                            (= (mod (+ vertical-sum value) 5) 0)))
-                                       (range 0 10))]
-     (if (and (< horizontal-length MAX-RUN-LENGTH)
-              (< vertical-length MAX-RUN-LENGTH)))
+                                       (range 0 10))
+         valid-values-in-hand (intersection (set hand) (set valid-values-for-cell))]
+
+     (cond
+       (nil? valid-values-in-hand)
+       [move-so-far]
+
+       (or (>= horizontal-length MAX-RUN-LENGTH)
+           (>= vertical-length MAX-RUN-LENGTH))
+       [move-so-far]
+
+       ; TODO what if this cell already has a value?
 
 
-
-
-
-     []
-     ))
-
-  )
+       ; TODO not sure if this is right
+       :else
+       (for [value valid-values-in-hand]
+         (all-moves-for-cells (assoc-in grid [x y] value)
+                              (remove-value-from-hand hand value)
+                              (rest available-cells-for-move)
+                              (conj move-so-far [[x y] value])))))))
 
 (s/fdef all-moves-for-cells
   :args (s/cat :grid ::sp/grid :hand ::sp/hand :available-cells-for-move (s/coll-of ::sp/cell) :move-so-far ::sp/move)
