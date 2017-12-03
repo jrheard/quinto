@@ -22,7 +22,7 @@
      ; If there aren't any cells left for us to use, that's the end of this move.
      [move-so-far]
 
-     (let [[x y] (first (available-cells-for-move))
+     (let [[x y] (first available-cells-for-move)
            [[horizontal-length horizontal-sum] [vertical-length vertical-sum]] (g/find-runs grid x y)
            valid-values-for-cell (filter (fn [value]
                                            (and
@@ -53,7 +53,7 @@
                                 (conj move-so-far [[x y] value]))))))))
 
 (s/fdef all-moves-for-cells
-  :args (s/cat :grid ::sp/grid :hand ::sp/hand :available-cells-for-move (s/coll-of ::sp/cell) :move-so-far ::sp/move)
+  :args (s/cat :grid ::sp/grid :hand ::sp/hand :available-cells-for-move (s/coll-of ::sp/cell) :move-so-far (s/? ::sp/move))
   :ret (s/coll-of ::sp/move))
 
 (defn moves-in-direction [grid hand x y xdir ydir]
