@@ -36,49 +36,51 @@
 
          ; If this cell's value _is_ nil, let's try placing each value in `hand` at this cell, one at a time.
          (apply concat
-           (for [value hand]
-             ; Try placing this value at x, y and see what happens.
-             (let [grid-with-value (assoc-in grid [x y] value)
-                   [[horizontal-length horizontal-sum] [vertical-length vertical-sum]] (g/find-runs grid-with-value x y)]
+                (for [value hand]
+                  ; Try placing this value at x, y and see what happens.
+                  (let [grid-with-value (assoc-in grid [x y] value)
+                        [[horizontal-length horizontal-sum] [vertical-length vertical-sum]] (g/find-runs grid-with-value x y)]
 
-               (cond
-                 ; If placing a value here would cause a run to be longer than MAX-RUN-LENGTH,
-                 ; this move and all further moves in this direction are invalid, so we should
-                 ; bail here and just return the list of any valid moves that have been recorded so far.
-                 (or (>= horizontal-length MAX-RUN-LENGTH)
-                     (>= vertical-length MAX-RUN-LENGTH))
-                 valid-moves-seen
+                    (cond
+                      ; If placing a value here would cause a run to be longer than MAX-RUN-LENGTH,
+                      ; this move and all further moves in this direction are invalid, so we should
+                      ; bail here and just return the list of any valid moves that have been recorded so far.
+                      (or (>= horizontal-length MAX-RUN-LENGTH)
+                          (>= vertical-length MAX-RUN-LENGTH))
+                      valid-moves-seen
 
-                 ; If placing this specific value here is a valid move, record it and keep looking for more!
-                 (and (= (mod horizontal-sum 5) 0)
-                      (= (mod vertical-sum 5) 0))
-                 (all-moves-for-cells grid-with-value
-                                      (remove-item hand value)
-                                      (rest available-cells-for-move)
-                                      xdir
-                                      ydir
-                                      (conj valid-moves-seen
-                                            (conj move-so-far [[x y] value]))
-                                      (conj move-so-far [[x y] value]))
+                      ; If placing this specific value here is a valid move, record it and keep looking for more!
+                      (and (or (= horizontal-length 1)
+                               (= (mod horizontal-sum 5) 0))
+                           (or (= vertical-length 1)
+                               (= (mod vertical-sum 5) 0)))
+                      (all-moves-for-cells grid-with-value
+                                           (remove-item hand value)
+                                           (rest available-cells-for-move)
+                                           xdir
+                                           ydir
+                                           (conj valid-moves-seen
+                                                 (conj move-so-far [[x y] value]))
+                                           (conj move-so-far [[x y] value]))
 
-                 ; If placing a tile here messes up the horizontal run's sum,
-                 #_(or (and (not= (mod horizontal-sum 5) 0)
-                          (not= xdir 0)
-                          )
-                     )
+                      ; If placing a tile here messes up the horizontal run's sum,
+                      #_(or (and (not= (mod horizontal-sum 5) 0)
+                                 (not= xdir 0)
+                                 )
+                            )
 
-                 ; If placing this specific value here is not a valid move, it still might be made valid
-                 ; later on, so keep looking.
-                 ;
-                 ; xxx i'm not sure this is right - it depends on the direction we're heading, right?
-                 :else
-                 (all-moves-for-cells grid-with-value
-                                      (remove-item hand value)
-                                      (rest available-cells-for-move)
-                                      xdir
-                                      ydir
-                                      valid-moves-seen
-                                      (conj move-so-far [[x y] value])))))))))))
+                      ; If placing this specific value here is not a valid move, it still might be made valid
+                      ; later on, so keep looking.
+                      ;
+                      ; xxx i'm not sure this is right - it depends on the direction we're heading, right?
+                      :else
+                      (all-moves-for-cells grid-with-value
+                                           (remove-item hand value)
+                                           (rest available-cells-for-move)
+                                           xdir
+                                           ydir
+                                           valid-moves-seen
+                                           (conj move-so-far [[x y] value])))))))))))
 
 (s/fdef all-moves-for-cells
   :args (s/cat :grid ::sp/grid :hand ::sp/hand :available-cells-for-move (s/coll-of ::sp/cell)
@@ -107,6 +109,7 @@
     ; because it's a precondition of this function that [x y] must be a playable cell.
     (assert (seq available-cells-for-move))
 
+    (js/console.log "calling all-moves-for-cells" grid hand available-cells-for-move xdir ydir)
     (all-moves-for-cells grid hand available-cells-for-move xdir ydir [] [])))
 
 (s/fdef moves-in-direction
@@ -132,10 +135,11 @@
 
     ; then, compare them and return the one with the highest score
     ; TODO - a score-move function (in grid? maybe put it in grid to start, then eventually move to quinto.score if necessary)
-    (first moves)
+    moves
     )
   )
 
 (s/fdef pick-move
   :args (s/cat :grid ::sp/grid :hand ::sp/hand)
-  :ret ::sp/move)
+  ; xxx when this is actually implemented, it will be just one move
+  :ret (s/coll-of ::sp/move))
