@@ -45,5 +45,16 @@ and alert me about it
 so let's try to set that up
 because spec instrumentation doesn't check :rets because of reasons
 
+that was cool, orchestra found two bugs in my :rets
 
+it also has a defn-spec macro that seems like it doesn't add all that much value over the
+traditional way of annotating functions, so i'm gonna stick with s/fdef for now
 
+ok let's try running the instrumented ai code to see if orchestra finds a spec bug
+
+god this function is hideous
+
+ok well i _had_ a spec error message but now it's gone, and i don't think i changed the code
+so that's great
+
+guess i gotta reread this function again

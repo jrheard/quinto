@@ -19,9 +19,8 @@
            (all-moves-for-cells grid hand available-cells-for-move xdir ydir [] [])))
 
   ([grid hand available-cells-for-move xdir ydir valid-moves-seen move-so-far]
-   (js-debugger)
    (if (empty? available-cells-for-move)
-     ; If there aren't any cells left for us to use, that's the end of this move.
+     ; If there aren't any cells left for us to use, that's the end of this particular path of investigation.
      valid-moves-seen
 
      (let [[x y] (first available-cells-for-move)]
@@ -53,7 +52,6 @@
                  ; If placing this specific value here is a valid move, record it and keep looking for more!
                  (and (= (mod horizontal-sum 5) 0)
                       (= (mod vertical-sum 5) 0))
-                 ; xxx concat?
                  (all-moves-for-cells grid-with-value
                                       (remove-item hand value)
                                       (rest available-cells-for-move)
@@ -74,7 +72,6 @@
                  ;
                  ; xxx i'm not sure this is right - it depends on the direction we're heading, right?
                  :else
-                 ; xxxx concat?
                  (all-moves-for-cells grid-with-value
                                       (remove-item hand value)
                                       (rest available-cells-for-move)
@@ -135,7 +132,7 @@
 
     ; then, compare them and return the one with the highest score
     ; TODO - a score-move function (in grid? maybe put it in grid to start, then eventually move to quinto.score if necessary)
-    moves
+    (first moves)
     )
   )
 

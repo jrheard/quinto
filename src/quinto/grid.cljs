@@ -41,10 +41,10 @@
 (defn find-runs
   [grid x y]
   (let [run-in-direction (fn [x-direction y-direction]
-                           (reduce (fn [[run-length run-sum] steps-in-direction]
+                           (reduce (fn [[run-length run-sum] num-steps-in-direction]
                                      ; Find the position of the cell we're currently examining.
-                                     (let [run-x (+ x (* x-direction steps-in-direction))
-                                           run-y (+ y (* y-direction steps-in-direction))]
+                                     (let [run-x (+ x (* x-direction num-steps-in-direction))
+                                           run-y (+ y (* y-direction num-steps-in-direction))]
                                        (if (or (not (cell-is-on-grid grid run-x run-y))
                                                (nil? (get-in grid [run-x run-y])))
                                          ; If the cell's value is nil or this position is off the grid, the run is over.
@@ -55,12 +55,13 @@
                                    [0 0]
                                    (map inc (range))))
         [[x-length-1 x-sum-1] [x-length-2 x-sum-2]] [(run-in-direction -1 0) (run-in-direction 1 0)]
-        [[y-length-1 y-sum-1] [y-length-2 y-sum-2]] [(run-in-direction 0 -1) (run-in-direction 0 1)]]
+        [[y-length-1 y-sum-1] [y-length-2 y-sum-2]] [(run-in-direction 0 -1) (run-in-direction 0 1)]
+        cell-value (get-in grid [x y])]
 
-    [[(+ x-length-1 x-length-2)
-      (+ x-sum-1 x-sum-2)]
-     [(+ y-length-1 y-length-2)
-      (+ y-sum-1 y-sum-2)]]))
+    [[(+ x-length-1 x-length-2 (if (nil? cell-value) 0 1))
+      (+ x-sum-1 x-sum-2 cell-value)]
+     [(+ y-length-1 y-length-2 (if (nil? cell-value) 0 1))
+      (+ y-sum-1 y-sum-2 cell-value)]]))
 
 (s/fdef find-runs
   :args (s/cat :grid ::sp/grid :cell ::sp/cell)
@@ -87,9 +88,7 @@
     (apply concat
            (for [x (range (count grid))]
              (for [y (range (count (grid x)))]
-               (let [[[x-run-length x-run-sum] [y-run-length y-run-sum]] (find-runs grid x y)
-                     cell-value (get-in grid [x y])]
-
+               (let [[[x-run-length x-run-sum] [y-run-length y-run-sum]] (find-runs grid x y)]
                  (and (<= 0 x-run-length MAX-RUN-LENGTH)
                       (<= 0 y-run-length MAX-RUN-LENGTH)
 
@@ -99,9 +98,9 @@
                       ; and you're examining the cell with value 3 from an axis that's
                       ; perpendicular to the axis of that run, it's fine that 3 isn't a multiple of 5.
                       (or (<= x-run-length 1)
-                          (= 0 (mod (+ x-run-sum cell-value) 5)))
+                          (= 0 (mod x-run-sum 5)))
                       (or (<= y-run-length 1)
-                          (= 0 (mod (+ y-run-sum cell-value) 5))))))))))
+                          (= 0 (mod y-run-sum 5))))))))))
 
 (s/fdef is-grid-valid?
   :args (s/cat :grid ::sp/grid)

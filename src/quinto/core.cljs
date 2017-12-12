@@ -6,9 +6,6 @@
             [quinto.html :refer [draw-game]]
             [quinto.grid :as g]))
 
-; next up:
-; start work on ai
-
 (defonce app-state
          (r/atom {:grid g/empty-grid
                   :deck (make-deck)
@@ -39,7 +36,13 @@
                                                   [[3 6] 9]
                                                   [[4 6] 1]
                                                   [[5 6] 5]])
-  (render-game))
+  (render-game)
+
+  #_(ai/pick-move
+    (@app-state :grid)
+    (@app-state :hand)
+    )
+  )
 
 (def on-js-reload render-game)
 
