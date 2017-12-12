@@ -1,5 +1,5 @@
 (ns quinto.core
-  (:require [clojure.spec.test.alpha :as stest]
+  (:require [orchestra-cljs.spec.test :as stest]
             [reagent.core :as r]
             [quinto.ai :as ai]
             [quinto.deck :refer [make-deck draw-tiles]]
@@ -35,7 +35,7 @@
                                                   [[6 4] 1]
                                                   [[6 3] 5]
                                                   [[6 2] 5]])
-  (swap! app-state update-in [:grid] g/make-move [[[2 6] 5]
+  #_(swap! app-state update-in [:grid] g/make-move [[[2 6] 5]
                                                   [[3 6] 9]
                                                   [[4 6] 1]
                                                   [[5 6] 5]])
@@ -45,22 +45,16 @@
 
 (comment
   (g/is-grid-valid? (@app-state :grid))
-  (find-open-cells (@app-state :grid))
-  (contains? (set (find-open-cells (@app-state :grid))) [1 1])
-
-  ((@app-state) :grid)
-
+  (g/find-playable-cells (@app-state :grid))
+  (contains? (set (g/find-playable-cells (@app-state :grid))) [1 1])
+  (@app-state :grid)
   (@app-state :hand)
-
   (count (@app-state :deck))
 
   (ai/pick-move
     (@app-state :grid)
     (@app-state :hand)
     )
-
-
-  (stest/check)
 
   )
 

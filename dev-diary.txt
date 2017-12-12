@@ -1,0 +1,49 @@
+12/11/17
+
+haven't touched this project in a couple of weeks
+
+recollection of current status:
+drawing a board on the screen works
+identifying and drawing playable cells works
+identifying and drawing blocked cells works
+
+currently working on:
+implementing an "AI" (i.e. just a function that calculates all the possible moves for
+the current board via brute force, compares all their scores, and picks the one with
+the highest score)
+
+current problem:
+function is just totally broken
+for a few reasons:
+
+1) i need to sit down and write out, in english, how to find all possible moves (will
+do that in a bit)
+2) i'm just completely sucking at figuring out how to do the correct level of nesting?
+
+like, moves should look like this
+
+[
+    [[an-x a-y] a-value]
+    [[another-x another-y] a-value]
+]
+
+etc. but i think that my code currently doesn't do that, it has lists that are nested
+too deeply or something.
+
+i have this open in a tab, will read it now:
+https://stuartsierra.com/2015/04/26/clojure-donts-concat
+
+he says that concat is lazy and bad
+and into is eager and good
+
+what about https://stackoverflow.com/questions/5232350/clojure-semi-flattening-a-nested-sequence
+they just say to use apply concat
+or to use mapcat
+
+ok anyway i think https://github.com/jeaye/orchestra will actually detect my bad nesting code
+and alert me about it
+so let's try to set that up
+because spec instrumentation doesn't check :rets because of reasons
+
+
+

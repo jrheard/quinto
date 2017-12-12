@@ -13,7 +13,7 @@
 
 (s/fdef make-move
   :args (s/cat :grid ::sp/grid :move ::sp/move)
-  :ret nat-int?)
+  :ret ::sp/grid)
 
 (defn find-empty-cells [grid]
   ; TODO is there some cool way to use specter for this?
@@ -64,7 +64,7 @@
 
 (s/fdef find-runs
   :args (s/cat :grid ::sp/grid :cell ::sp/cell)
-  :ret (s/cat :horizontal-run ::sp/run :vertical-run ::sp/run))
+  :ret (s/cat :horizontal-run (s/spec ::sp/run) :vertical-run (s/spec ::sp/run)))
 
 (defn cell-is-playable? [grid [x y]]
   (let [[[x-run-length _] [y-run-length _]] (find-runs grid x y)]

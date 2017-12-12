@@ -18,7 +18,7 @@
 ; A number of filled cells in a row is called a "run".
 (def MAX-RUN-LENGTH 5)
 (s/def ::run-length (and nat-int? #(<= % MAX-RUN-LENGTH)))
-(s/def ::run-sum pos-int?)
+(s/def ::run-sum nat-int?)
 (s/def ::run (s/cat :length ::run-length :sum ::run-sum))
 
 ; There's some confusion as to what the canonical board size is. Picking 13x13 arbitrarily.
@@ -36,5 +36,10 @@
   (s/valid? ::move [[[1 5] 3] [[1 6] 9]])
   (s/valid? ::grid [[5 3 2] [nil 2 3]])
   (s/valid? ::run [5 10])
+
+  (s/explain
+    (s/cat :horizontal-run ::run :vertical-run ::run)
+    [[0 0] [0 0]])
+
   (s/describe ::move)
   )
