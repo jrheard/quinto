@@ -58,3 +58,53 @@ ok well i _had_ a spec error message but now it's gone, and i don't think i chan
 so that's great
 
 guess i gotta reread this function again
+
+ok it's still hideous and broken but i think i made some progress
+
+there was a mistake (?) in the implementation of find-runs
+it wouldn't take the current cell into account, it was up to the caller to add the current
+cell's value and update the runs' length if the cell's value was non-nil, and that seems bad
+so anyway i fixed that
+
+but the results of the ai function are still all fucked up, like this for instance
+
+([[[5 2] 0]]
+ [[[5 2] 0] [[7 2] 2]]
+ [[[5 2] 0]]
+ [[[5 2] 0] [[7 2] 2]]
+ [[[5 2] 0]]
+ [[[5 2] 0] [[7 2] 2]]
+ [[[5 2] 0]]
+ [[[5 2] 0] [[7 2] 7]]
+ [[[5 2] 0]]
+ [[[5 2] 0] [[7 2] 7]]
+ [[[5 2] 0]]
+ [[[5 2] 0] [[7 2] 7]]
+ [[[5 2] 0]]
+ [[[5 2] 0] [[7 2] 9]]
+ [[[5 2] 0]]
+ [[[5 2] 0] [[7 2] 9]]
+ [[[5 2] 0]]
+ [[[5 2] 0] [[7 2] 9]]
+
+etc
+
+where [6 2] has the value 5, so 0 at [5 2] is fine but then putting 2 at [7 2] is not fine
+so there are (at least) two categories of badness:
+insane amount of duplication (no idea why yet), and
+invalid moves being included in the output
+
+so dig into those two things next time
+
+==============
+
+12/12/17
+
+ok, i think the right place to start is to shrink down the board and de-randomize the hand for now
+so just have a single cell with value 5 on the board (board remains same size, just has one non-nil cell)
+and set the hand to be 4 5 1
+this way there are a few valid moves: 4 5 1, 5, and 4 1. so ideally the function would be able
+to find all of them, and all of their different arrangements. we'll see!
+the idea is that this'll make things easier to reproduce, reason about, and step through
+
+umm, i think it.. worked? that's unexpected

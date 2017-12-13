@@ -25,23 +25,26 @@
 
   (let [[new-deck new-hand] (draw-tiles (@app-state :deck) (@app-state :hand) 5)]
     (swap! app-state assoc :deck new-deck)
-    (swap! app-state assoc :hand new-hand))
+    #_(swap! app-state assoc :hand new-hand)
+    (swap! app-state assoc :hand [4 5 1]))
 
-  (swap! app-state update-in [:grid] g/make-move [[[6 6] 0]
-                                                  [[6 5] 9]
-                                                  [[6 4] 1]
-                                                  [[6 3] 5]
-                                                  [[6 2] 5]])
+  (swap! app-state update-in [:grid] g/make-move [[[6 6] 5]])
+
+  #_(swap! app-state update-in [:grid] g/make-move [[[6 6] 0]
+                                                    [[6 5] 9]
+                                                    [[6 4] 1]
+                                                    [[6 3] 5]
+                                                    [[6 2] 5]])
   #_(swap! app-state update-in [:grid] g/make-move [[[2 6] 5]
-                                                  [[3 6] 9]
-                                                  [[4 6] 1]
-                                                  [[5 6] 5]])
+                                                    [[3 6] 9]
+                                                    [[4 6] 1]
+                                                    [[5 6] 5]])
   (render-game)
 
   #_(ai/pick-move
-    (@app-state :grid)
-    (@app-state :hand)
-    )
+      (@app-state :grid)
+      (@app-state :hand)
+      )
   )
 
 (def on-js-reload render-game)

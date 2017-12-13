@@ -19,6 +19,7 @@
            (all-moves-for-cells grid hand available-cells-for-move xdir ydir [] [])))
 
   ([grid hand available-cells-for-move xdir ydir valid-moves-seen move-so-far]
+   (js/console.log "all-moves-for-cells" hand available-cells-for-move xdir ydir valid-moves-seen move-so-far)
    (if (empty? available-cells-for-move)
      ; If there aren't any cells left for us to use, that's the end of this particular path of investigation.
      valid-moves-seen
