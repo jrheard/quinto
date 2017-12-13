@@ -28,7 +28,10 @@
     #_(swap! app-state assoc :hand new-hand)
     (swap! app-state assoc :hand [4 5 1]))
 
-  (swap! app-state update-in [:grid] g/make-move [[[6 6] 5]])
+  (swap! app-state update-in [:grid] g/make-move [[[6 6] 5]
+                                                  [[6 7] 4]
+                                                  [[6 8] 1]
+                                                  ])
 
   #_(swap! app-state update-in [:grid] g/make-move [[[6 6] 0]
                                                     [[6 5] 9]
@@ -59,8 +62,7 @@
 
   (ai/pick-move
     (@app-state :grid)
-    (@app-state :hand)
-    )
+    (@app-state :hand))
 
   )
 

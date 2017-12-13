@@ -108,3 +108,52 @@ to find all of them, and all of their different arrangements. we'll see!
 the idea is that this'll make things easier to reproduce, reason about, and step through
 
 umm, i think it.. worked? that's unexpected
+
+let's try it with hand 4 5 1 2; the 2 should never be contained in any valid move
+
+ok that still worked, wow
+
+anyway there's lots of duplication so let's start with that i guess
+
+TODO at some point: make the board have 2 non-nil cells, and start thinking about xdir/ydir
+
+hm i mean things are actually looking pretty good so far
+
+i set hand to 4 5 1 2 3, and we get results like this
+
+[[[5 6] 2] [[4 6] 3]]
+ [[[5 6] 3] [[4 6] 2] [[3 6] 5]]
+ [[[5 6] 5] [[4 6] 1] [[3 6] 4]]
+ [[[5 6] 1] [[4 6] 4] [[3 6] 5]]
+ [[[5 6] 4] [[5 7] 2] [[5 8] 1] [[5 9] 3]]
+ [[[5 6] 5] [[5 7] 3] [[5 8] 2]]
+ [[[5 6] 1] [[5 7] 3] [[5 8] 4] [[5 9] 2]]
+ [[[5 6] 2] [[5 7] 1] [[5 8] 3] [[5 9] 4]]
+ [[[5 6] 4] [[5 7] 2] [[5 8] 3] [[5 9] 1]]
+ [[[5 6] 2] [[5 7] 3] [[5 8] 4] [[5 9] 1]]
+ [[[5 6] 4] [[5 7] 3] [[5 8] 2] [[5 9] 1]]
+ [[[5 6] 2] [[5 7] 4] [[5 8] 1] [[5 9] 3]]
+ [[[5 6] 1] [[5 7] 4] [[5 8] 5]]
+
+note that it never tries suggesting a move with all five of those tiles in the hand,
+because that would violate the no-runs-longer-than-5 rule
+so that looks actually pretty good!
+
+so i guess we should try increasing the size of the board and see if we can reproduce the
+invalid-moves behavior. i'll also set the hand back down to 4 5 1
+
+ha nice i tried just adding a single cell with value 4 under the 5-valued cell,
+but assert-grid-valid blew up because that is indeed an invalid grid. niiice
+
+ok this is looking good - but i'm seeing some duplication?!?!?!
+
+ [[[6 5] 5]]
+ [[[6 5] 5]]
+ [[[6 9] 5]]
+ [[[6 9] 5]]
+ [[[7 6] 4] [[5 6] 1] [[4 6] 5]]
+ [[[7 6] 5] [[5 6] 1] [[4 6] 4]]
+
+that's part of the output when board has cells 5 4 1 and hand has 4 5 1.
+
+note the repeated [6 5] 5s and [6 9] 5s. what gives?

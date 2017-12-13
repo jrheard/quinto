@@ -14,12 +14,10 @@
 (defn all-moves-for-cells
   "DOCUMENT ME"
   ([grid hand available-cells-for-move xdir ydir]
-    ; TODO consider making this a set, there may be dupes
-   (filter #(not (empty? %))
-           (all-moves-for-cells grid hand available-cells-for-move xdir ydir [] [])))
+   (all-moves-for-cells grid hand available-cells-for-move xdir ydir [] []))
 
   ([grid hand available-cells-for-move xdir ydir valid-moves-seen move-so-far]
-   (js/console.log "all-moves-for-cells" hand available-cells-for-move xdir ydir valid-moves-seen move-so-far)
+    ;(js/console.log "all-moves-for-cells" hand available-cells-for-move xdir ydir valid-moves-seen move-so-far)
    (if (empty? available-cells-for-move)
      ; If there aren't any cells left for us to use, that's the end of this particular path of investigation.
      valid-moves-seen
@@ -106,11 +104,11 @@
                                              (reduced available-cells)))
                                          []
                                          potential-cells-for-move)]
+
     ; available-cells-for-move should contain _at least_ the cell [x y],
     ; because it's a precondition of this function that [x y] must be a playable cell.
     (assert (seq available-cells-for-move))
 
-    (js/console.log "calling all-moves-for-cells" grid hand available-cells-for-move xdir ydir)
     (all-moves-for-cells grid hand available-cells-for-move xdir ydir [] [])))
 
 (s/fdef moves-in-direction
@@ -132,7 +130,9 @@
 (defn pick-move [grid hand]
   (let [playable-cells (g/find-playable-cells grid)
         ; first, generate all possible moves
-        moves (mapcat #(apply moves-for-cell grid hand %) playable-cells)]
+        ; xxxxxxx is this line good or bad
+        moves (into #{}
+                    (mapcat #(apply moves-for-cell grid hand %) playable-cells))]
 
     ; then, compare them and return the one with the highest score
     ; TODO - a score-move function (in grid? maybe put it in grid to start, then eventually move to quinto.score if necessary)
