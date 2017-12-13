@@ -17,7 +17,7 @@
 
 ; A number of filled cells in a row is called a "run".
 (def MAX-RUN-LENGTH 5)
-(s/def ::run-length (and nat-int? #(<= % MAX-RUN-LENGTH)))
+(s/def ::run-length nat-int?)
 (s/def ::run-sum nat-int?)
 (s/def ::run (s/cat :length ::run-length :sum ::run-sum))
 

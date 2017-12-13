@@ -26,11 +26,15 @@
   (let [[new-deck new-hand] (draw-tiles (@app-state :deck) (@app-state :hand) 5)]
     (swap! app-state assoc :deck new-deck)
     #_(swap! app-state assoc :hand new-hand)
-    (swap! app-state assoc :hand [4 5 1]))
+    (swap! app-state assoc :hand [4 5 2]))
 
   (swap! app-state update-in [:grid] g/make-move [[[6 6] 5]
                                                   [[6 7] 4]
                                                   [[6 8] 1]
+                                                  ])
+
+  (swap! app-state update-in [:grid] g/make-move [[[5 8] 6]
+                                                  [[4 8] 3]
                                                   ])
 
   #_(swap! app-state update-in [:grid] g/make-move [[[6 6] 0]

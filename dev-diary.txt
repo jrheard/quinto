@@ -166,3 +166,39 @@ so that's cool
 
 but i bet it's gonna fail miserably when you've got a vertical and horizontal run,
 that's the point at which we're going to have to think about xdir and ydir
+
+so let's do that next time. add a horizontal run that intersects the current vertical run
+at the top or bottom cell, and watch it generate incorrect moves,
+and then think hard and write notes down here about xdir and ydir and make the code actually correct.
+_then_ refactor this completely disgusting mess of code
+
+did a quick profile just now for funsies, looks like about 88% of our time is spent
+in stest/instrument right now, so that both tells us that a) instrumentation is as slow
+as i remembered and b) the current function shouldn't be a complete non-starter on a bigger
+board with a bigger hand. will need to investigate memoizing find-runs later on to see if
+that helps / is necessary
+
+==============
+
+12/13/18
+
+TODO idea for breaking up the big insane function when we include xdir/ydir conds
+
+make a function like `are-runs-valid?` that takes the runs and xdir ydir
+also returns false if either run is too long
+
+ok, adding a horizontal row to the board, let's see what happens
+
+ok yeah, as expected, we generate invalid moves
+
+on a board like this
+
+    5
+    4
+3 6 1
+
+we try to place a 1 to the left of the 4 and a 5 to the right of the 4
+which is fine horizontally, but fucked vertically, because that leaves you with a vertical
+run with sum 7, which is obv not divisible by 5. so let's modify the code to deal with xdir/ydir
+
+
