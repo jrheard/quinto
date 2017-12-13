@@ -6,13 +6,19 @@
 
 ; research project: rewrite this module in core.logic (haha don't though)
 
+(s/def ::move-direction #{:horizontal :vertical})
+
 (defn remove-item [xs x]
+  "Removes the first instance of the value x from the collection xs."
   (cond (empty? xs) xs
         (= x (first xs)) (rest xs)
         :else (cons (first xs) (remove-item (rest xs) x))))
 
 (defn -cell-value-is-definitely-invalid?
-  [[horizontal-length horizontal-sum] [vertical-length vertical-sum] xdir ydir]
+  "Used when speculatively placing a value at a particular cell. Returns true
+  if placing this value at this cell would _definitely_ cause the board to end up
+  in an invalid state, false otherwise."
+  [[horizontal-length horizontal-sum] [vertical-length vertical-sum] move-direction]
   (or
     ; A cell value is definitely invalid if it would create a too-long run.
     (>= horizontal-length MAX-RUN-LENGTH)
@@ -21,82 +27,84 @@
     ; A cell value is definitely invalid if it's part a horizontal move
     ; and it causes an invalid vertical run to exist.
     (and
-      (not= xdir 0)
+      (= move-direction :horizontal)
       (> vertical-length 1)
       (not= (mod vertical-sum 5) 0))
 
     ; The same thing goes for vertical moves and horizontal runs.
     (and
-      (not= ydir 0)
+      (= move-direction :vertical)
       (> horizontal-length 1)
       (not= (mod horizontal-sum 5) 0))))
 
 (s/fdef -cell-value-is-definitely-invalid?
-  :args (s/cat :horizontal-run ::sp/run :vertical-run ::sp/run :xdir int? :ydir int?)
+  :args (s/cat :horizontal-run (s/spec ::sp/run) :vertical-run (s/spec ::sp/run) :move-direction ::move-direction)
   :ret boolean?)
 
 (defn all-moves-for-cells
-  "DOCUMENT ME"
-  [grid hand available-cells-for-move xdir ydir valid-moves-seen move-so-far]
-  (if (empty? available-cells-for-move)
-    ; If there aren't any cells left for us to use, that's the end of this particular path of investigation.
-    valid-moves-seen
+  "Takes a grid, a hand, and a sequence of cells to try placing `hand`'s values at,
+  and returns a sequence of all of the possible valid moves for this configuration of grid+hand+cells."
+  ([grid hand available-cells-for-move move-direction]
+   (all-moves-for-cells grid hand available-cells-for-move move-direction #{} #{}))
+  ([grid hand available-cells-for-move move-direction valid-moves-seen move-so-far]
+   (if (empty? available-cells-for-move)
+     ; If there aren't any cells left for us to use, that's the end of this particular path of investigation.
+     valid-moves-seen
 
-    (let [[x y] (first available-cells-for-move)]
-      (if (not (nil? (get-in grid [x y])))
-        ; If this cell's value is non-nil, we can't place any of our tiles there, so let's move on.
-        (all-moves-for-cells grid
-                             hand
-                             (rest available-cells-for-move)
-                             xdir
-                             ydir
-                             valid-moves-seen
-                             move-so-far)
+     (let [[x y] (first available-cells-for-move)]
+       (if (not (nil? (get-in grid [x y])))
+         ; If this cell's value is non-nil, we can't place any of our tiles there, so let's move on.
+         (all-moves-for-cells grid
+                              hand
+                              (rest available-cells-for-move)
+                              move-direction
+                              valid-moves-seen
+                              move-so-far)
 
-        ; If this cell's value _is_ nil, let's try placing each value in `hand` at this cell, one at a time.
-        (apply concat
-               (for [value hand]
-                 ; Try placing this value at x, y and see what happens.
-                 (let [grid-with-value (assoc-in grid [x y] value)
-                       [[horizontal-length horizontal-sum] [vertical-length vertical-sum]] (g/find-runs grid-with-value x y)]
+         ; If this cell's value _is_ nil, let's try placing each value in `hand` at this cell, one at a time.
+         (apply concat
+                (for [value hand]
+                  ; Try placing this value at x, y and see what happens.
+                  (let [grid-with-value (assoc-in grid [x y] value)
+                        [[horizontal-length horizontal-sum]
+                         [vertical-length vertical-sum]] (g/find-runs grid-with-value x y)]
 
-                   (cond
-                     ; If placing this value here clearly makes for an invalid board state,
-                     ; then this move and all further moves in this direction are invalid, so we should
-                     ; bail here and just return the list of any valid moves that have been recorded so far.
-                     (-cell-value-is-definitely-invalid? [horizontal-length horizontal-sum]
-                                                         [vertical-length vertical-sum]
-                                                         xdir ydir)
-                     valid-moves-seen
+                    (cond
+                      ; If placing this value here clearly makes for an invalid board state,
+                      ; then this move and all further moves in this direction are invalid, so we should
+                      ; bail here and just return the list of any valid moves that have been recorded so far.
+                      (-cell-value-is-definitely-invalid? [horizontal-length horizontal-sum]
+                                                          [vertical-length vertical-sum]
+                                                          move-direction)
+                      valid-moves-seen
 
-                     ; If placing this specific value here is a valid move, record it and keep looking for more!
-                     (and (or (= horizontal-length 1)
-                              (= (mod horizontal-sum 5) 0))
-                          (or (= vertical-length 1)
-                              (= (mod vertical-sum 5) 0)))
-                     (all-moves-for-cells grid-with-value
-                                          (remove-item hand value)
-                                          (rest available-cells-for-move)
-                                          xdir
-                                          ydir
-                                          (conj valid-moves-seen
-                                                (conj move-so-far [[x y] value]))
-                                          (conj move-so-far [[x y] value]))
+                      ; If placing this specific value here is a valid move, record it and keep looking for more!
+                      (and (or (= horizontal-length 1)
+                               (= (mod horizontal-sum 5) 0))
+                           (or (= vertical-length 1)
+                               (= (mod vertical-sum 5) 0)))
+                      (all-moves-for-cells grid-with-value
+                                           (remove-item hand value)
+                                           (rest available-cells-for-move)
+                                           move-direction
+                                           (conj valid-moves-seen
+                                                 (conj move-so-far [[x y] value]))
+                                           (conj move-so-far [[x y] value]))
 
-                     ; If placing this specific value here is not a valid move, it still might be made valid
-                     ; later on, so keep looking.
-                     :else
-                     (all-moves-for-cells grid-with-value
-                                          (remove-item hand value)
-                                          (rest available-cells-for-move)
-                                          xdir
-                                          ydir
-                                          valid-moves-seen
-                                          (conj move-so-far [[x y] value]))))))))))
+                      ; If placing this specific value here is not a valid move, it still might be made valid
+                      ; later on, so keep looking.
+                      :else
+                      (all-moves-for-cells grid-with-value
+                                           (remove-item hand value)
+                                           (rest available-cells-for-move)
+                                           move-direction
+                                           valid-moves-seen
+                                           (conj move-so-far [[x y] value])))))))))))
 
 (s/fdef all-moves-for-cells
   :args (s/cat :grid ::sp/grid :hand ::sp/hand :available-cells-for-move (s/coll-of ::sp/cell)
-               :xdir int? :ydir int? :valid-moves-seen (s/coll-of ::sp/move) :move-so-far ::sp/move)
+               :move-direction ::move-direction :valid-moves-seen (s/? (s/coll-of ::sp/move))
+               :move-so-far (s/? ::sp/move))
   :ret (s/coll-of ::sp/move))
 
 (defn moves-in-direction [grid hand x y xdir ydir]
@@ -122,7 +130,10 @@
     ; because it's a precondition of this function that [x y] must be a playable cell.
     (assert (seq available-cells-for-move))
 
-    (all-moves-for-cells grid hand available-cells-for-move xdir ydir #{} #{})))
+    (all-moves-for-cells grid
+                         hand
+                         available-cells-for-move
+                         (if (= xdir 0) :vertical :horizontal))))
 
 (s/fdef moves-in-direction
   :args (s/cat :grid ::sp/grid :hand ::sp/hand :cell ::sp/cell :xdir int? :ydir int?)

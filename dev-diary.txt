@@ -201,4 +201,10 @@ we try to place a 1 to the left of the 4 and a 5 to the right of the 4
 which is fine horizontally, but fucked vertically, because that leaves you with a vertical
 run with sum 7, which is obv not divisible by 5. so let's modify the code to deal with xdir/ydir
 
+ok sick i think all-moves-for-cells works now
 
+next up: reread the whole quinto.ai file and attempt to clean it up
+and then document it
+
+_eventually_, write code that actually makes these moves!
+_also_, write code that scores a potential move!
