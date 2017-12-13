@@ -17,7 +17,6 @@
    (all-moves-for-cells grid hand available-cells-for-move xdir ydir [] []))
 
   ([grid hand available-cells-for-move xdir ydir valid-moves-seen move-so-far]
-    ;(js/console.log "all-moves-for-cells" hand available-cells-for-move xdir ydir valid-moves-seen move-so-far)
    (if (empty? available-cells-for-move)
      ; If there aren't any cells left for us to use, that's the end of this particular path of investigation.
      valid-moves-seen
@@ -109,7 +108,7 @@
     ; because it's a precondition of this function that [x y] must be a playable cell.
     (assert (seq available-cells-for-move))
 
-    (all-moves-for-cells grid hand available-cells-for-move xdir ydir [] [])))
+    (all-moves-for-cells grid hand available-cells-for-move xdir ydir #{} #{})))
 
 (s/fdef moves-in-direction
   :args (s/cat :grid ::sp/grid :hand ::sp/hand :cell ::sp/cell :xdir int? :ydir int?)

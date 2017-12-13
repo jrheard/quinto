@@ -157,3 +157,12 @@ ok this is looking good - but i'm seeing some duplication?!?!?!
 that's part of the output when board has cells 5 4 1 and hand has 4 5 1.
 
 note the repeated [6 5] 5s and [6 9] 5s. what gives?
+
+this function was being invoked in a way that was different from what i expected/remembered
+moving the set application up to the function's callsite, and also making
+valid-moves-seen and move-so-far into sets, got rid of all duplication in the output
+so at this point the function basically behaves exactly as you'd expect for this board and hand
+so that's cool
+
+but i bet it's gonna fail miserably when you've got a vertical and horizontal run,
+that's the point at which we're going to have to think about xdir and ydir
