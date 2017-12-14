@@ -165,35 +165,23 @@
   [grid move]
   (let [grid-with-move (reduce (partial apply assoc-in) grid move)]
 
-    ; XXXX replace this with false and see what happens to single-cell horizontal moves
-    (if (= (count move) 1)
-      ; If the move's only one cell long, then just add that cell's vertical and horizontal run sums.
-      ; XXX does this actually need to be a special case?
-      (let [[[x y] _] (first move)
-            [[horizontal-length horizontal-sum] [vertical-length vertical-sum]] (g/find-runs grid-with-move x y)]
-        (+ (if (> horizontal-length 1) horizontal-sum 0)
-           (if (> vertical-length 1) vertical-sum 0)))
+    ; Otherwise, we need to figure out what direction this move is in.
+    ; That direction's run sum only gets included in the score a single time.
+    (let [x-values (select [ALL 0 0] move)
+          move-direction (if (apply = x-values) :vertical :horizontal)
+          runs (for [[[x y] _] move]
+                 (g/find-runs grid-with-move x y))
+          horizontal-runs (select [ALL 0] runs)
+          vertical-runs (select [ALL 1] runs)
 
-      ; Otherwise, we need to figure out what direction this move is in.
-      ; That direction's run sum only gets included in the score a single time.
-      (let [x-values (select [ALL 0 0] move)
-            move-direction (if (apply = x-values) :vertical :horizontal)
-            runs (for [[[x y] _] move]
-                   (g/find-runs grid-with-move x y))
-            horizontal-runs (select [ALL 0] runs)
-            vertical-runs (select [ALL 1] runs)]
+          primary-direction-runs (if (= move-direction :horizontal) horizontal-runs vertical-runs)
+          perpendicular-runs (if (= move-direction :horizontal) vertical-runs horizontal-runs)
+          [a-primary-run-length a-primary-run-sum] (first primary-direction-runs)]
 
-        ; XXX can this be made any saner?
-        (if (= move-direction :horizontal)
-          (apply +
-                 (second (first horizontal-runs))
-                 (select [ALL (fn [[run-length run-sum]] (> run-length 1)) 1]
-                         vertical-runs))
-
-          (apply +
-                 (second (first vertical-runs))
-                 (select [ALL (fn [[run-length run-sum]] (> run-length 1)) 1]
-                         horizontal-runs)))))))
+      (apply +
+             (if (> a-primary-run-length 1) a-primary-run-sum 0)
+             (select [ALL (fn [[run-length _]] (> run-length 1)) 1]
+                     perpendicular-runs)))))
 
 (s/fdef score-move
   :args (s/cat :grid ::sp/grid :move ::sp/move)
