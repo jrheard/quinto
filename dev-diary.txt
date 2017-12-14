@@ -247,3 +247,13 @@ to
     (empty? hand))
 
 solved the problem.
+
+ok i did some cleanup in quinto.ai, things are looking really good
+gonna take a quick look at perf now
+
+nothing obvious jumps out, and perf is acceptable atm when instrumentation is turned off
+
+so next up:
+display the hand on the screen
+and add a button that, when pressed, causes the AI to make a move
+distant future: allow user to make their own move, play against the AI

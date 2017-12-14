@@ -220,17 +220,11 @@
   "Returns the highest-scoring move that can be made using this hand on this board."
   [grid hand]
   (let [playable-cells (g/find-playable-cells grid)
-        ; first, generate all possible moves
         moves (into #{}
                     (mapcat #(apply moves-for-cell grid hand %) playable-cells))]
 
-    ; then, compare them and return the one with the highest score
-    ; TODO - a score-move function (in grid? maybe put it in grid to start, then eventually move to quinto.score if necessary)
-    moves
-    )
-  )
+    (apply max-key #(score-move grid %) moves)))
 
 (s/fdef pick-move
   :args (s/cat :grid ::sp/grid :hand ::sp/hand)
-  ; xxx when this is actually implemented, it will be just one move
-  :ret (s/coll-of ::sp/move))
+  :ret ::sp/move)
