@@ -1,5 +1,6 @@
 (ns quinto.core
-  (:require [orchestra-cljs.spec.test :as stest]
+  (:require [com.rpl.specter :refer [select ALL]]
+            [orchestra-cljs.spec.test :as stest]
             [reagent.core :as r]
             [quinto.ai :as ai]
             [quinto.deck :refer [make-deck draw-tiles]]
@@ -64,10 +65,16 @@
   (@app-state :hand)
   (count (@app-state :deck))
 
-  (ai/pick-move
-    (@app-state :grid)
-    (@app-state :hand))
+  (map (fn [move]
+         [move (ai/score-move (@app-state :grid) move)])
+       (ai/pick-move
+         (@app-state :grid)
+         (@app-state :hand)))
+
+  (for [[x y] [[6 6] [6 7] [6 8]]]
+    (g/find-runs (@app-state :grid) x y))
 
   )
+
 
 
