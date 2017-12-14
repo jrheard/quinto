@@ -64,9 +64,7 @@
          (@app-state :hand)))
 
   (for [[x y] [[6 6] [6 7] [6 8]]]
-    (g/find-runs (@app-state :grid) x y))
-
-  )
+    (g/find-runs (@app-state :grid) x y)))
 
 
 
