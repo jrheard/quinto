@@ -31,22 +31,11 @@
 
   (swap! app-state update-in [:grid] g/make-move [[[6 6] 5]
                                                   [[6 7] 4]
-                                                  [[6 8] 1]
-                                                  ])
+                                                  [[6 8] 1]])
 
   (swap! app-state update-in [:grid] g/make-move [[[5 8] 6]
-                                                  [[4 8] 3]
-                                                  ])
+                                                  [[4 8] 3]])
 
-  #_(swap! app-state update-in [:grid] g/make-move [[[6 6] 0]
-                                                    [[6 5] 9]
-                                                    [[6 4] 1]
-                                                    [[6 3] 5]
-                                                    [[6 2] 5]])
-  #_(swap! app-state update-in [:grid] g/make-move [[[2 6] 5]
-                                                    [[3 6] 9]
-                                                    [[4 6] 1]
-                                                    [[5 6] 5]])
   (render-game)
 
   #_(ai/pick-move
@@ -64,6 +53,9 @@
   (@app-state :grid)
   (@app-state :hand)
   (count (@app-state :deck))
+
+  (ai/score-move (@app-state :grid)
+                 #{[[4 7] 5] [[4 9] 2]})
 
   (map (fn [move]
          [move (ai/score-move (@app-state :grid) move)])

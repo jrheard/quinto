@@ -208,3 +208,16 @@ and then document it
 
 _eventually_, write code that actually makes these moves!
 _also_, write code that scores a potential move!
+
+ok so i just spent some time playing around with specter, i think it's cool
+and i spent some time working on a score-move function
+but i'm currently seeing at least two bugs in it
+
+one: sometimes it reports scores that aren't a multiple of five
+
+eg on the board given above, it says that placing a 2 above the 3 and a 5 below the 3
+yields score 22, which is incorrect
+
+it also says that placing a 5 above the 3 and a 2 below the 3 yields score 25, which is _also_ incorrect
+
+looks like it was a mistake in the line where i was determining whether the move was horizontal or vertical

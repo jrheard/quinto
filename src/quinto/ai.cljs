@@ -191,7 +191,7 @@
       ; Otherwise, we need to figure out what direction this move is in.
       ; That direction's run sum only gets included in the score a single time.
       (let [x-values (select [ALL 0 0] move)
-            move-direction (if (apply = x-values) :horizontal :vertical)
+            move-direction (if (apply = x-values) :vertical :horizontal)
             runs (for [[[x y] _] move]
                    (g/find-runs grid-with-move x y))
             horizontal-runs (select [ALL 0] runs)
