@@ -15,8 +15,8 @@
 
 (defn -cell-value-is-definitely-invalid?
   "Used when speculatively placing a value at a particular cell. Returns true
-  if placing this value at this cell would _definitely_ cause the board to end up
-  in an invalid state, false otherwise."
+  if the runs created by placing this value at this cell would _definitely_ cause the board
+  to end up in an invalid state, false otherwise."
   [[horizontal-length horizontal-sum] [vertical-length vertical-sum] move-direction]
   (or
     ; A cell value is definitely invalid if it would create a too-long run.
@@ -47,8 +47,9 @@
    (all-moves-for-cells-and-hand grid available-cells-for-move hand move-direction #{} #{}))
 
   ([grid available-cells-for-move hand move-direction valid-moves-seen move-so-far]
-   (if (empty? available-cells-for-move)
-     ; If there aren't any cells left for us to use, that's the end of this particular path of investigation.
+   (if (or (empty? available-cells-for-move)
+           (empty? hand))
+     ; If there aren't any cells or values left for us to use, that's the end of this particular path of investigation.
      valid-moves-seen
 
      ; Otherwise, let's try placing a value at the first cell.
@@ -69,6 +70,8 @@
                   (let [grid-with-value (assoc-in grid [x y] value)
                         [[horizontal-length horizontal-sum]
                          [vertical-length vertical-sum]] (g/find-runs grid-with-value x y)]
+                    #_(when (= (first available-cells-for-move) [5 6])
+                        (js-debugger))
 
                     (cond
                       ; If placing this value here clearly makes for an invalid board state,
@@ -125,8 +128,8 @@
                                        ; A move can only consist of cells that are _on_ the grid in the first place,
                                        ; and a move can't create a run that's >= MAX-RUN-LENGTH.
                                        (if (and (g/cell-is-on-grid grid x y)
-                                                (< (+ relevant-run-length (count available-cells))
-                                                   MAX-RUN-LENGTH))
+                                                (<= (+ relevant-run-length (count available-cells))
+                                                    MAX-RUN-LENGTH))
                                          (conj available-cells [x y])
                                          (reduced available-cells)))
                                      []
@@ -135,7 +138,6 @@
     ; valid-cells-for-move should contain _at least_ one cell,
     ; because it's a precondition of this function that [x y] must be a playable cell.
     (assert (seq valid-cells-for-move))
-
     (all-moves-for-cells-and-hand grid
                                   valid-cells-for-move
                                   hand
@@ -159,27 +161,11 @@
   :args (s/cat :grid ::sp/grid :hand ::sp/hand :cell ::sp/cell)
   :ret (s/coll-of ::sp/move))
 
-(comment
-  (select [ALL 0]
-          [[[1 5] [3 10]] [[1 4] [3 10]] [[3 10] [3 10]]])
-
-  (select [ALL 0 (fn [[run-length run-sum]] (> run-length 1)) 1]
-          [[[1 5] [3 10]] [[1 4] [3 10]] [[3 10] [3 10]]])
-
-  (select [ALL (fn [[run-length run-sum]] (> run-length 1)) 1]
-          [[1 5] [1 4] [3 10]]
-          )
-
-  )
-
 (defn score-move
   [grid move]
-  ; TODO can this be written with specter? should it?
-  (let [grid-with-move (reduce (fn [grid [[x y] value]]
-                                 (assoc-in grid [x y] value))
-                               grid
-                               move)]
+  (let [grid-with-move (reduce (partial apply assoc-in) grid move)]
 
+    ; XXXX replace this with false and see what happens to single-cell horizontal moves
     (if (= (count move) 1)
       ; If the move's only one cell long, then just add that cell's vertical and horizontal run sums.
       ; XXX does this actually need to be a special case?

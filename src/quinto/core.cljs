@@ -55,7 +55,7 @@
   (count (@app-state :deck))
 
   (ai/score-move (@app-state :grid)
-                 #{[[4 7] 5] [[4 9] 2]})
+                 #{[[7 7] 6]})
 
   (map (fn [move]
          [move (ai/score-move (@app-state :grid) move)])

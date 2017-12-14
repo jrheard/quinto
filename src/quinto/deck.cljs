@@ -2,6 +2,8 @@
   (:require [clojure.spec.alpha :as s]
             [quinto.specs :as sp]))
 
+(def MAX-HAND-SIZE 5)
+
 ; Going with the tile distribution reported for the marbellized version I played.
 ; See https://boardgamegeek.com/thread/24859/tile-distribution
 (defn make-deck []
@@ -27,9 +29,5 @@
    (concat hand (take num-tiles deck))])
 
 (s/fdef draw-tiles
-  :args (s/cat :deck ::sp/deck :hand ::sp/hand :num-tiles (s/and nat-int? #(<= % 5)))
+  :args (s/cat :deck ::sp/deck :hand ::sp/hand :num-tiles (s/and nat-int? #(<= % MAX-HAND-SIZE)))
   :ret (s/cat :new-deck ::sp/deck :new-hand ::sp/hand))
-
-(comment
-  (count (make-deck))
-  )

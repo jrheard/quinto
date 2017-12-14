@@ -220,4 +220,30 @@ yields score 22, which is incorrect
 
 it also says that placing a 5 above the 3 and a 2 below the 3 yields score 25, which is _also_ incorrect
 
-looks like it was a mistake in the line where i was determining whether the move was horizontal or vertical
+nvm, fixed, looks like it was a mistake in the line where i was determining whether the move was horizontal or vertical
+
+===========
+
+12/14/17
+
+currently seeing a bug:
+on a board like this:
+
+    5
+    4
+3 6 1
+
+with a hand of just [5], the function never tries to place the 5 to the left or right of the preexisting 5
+let's investigate that and figure out why
+
+ok awesome, it looks like the bug was that we were throwing away results if you were in a
+situation where your hand ran out of tiles. changing
+
+(empty? available-cells-for-move)
+
+to
+
+(or (empty? available-cells-for-move)
+    (empty? hand))
+
+solved the problem.
