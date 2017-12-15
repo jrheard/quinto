@@ -29,17 +29,3 @@
                 (s/coll-of (s/or :value ::value :nil nil?) :count GRID-HEIGHT)
                 :count GRID-WIDTH))
 
-(comment
-  (s/valid? ::cell [1 5])
-  (s/valid? ::value -1)
-  (s/explain ::move-component [[1 5] 3])
-  (s/valid? ::move [[[1 5] 3] [[1 6] 9]])
-  (s/valid? ::grid [[5 3 2] [nil 2 3]])
-  (s/valid? ::run [5 10])
-
-  (s/explain
-    (s/cat :horizontal-run ::run :vertical-run ::run)
-    [[0 0] [0 0]])
-
-  (s/describe ::move)
-  )

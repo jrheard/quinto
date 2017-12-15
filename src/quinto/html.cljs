@@ -45,8 +45,7 @@
                                  spent-hand (reduce ai/remove-item (state :hand) move-tiles)
                                  [new-deck new-hand] (deck/draw-tiles (state :deck)
                                                                       spent-hand
-                                                                      (- (count (state :hand))
-                                                                         (count spent-hand)))]
+                                                                      (count move-tiles))]
                              (-> state
                                  (assoc :grid (g/make-move (state :grid) move))
                                  (assoc :hand new-hand)

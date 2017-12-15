@@ -263,3 +263,14 @@ ok i messed with the ui, now there's a visible hand and a button
 so next up, wire up the button!
 
 also eventual todo: get quinto.ai to handle making the first move on an empty board
+
+ok sick i wired up the button
+
+next up: set things up so that the board starts off as empty, and have the AI be able
+to handle making the first move on that empty board.
+
+after that: add some sort of combat log that keeps track of moves' scores and the total score
+
+after that: let the player play against the AI?
+
+also do another cleanup pass on find-runs

@@ -39,28 +39,3 @@
   (render-game))
 
 (def on-js-reload render-game)
-
-(comment
-  (take 3 (select [INDEXED-VALS ALL (comp not nil?)]
-                  (@app-state :grid)
-                  ))
-
-  (take 5 (select [ALL ALL (comp not nil?)]
-                  (@app-state :grid)
-                  ))
-
-  (take 5 (transform [VAL VAL (comp not nil?)]
-                     conj
-                     (@app-state :grid)
-
-                     ))
-
-  (identity @app-state)
-
-
-  (ai/pick-move
-    (@app-state :grid)
-    (@app-state :hand)))
-
-
-
