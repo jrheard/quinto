@@ -15,10 +15,7 @@
 (defn render-game []
   (assert (g/is-grid-valid? (@app-state :grid)))
 
-  (r/render-component [draw-game
-                       @app-state
-                       (set (g/find-playable-cells (@app-state :grid)))
-                       (set (g/find-blocked-cells (@app-state :grid)))]
+  (r/render-component [draw-game app-state]
                       (js/document.getElementById "app")))
 
 (defn ^:export main []
@@ -55,9 +52,11 @@
 
   (take 5 (transform [VAL VAL (comp not nil?)]
                      conj
-                  (@app-state :grid)
+                     (@app-state :grid)
 
-                  ))
+                     ))
+
+  (identity @app-state)
 
 
   (ai/pick-move

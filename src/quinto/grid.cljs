@@ -70,7 +70,8 @@
 
 (defn cell-is-playable? [grid [x y]]
   (let [[[x-run-length _] [y-run-length _]] (find-runs grid x y)]
-    (and (or (> x-run-length 0) (> y-run-length 0))
+    (and (nil? (get-in grid [x y]))
+         (or (> x-run-length 0) (> y-run-length 0))
          (and (< x-run-length MAX-RUN-LENGTH) (< y-run-length MAX-RUN-LENGTH)))))
 
 (defn find-playable-cells [grid]
@@ -79,7 +80,8 @@
 
 (defn cell-is-blocked? [grid [x y]]
   (let [[[x-run-length _] [y-run-length _]] (find-runs grid x y)]
-    (or (>= x-run-length MAX-RUN-LENGTH) (>= y-run-length MAX-RUN-LENGTH))))
+    (and (nil? (get-in grid [x y]))
+         (or (>= x-run-length MAX-RUN-LENGTH) (>= y-run-length MAX-RUN-LENGTH)))))
 
 (defn find-blocked-cells [grid]
   (filter #(cell-is-blocked? grid %) (find-empty-cells grid)))
