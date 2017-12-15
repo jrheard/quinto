@@ -324,5 +324,6 @@ when you press the make-a-move button
 
 couldn't find anything to specterize, added a docstring to find-runs but its implementation looks good
 
-
-
+next up: start working on the ability for a player to make a move themselves
+let them click on a green cell, then allow them to choose one of the tiles in their hand,
+and mark it as used somehow. also allow them to back out of the move entirely or change specific parts (how?)
