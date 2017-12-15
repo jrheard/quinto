@@ -1,5 +1,5 @@
 (ns quinto.core
-  (:require [com.rpl.specter :refer [select ALL]]
+  (:require [com.rpl.specter :refer [select transform ALL VAL INDEXED-VALS]]
             [orchestra-cljs.spec.test :as stest]
             [reagent.core :as r]
             [quinto.ai :as ai]
@@ -45,6 +45,21 @@
 (def on-js-reload render-game)
 
 (comment
+  (take 3 (select [INDEXED-VALS ALL (comp not nil?)]
+                  (@app-state :grid)
+                  ))
+
+  (take 5 (select [ALL ALL (comp not nil?)]
+                  (@app-state :grid)
+                  ))
+
+  (take 5 (transform [VAL VAL (comp not nil?)]
+                     conj
+                  (@app-state :grid)
+
+                  ))
+
+
   (ai/pick-move
     (@app-state :grid)
     (@app-state :hand)))

@@ -31,6 +31,16 @@
    (for [x (range (count grid))]
      ^{:key x} [draw-column grid x playable-cells blocked-cells])])
 
+(defn draw-controls [hand]
+  [:div#controls
+   [:div#hand
+    (for [[index value] (map-indexed vector hand)]
+      ^{:key index} [:div.tile value])]
+   [:div.button
+    "make a move"]])
+
 (defn draw-game [state playable-cells blocked-cells]
-  [draw-grid (state :grid) playable-cells blocked-cells])
+  [:div.game
+   [draw-controls (state :hand)]
+   [draw-grid (state :grid) playable-cells blocked-cells]])
 

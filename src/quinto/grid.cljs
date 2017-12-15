@@ -4,7 +4,9 @@
 
 (def empty-grid (vec (repeat GRID-WIDTH (vec (repeat GRID-HEIGHT nil)))))
 
-(defn make-move [grid move]
+(defn make-move
+  "Applies `move` to `grid`."
+  [grid move]
   (reduce (fn [grid [[x y] value]]
             (assert (nil? (get-in grid [x y])))
             (assoc-in grid [x y] value))
@@ -37,7 +39,6 @@
   :args (s/cat :grid ::sp/grid :cell (s/cat :x int? :y int?))
   :ret boolean?)
 
-; memoize this?
 (defn find-runs
   [grid x y]
   (let [run-in-direction (fn [x-direction y-direction]

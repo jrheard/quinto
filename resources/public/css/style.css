@@ -1,5 +1,53 @@
+html {
+    font-family: sans-serif;
+}
+
+#app {
+    width: 720px;
+    margin: 0 auto;
+}
+
+#controls {
+    width: 600px;
+    margin: 20px auto;
+    background-color: #EEE;
+    padding: 20px;
+    overflow: hidden;
+}
+
+#hand {
+    overflow: hidden;
+    float: left;
+    width: 380;
+}
+
+#hand .tile {
+    float: left;
+    width: 50px;
+    height: 50px;
+    background-color: white;
+    text-align: center;
+    border: solid 1px #AAA;
+    margin: 0 10px;
+    font-size: 50px;
+}
+
+.button {
+    float: right;
+    font-size: 30px;
+    background-color: #333;
+    color: #EEE;
+    padding: 10px;
+}
+
+.button:hover {
+    cursor: pointer;
+    background-color: #EE821D;
+    color: white;
+}
+
 #grid {
-    width: 676px;
+    width: 612px;
     margin: 20px auto;
     background-color: #EEE;
     overflow: hidden;
@@ -8,18 +56,18 @@
 .column {
     overflow: hidden;
     float: left;
-    width: 52px;
+    width: 47px;
 }
 
 .cell {
-    width: 50px;
-    height: 50px;
+    width: 45px;
+    height: 45px;
     border: solid 1px #333;
     float: left;
     color: #333;
     font-family: helvetica;
     font-size: 35px;
-    line-height: 50px;
+    line-height: 45px;
     text-align: center;
 }
 
