@@ -3,15 +3,10 @@
             [clojure.spec.alpha :as s]
             [com.rpl.specter :refer [select ALL]]
             [quinto.grid :as g]
-            [quinto.specs :as sp :refer [MAX-RUN-LENGTH]]))
+            [quinto.specs :as sp :refer [MAX-RUN-LENGTH]]
+            [quinto.utils :refer [remove-item]]))
 
 (s/def ::move-direction #{:horizontal :vertical})
-
-(defn remove-item [xs x]
-  "Removes the first instance of the value x from the collection xs."
-  (cond (empty? xs) xs
-        (= x (first xs)) (rest xs)
-        :else (cons (first xs) (remove-item (rest xs) x))))
 
 (defn -cell-value-is-definitely-invalid?
   "Used when speculatively placing a value at a particular cell. Returns true

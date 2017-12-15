@@ -2,7 +2,8 @@
   (:require [com.rpl.specter :refer [select ALL]]
             [quinto.ai :as ai]
             [quinto.deck :as deck]
-            [quinto.grid :as g]))
+            [quinto.grid :as g]
+            [quinto.utils :refer [remove-item]]))
 
 (defn draw-cell [grid x y playable-cells blocked-cells]
   (let [cell (get-in grid [x y])
@@ -42,8 +43,7 @@
                          (fn [state]
                            (let [move (ai/pick-move (state :grid) (state :hand))
                                  move-tiles (select [ALL 1] move)
-                                 ; xxxx move remove-item to utils
-                                 spent-hand (reduce ai/remove-item (state :hand) move-tiles)
+                                 spent-hand (reduce remove-item (state :hand) move-tiles)
                                  [new-deck new-hand] (deck/draw-tiles (state :deck)
                                                                       spent-hand
                                                                       (count move-tiles))]
