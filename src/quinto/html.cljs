@@ -42,6 +42,7 @@
                          (fn [state]
                            (let [move (ai/pick-move (state :grid) (state :hand))
                                  move-tiles (select [ALL 1] move)
+                                 ; xxxx move remove-item to utils
                                  spent-hand (reduce ai/remove-item (state :hand) move-tiles)
                                  [new-deck new-hand] (deck/draw-tiles (state :deck)
                                                                       spent-hand

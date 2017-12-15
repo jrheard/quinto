@@ -2,7 +2,6 @@
   (:require [com.rpl.specter :refer [select ALL]]
             [orchestra-cljs.spec.test :as stest]
             [reagent.core :as r]
-            [quinto.ai :as ai]
             [quinto.deck :refer [make-deck draw-tiles]]
             [quinto.html :refer [draw-game]]
             [quinto.grid :as g]))

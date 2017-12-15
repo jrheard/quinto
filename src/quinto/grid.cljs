@@ -1,5 +1,6 @@
 (ns quinto.grid
-  (:require [clojure.spec.alpha :as s]
+  (:require [com.rpl.specter :refer [select collect-one selected? INDEXED-VALS FIRST LAST]]
+            [clojure.spec.alpha :as s]
             [quinto.specs :as sp :refer [MAX-RUN-LENGTH GRID-HEIGHT GRID-WIDTH]]))
 
 (def empty-grid (vec (repeat GRID-WIDTH (vec (repeat GRID-HEIGHT nil)))))
@@ -18,12 +19,8 @@
   :ret ::sp/grid)
 
 (defn find-empty-cells [grid]
-  ; TODO is there some cool way to use specter for this?
-  (apply concat
-         (for [x (range (count grid))]
-           (for [y (range (count (grid x)))
-                 :when (nil? (get-in grid [x y]))]
-             [x y]))))
+  (select [INDEXED-VALS (collect-one FIRST) LAST INDEXED-VALS (selected? LAST nil?) FIRST]
+          grid))
 
 (s/fdef find-empty-cells
   :args (s/cat :grid ::sp/grid)

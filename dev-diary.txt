@@ -274,3 +274,46 @@ after that: add some sort of combat log that keeps track of moves' scores and th
 after that: let the player play against the AI?
 
 also do another cleanup pass on find-runs
+
+========
+
+12/15/17
+
+right now my impelmentation of find-empty-cells looks like
+
+(apply concat
+         (for [x (range (count grid))]
+           (for [y (range (count (grid x)))
+                 :when (nil? (get-in grid [x y]))]
+             [x y]))))
+
+i was curious about whether specter would be a good/natural fit for this, so i asked in slack
+nathan says:
+
+(select [INDEXED-VALS (collect-one FIRST) LAST INDEXED-VALS (selected? LAST nil?) FIRST] grid)
+
+which looks kind of insane to me? let's try it out and see what happens
+
+ok yeah those two things do give equal results
+
+so how the hell does this specter one work?
+
+ok i think i get it
+played around with a bunch of examples
+the specter readme talks about collecting values
+so what's happening there is, we use INDEXED-VALS to get a seq of [index value] pairs
+then we _collect_ the FIRST part of that seq, which is the x value
+and then we use LAST to navigate into the corresponding value, which is a column of the grid
+so then we use INDEXED-VALS again to do the same thing so we can get y values
+we use `(selected? LAST nil?)` to say:
+if you're not looking at a cell whose value is nil, then bail.
+and then we finally use FIRST to get the y value of any nil cells
+
+and per nathan's explanation, the way that "collected values" work is that:
+if you've been collecting any values throughout your selection, the result
+of the selection is
+(conj collected-values value-youve-navigated-to)
+so this all makes sense. nice
+
+
+
