@@ -1,5 +1,7 @@
 (ns quinto.html
-  (:require [quinto.ai :as ai]
+  (:require [com.rpl.specter :refer [select ALL]]
+            [quinto.ai :as ai]
+            [quinto.deck :as deck]
             [quinto.grid :as g]))
 
 (defn draw-cell [grid x y playable-cells blocked-cells]
@@ -38,17 +40,17 @@
     {:on-click #(do
                   (swap! state
                          (fn [state]
-                           (-> state
-                               (assoc :grid
-                                      (g/make-move
-                                        (state :grid)
-                                        (ai/pick-move
-                                          (state :grid)
-                                          (state :hand))))
-                               ; TODO - remove the spent values from the hand
-                               ; TODO - draw new tiles from the deck and update hand
-                               )
-                           ))
+                           (let [move (ai/pick-move (state :grid) (state :hand))
+                                 move-tiles (select [ALL 1] move)
+                                 spent-hand (reduce ai/remove-item (state :hand) move-tiles)
+                                 [new-deck new-hand] (deck/draw-tiles (state :deck)
+                                                                      spent-hand
+                                                                      (- (count (state :hand))
+                                                                         (count spent-hand)))]
+                             (-> state
+                                 (assoc :grid (g/make-move (state :grid) move))
+                                 (assoc :hand new-hand)
+                                 (assoc :deck new-deck)))))
                   nil)}
     "make a move"]])
 

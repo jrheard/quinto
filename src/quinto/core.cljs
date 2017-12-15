@@ -1,5 +1,5 @@
 (ns quinto.core
-  (:require [com.rpl.specter :refer [select transform ALL VAL INDEXED-VALS]]
+  (:require [com.rpl.specter :refer [select ALL]]
             [orchestra-cljs.spec.test :as stest]
             [reagent.core :as r]
             [quinto.ai :as ai]
@@ -23,8 +23,7 @@
 
   (let [[new-deck new-hand] (draw-tiles (@app-state :deck) (@app-state :hand) 5)]
     (swap! app-state assoc :deck new-deck)
-    #_(swap! app-state assoc :hand new-hand)
-    (swap! app-state assoc :hand [4 5 2 9 7]))
+    (swap! app-state assoc :hand new-hand))
 
   (swap! app-state update-in [:grid] g/make-move [[[6 4] 7]
                                                   [[6 5] 3]
