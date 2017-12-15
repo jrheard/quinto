@@ -73,6 +73,7 @@
          (and (< x-run-length MAX-RUN-LENGTH) (< y-run-length MAX-RUN-LENGTH)))))
 
 (defn find-playable-cells [grid]
+  ; XXX this should return [[middle-cell-x middle-cell-y]] if the grid is empty
   (filter #(cell-is-playable? grid %) (find-empty-cells grid)))
 
 (defn cell-is-blocked? [grid [x y]]

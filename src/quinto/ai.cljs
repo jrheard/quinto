@@ -70,8 +70,6 @@
                   (let [grid-with-value (assoc-in grid [x y] value)
                         [[horizontal-length horizontal-sum]
                          [vertical-length vertical-sum]] (g/find-runs grid-with-value x y)]
-                    #_(when (= (first available-cells-for-move) [5 6])
-                        (js-debugger))
 
                     (cond
                       ; If placing this value here clearly makes for an invalid board state,
