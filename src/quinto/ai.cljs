@@ -158,11 +158,10 @@
   "Returns a number (a multiple of 5, like 10 or 25, etc) indicating the score that would
   be earned by a player who applies `move` to `grid`."
   [grid move]
-  (let [grid-with-move (g/make-move grid move)
-
-        move-x-values (select [ALL 0 0] move)
+  (let [move-x-values (select [ALL 0 0] move)
         move-direction (if (apply = move-x-values) :vertical :horizontal)
 
+        grid-with-move (g/make-move grid move)
         runs (for [[[x y] _] move]
                (g/find-runs grid-with-move x y))
         horizontal-runs (select [ALL 0] runs)

@@ -2,7 +2,7 @@
   (:require [com.rpl.specter :refer [select ALL]]
             [orchestra-cljs.spec.test :as stest]
             [reagent.core :as r]
-            [quinto.deck :refer [make-deck draw-tiles]]
+            [quinto.deck :refer [make-deck draw-tiles MAX-HAND-SIZE]]
             [quinto.html :refer [draw-game]]
             [quinto.grid :as g]))
 
@@ -20,7 +20,9 @@
 (defn ^:export main []
   ;(stest/instrument)
 
-  (let [[new-deck new-hand] (draw-tiles (@app-state :deck) (@app-state :hand) 5)]
+  (let [[new-deck new-hand] (draw-tiles (@app-state :deck)
+                                        (@app-state :hand)
+                                        MAX-HAND-SIZE)]
     (swap! app-state assoc :deck new-deck)
     (swap! app-state assoc :hand new-hand))
 

@@ -315,5 +315,14 @@ of the selection is
 (conj collected-values value-youve-navigated-to)
 so this all makes sense. nice
 
+ok, that was fun. is there anything else i should specterize?
+spectrify?
+make spectral?
+
+lol i turned instrumentation back on and the browser locks up for thirty seconds
+when you press the make-a-move button
+
+couldn't find anything to specterize, added a docstring to find-runs but its implementation looks good
+
 
 

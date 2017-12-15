@@ -37,12 +37,24 @@
   :ret boolean?)
 
 (defn find-runs
+  "Returns a list of [horizontal-run vertical-run], indicating the state of the board
+  around this x,y position. For instance, on a board like this:
+
+  1 5 4
+      3
+      3
+
+  If you asked find-runs about the position immediately above that board's 4, you'd get
+  [[0 0] [3 10]].
+
+  If you asked find-runs about the position occupied by that board's bottommost 3, you'd get
+  [[1 3] [3 10]]."
   [grid x y]
-  (let [run-in-direction (fn [x-direction y-direction]
+  (let [run-in-direction (fn [xdir ydir]
                            (reduce (fn [[run-length run-sum] num-steps-in-direction]
                                      ; Find the position of the cell we're currently examining.
-                                     (let [run-x (+ x (* x-direction num-steps-in-direction))
-                                           run-y (+ y (* y-direction num-steps-in-direction))]
+                                     (let [run-x (+ x (* xdir num-steps-in-direction))
+                                           run-y (+ y (* ydir num-steps-in-direction))]
                                        (if (or (not (cell-is-on-grid grid run-x run-y))
                                                (nil? (get-in grid [run-x run-y])))
                                          ; If the cell's value is nil or this position is off the grid, the run is over.
