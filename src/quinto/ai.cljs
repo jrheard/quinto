@@ -20,8 +20,8 @@
   [[horizontal-length horizontal-sum] [vertical-length vertical-sum] move-direction]
   (or
     ; A cell value is definitely invalid if it would create a too-long run.
-    (>= horizontal-length MAX-RUN-LENGTH)
-    (>= vertical-length MAX-RUN-LENGTH)
+    (> horizontal-length MAX-RUN-LENGTH)
+    (> vertical-length MAX-RUN-LENGTH)
 
     ; A cell value is definitely invalid if it's part a horizontal move
     ; and it causes an invalid vertical run to exist.
