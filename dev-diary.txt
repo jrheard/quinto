@@ -537,3 +537,94 @@ and then call (take-while nil a-run) on each of these
 
 and i think we're left with something that's worse than what we started with.
 so maybe specter isn't a good fit here
+
+ok, putting that down for now, pending advice from #specter
+no biggie
+
+copy-pasting a section from a day or two ago:
+next up: start working on the ability for a player to make a move themselves
+let them click on a green cell, then allow them to choose one of the tiles in their hand,
+and mark it as used somehow. also allow them to back out of the move entirely or change specific parts (how?)
+
+things i expect will be involved:
+adding modes to the board
+moving :hand to :player-1-hand, adding a :player-2-hand
+adding core.async to html, so we can have a go-loop that's solely responsible for modifying the app's mode
+
+what's the best place to start, modes or core.async?
+modes - just manually put the board into a specific mode when developing this
+
+modes
+-----
+
+when you're in :assembling-move mode
+:move-so-far is a list that tracks your selected cells/values
+
+:available-cells is the list of [x y] positions that are valid options for
+the next part of your move
+
+:selected-cell is the cell you've clicked on
+
+so you click on a green cell
+you enter :assembling-move mode
+the green cell turns orange (or something) and your hand is presented to you
+you click on one of the tiles in your hand
+the selected cell and the selected tile value are added to :move-so-far
+the selected tile value is removed from your hand
+at this point, SEVERAL cells can turn green - any playable cells that are neighbors of
+the first cell in your move. this can be up to four cells!!!!
+and those cells are all kept in the list :available-cells.
+
+then you click on one of those green cells
+the process above repeats
+but once you select a tile from your hand, there's only AT MOST ONE available cell
+and it's kept in :available-cells
+
+so far assembling-move mode has data keys
+:move-so-far
+:selected-cell
+:available-cells
+
+and when you enter assembling-move mode, the controls box gains
+a checkmark button
+and a left-arrow button
+and an X button
+
+when we're waiting for a tile to be chosen, selected-cell is non-nil
+after that, move-so-far is updated, selected-cell is set to nil, and available-cells are drawn
+
+need to hammer this out a little bit, almost want a flow chart on a whiteboard
+trying to keep the reagent code from being insane
+
+let's come up with some example mode dicts
+
+when you click on a green cell and enter assembling-move mode, we generate this mode dict:
+
+{:mode/type :assembling-move
+ :selected-cell [5 5]
+ :available-cells []
+ :move-so-far []}
+
+in quinto.html we draw the selected cell as orange (or something), we stop drawing any other cell
+as green, but we keep drawing blocked cells as red
+
+then when you click on a tile in your hand, we remove it from your hand and generate this mode dict:
+
+{:mode/type :assembling-move
+ :selected-cell nil
+ :available-cells [[5 4] [5 6] [6 5]]
+ :move-so-far [[5 5] 8]}
+
+in quinto.html, we draw the available cells as green and continue drawing blocked cells as red
+
+then when you click on a green cell, we generate this mode dict:
+
+{:mode/type :assembling-move
+ :selected-cell [5 4]
+ :available-cells []
+ :move-so-far [[5 5] 8]}
+
+we draw the selected cell as orange and stop drawing anything as green
+
+continue until you confirm the move, at which point we go back to :default mode
+
