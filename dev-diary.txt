@@ -392,4 +392,38 @@ that nathan handed to me), but that was just for selection - i haven't written a
 
 makes sense, since that's how selection works too
 
+it sure feels like we should be able to use specter for find-runs
+
+ok yeah it looks like srange might do the trick
+
+=> (select [(srange 0 13) ALL 5]
+          (@app-state :grid))
+[nil nil nil 5 5 7 3 nil nil nil nil nil nil]
+
+; TODO what about right-to-left? i guess just reverse the sequence?
+
+ok i specterized find-runs and now it runs noticeably slower!
+because i'm doing a bunch of stuff outside of the specter query
+
+here's the version of run-in-direction that i came up with, the slow one i'm not going to go with:
+(fn [xdir ydir]
+   (let [selector (if (= xdir 0) [x ALL] [ALL y])
+         origin-on-axis (if (= xdir 0) y x)
+         values-on-axis (select selector grid)
+
+         origin-on-axis (cond
+                          (= xdir -1) (- (dec GRID-WIDTH) origin-on-axis)
+                          (= ydir -1) (- (dec GRID-HEIGHT) origin-on-axis)
+                          :else origin-on-axis)
+         values-on-axis (if (or (= xdir -1) (= ydir -1))
+                          (reverse values-on-axis)
+                          values-on-axis)
+
+         run (->> values-on-axis
+                  (drop (inc origin-on-axis))
+                  (take-while (comp not nil?)))]
+     [(count run) (apply + run)]))
+
+i'm sure the select part is fast, but then we do all this other stuff, and it's not noticeably nicer code
+
 
