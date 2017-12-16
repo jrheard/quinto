@@ -453,3 +453,87 @@ things to look into:
 transform reverse
 path functions
 if-path? is that a relevant thing here?
+
+=======
+
+12/16/17
+
+ok let's take another look at find-runs
+
+had some trouble figuring out how to use specter to select a row of data
+
+i originally tried this
+
+(select [(srange 2 7) 4]
+          (@app-state :grid))
+
+but it gives
+
+[[nil nil nil nil 7 3 5 4 1 nil nil nil nil]]
+
+which is super not what i want - in fact, it's actually a vertical _column_ rather than a row
+which just doesn't make any sense, because i thought i was saying: give me everything
+at y=4 where x is in range (2, 7).
+
+but it looks like instead you need to do another ALL after you call srange in this case
+
+(select [(srange 2 7) ALL 4]
+          (@app-state :grid))
+
+gives [8 2 3 5 7]
+
+which is exactly what i wanted. neat. something to keep in mind when using srange; i'm not
+sure i have a full understanding of what happened here, but that's ok for now, i'll figure
+it out as i go
+
+ok, doing this
+(select [6 (srange 4 9)]
+          (@app-state :grid))
+
+gives [[7 3 5 4 1]]
+
+but doing this
+(select [6 (srange 4 9) ALL]
+          (@app-state :grid))
+
+gives [7 3 5 4 1]
+
+so it basically looks like (srange) doesn't navigate you "down" one layer like ALL does
+so after using srange, you have to use ALL again
+
+ok at this point i've got something that's beginning to work but is kind of insane
+
+(defn grid-range [start end direction]
+  (srange (max start 0)
+          (min end (if (= direction :horizontal)
+                     GRID-WIDTH
+                     GRID-HEIGHT))))
+
+(comment
+(let [x 6
+      y 4]
+  {:right-run (select [(grid-range (inc x) (+ x MAX-RUN-LENGTH) :horizontal) ALL
+                       y]
+                      (@app-state :grid))
+   :down-run  (select [x
+                       (grid-range (inc y) (+ y MAX-RUN-LENGTH) :vertical) ALL]
+                      (@app-state :grid))
+   :left-run  (select [(grid-range (- x (dec MAX-RUN-LENGTH)) x :horizontal) ALL
+                       y]
+                      (@app-state :grid))
+   :up-run    (select [x
+                       (grid-range (- y (dec MAX-RUN-LENGTH)) y :vertical) ALL]
+                      (@app-state :grid))})
+
+  (select [(srange 2 6) ALL])
+
+  (select [6 (srange 9 4) ALL]
+          (@app-state :grid))
+
+  )
+
+and that isn't complete yet because we need to reverse the order of :up-run and :left run,
+and then call (take-while nil a-run) on each of these
+
+and i think we're left with something that's worse than what we started with.
+so maybe specter isn't a good fit here
