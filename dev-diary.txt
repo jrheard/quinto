@@ -405,7 +405,7 @@ ok yeah it looks like srange might do the trick
 ok i specterized find-runs and now it runs noticeably slower!
 because i'm doing a bunch of stuff outside of the specter query
 
-here's the version of run-in-direction that i came up with, the slow one i'm not going to go with:
+here's the spectral version of run-in-direction that i came up with, the slow one i'm not going to go with:
 (fn [xdir ydir]
    (let [selector (if (= xdir 0) [x ALL] [ALL y])
          origin-on-axis (if (= xdir 0) y x)
@@ -426,4 +426,30 @@ here's the version of run-in-direction that i came up with, the slow one i'm not
 
 i'm sure the select part is fast, but then we do all this other stuff, and it's not noticeably nicer code
 
+the preexisting solution is smaller and faster:
 
+(fn [xdir ydir]
+   (reduce (fn [[run-length run-sum] num-steps-in-direction]
+             ; Find the position of the cell we're currently examining.
+             (let [run-x (+ x (* xdir num-steps-in-direction))
+                   run-y (+ y (* ydir num-steps-in-direction))]
+               (if (or (not (cell-is-on-grid grid run-x run-y))
+                       (nil? (get-in grid [run-x run-y])))
+                 ; If the cell's value is nil or this position is off the grid, the run is over.
+                 (reduced [run-length run-sum])
+                 ; Otherwise, record this cell's value and continue following the run.
+                 [(inc run-length)
+                  (+ run-sum (get-in grid [run-x run-y]))])))
+           [0 0]
+           (map inc (range))))
+
+again this is my fault, not specter's, and my specter version is just worse because
+i don't know how to write specter code.
+
+i think that i should try specterizing this again, except this time we do all of the upfront work
+before the select, making the perfect path to pass to select.
+
+things to look into:
+transform reverse
+path functions
+if-path? is that a relevant thing here?
