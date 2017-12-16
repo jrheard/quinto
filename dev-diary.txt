@@ -327,3 +327,69 @@ couldn't find anything to specterize, added a docstring to find-runs but its imp
 next up: start working on the ability for a player to make a move themselves
 let them click on a green cell, then allow them to choose one of the tiles in their hand,
 and mark it as used somehow. also allow them to back out of the move entirely or change specific parts (how?)
+
+things i expect will be involved:
+adding modes to the board
+moving :hand to :player-1-hand, adding a :player-2-hand
+adding core.async to html, so we can have a go-loop that's solely responsible for modifying the app's mode
+
+one thing to think about, re: specter:
+transform is the analogous operation to update-in, and it's supposed to be 80% faster
+i actually have basically zero update-ins in this codebase, which is really unusual but makes sense
+this thing's pretty simple
+
+i mean it basically looks like he wants you to use specter instead of, like, everything?
+
+he says that instead of
+
+(map inc data)
+
+you should use
+
+(transform ALL inc data)
+
+and of course `inc` can be replaced by any arbitrary function that operates on an element of the sequence
+hm, he also has:
+
+Remove nils from a nested sequence:
+user> (setval [:a ALL nil?] NONE {:a [1 2 nil 3 nil]})
+{:a [1 2 3]}
+
+he uses setval there instead of select, because he wants to return the total modified data structure
+{:a [1 2 3]} rather than just [1 2 3]
+
+reading a bit more of the specter readme:
+
+"Get all the numbers out of a data structure, no matter how they're nested:
+user> (select (walker number?)
+              {2 [1 2 [6 7]] :a 4 :c {:a 1 :d [2 nil]}})
+[2 1 2 1 2 6 7 4]"
+
+that's cool, walker looks useful
+i wonder if you could do a similar thing using spec
+you could say something like (walker #(s/valid? ::my-spec %)) or something
+and thereby find all foos in your arbitrarily nested datastructure
+
+this bit's pretty interesting:
+
+"Append [:c :d] to every subsequence that has at least two even numbers:
+user> (setval [ALL
+               (selected? (filterer even?) (view count) (pred>= 2))
+               END]
+              [:c :d]
+              [[1 2 3 4 5 6] [7 0 -1] [8 8] []])
+[[1 2 3 4 5 6 :c :d] [7 0 -1] [8 8 :c :d] []]
+
+When doing more involved transformations, you often find you lose context when navigating
+deep within a data structure and need information "up" the data structure to perform the
+transformation. Specter solves this problem by allowing you to collect values during navigation
+to use in the transform function."
+
+i ran into this when implementing find-empty-cells (or rather, when copy-pasting the implementation
+that nathan handed to me), but that was just for selection - i haven't written any transforms yet
+
+"The transform function receives as arguments all the collected values followed by the navigated to value."
+
+makes sense, since that's how selection works too
+
+

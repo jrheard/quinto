@@ -83,7 +83,9 @@
          (or (> x-run-length 0) (> y-run-length 0))
          (and (< x-run-length MAX-RUN-LENGTH) (< y-run-length MAX-RUN-LENGTH)))))
 
-(defn find-playable-cells [grid]
+(defn find-playable-cells
+  "Returns a list of all of the cells where a move can be started."
+  [grid]
   ; XXX this should return [[middle-cell-x middle-cell-y]] if the grid is empty
   (filter #(cell-is-playable? grid %) (find-empty-cells grid)))
 
@@ -92,7 +94,9 @@
     (and (nil? (get-in grid [x y]))
          (or (>= x-run-length MAX-RUN-LENGTH) (>= y-run-length MAX-RUN-LENGTH)))))
 
-(defn find-blocked-cells [grid]
+(defn find-blocked-cells
+  "Returns a list of all of the cells that no move can include."
+  [grid]
   (filter #(cell-is-blocked? grid %) (find-empty-cells grid)))
 
 (defn is-grid-valid? [grid]
