@@ -82,3 +82,7 @@ html {
 .cell.playable {
     background-color: #B4FFB4;
 }
+
+.cell.selected {
+    background-color: #EE821D;
+}

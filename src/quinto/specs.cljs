@@ -24,3 +24,7 @@
                 (s/coll-of (s/or :value ::value :nil nil?) :count GRID-HEIGHT)
                 :count GRID-WIDTH))
 
+
+(s/def :mode/type #{:default :assembling-move})
+(s/def ::mode (s/keys :req [:mode/type]))
+
