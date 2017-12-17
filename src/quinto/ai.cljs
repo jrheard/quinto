@@ -4,7 +4,7 @@
             [com.rpl.specter :refer [select ALL]]
             [quinto.grid :as g]
             [quinto.specs :as sp :refer [MAX-RUN-LENGTH]]
-            [quinto.utils :refer [remove-item]]))
+            [quinto.utils :refer [remove-item cell-is-on-grid]]))
 
 (s/def ::move-direction #{:horizontal :vertical})
 
@@ -120,7 +120,7 @@
         valid-cells-for-move (reduce (fn [available-cells [x y]]
                                        ; A move can only consist of cells that are _on_ the grid in the first place,
                                        ; and a move can't create a run that's >= MAX-RUN-LENGTH.
-                                       (if (and (g/cell-is-on-grid x y)
+                                       (if (and (cell-is-on-grid x y)
                                                 (<= (+ relevant-run-length (count available-cells))
                                                     MAX-RUN-LENGTH))
                                          (conj available-cells [x y])

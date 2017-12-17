@@ -746,3 +746,45 @@ usage ended up looking like this
                                      grid)
          run-values (take-while (comp not nil?) values-in-direction)]
      [(count run-values) (apply + run-values)]))
+
+asked nathan in #specter, he says:
+
+"
+it would be a lot faster as a first-class navigator
+implementation would be similar to `ALL`, except in two dimensions
+it would be easy to also avoid needing to do two `nth` per element, since you can do
+every matching value in a row one after another
+"
+
+so, what's the deal with first-class navigators?
+
+ALL looks like this:
+
+(defnav
+  ^{:doc "Navigate to every element of the collection. For maps navigates to
+          a vector of `[key value]`."}
+  ALL
+  []
+  (select* [this structure next-fn]
+    (n/all-select structure next-fn))
+  (transform* [this structure next-fn]
+    (n/all-transform structure next-fn)))
+
+per http://nathanmarz.com/blog/clojures-missing-piece.html,
+a nav has "two codepaths, one for querying (select*) and one for transforming (transform*)"
+
+"A navigator that navigates to multiple subvalues (like ALL) must call next-fn on each subvalue."
+
+ok so it looks like srange might actually be a closer fit for this situation?
+
+(defnav
+  ^{:doc "Navigates to the subsequence bound by the indexes start (inclusive)
+          and end (exclusive)"}
+  srange
+  [start end]
+  (select* [this structure next-fn]
+    (n/srange-select structure start end next-fn))
+  (transform* [this structure next-fn]
+    (n/srange-transform structure start end next-fn)))
+
+

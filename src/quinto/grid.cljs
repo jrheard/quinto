@@ -1,8 +1,8 @@
 (ns quinto.grid
-  (:require [com.rpl.specter :refer [select collect-one selected? INDEXED-VALS FIRST LAST]]
+  (:require [com.rpl.specter :refer [select collect-one selected? INDEXED-VALS FIRST LAST ALL]]
             [clojure.spec.alpha :as s]
             [quinto.specs :as sp :refer [MAX-RUN-LENGTH GRID-HEIGHT GRID-WIDTH]]
-            [quinto.specter :refer [grid-values]]))
+            [quinto.specter :refer [grid-values grid-values-2]]))
 
 (def empty-grid (vec (repeat GRID-WIDTH (vec (repeat GRID-HEIGHT nil)))))
 
@@ -27,16 +27,6 @@
   :args (s/cat :grid ::sp/grid)
   :ret (s/coll-of ::sp/cell))
 
-(defn cell-is-on-grid [x y]
-  (and (>= x 0)
-       (< x GRID-WIDTH)
-       (>= y 0)
-       (< y GRID-HEIGHT)))
-
-(s/fdef cell-is-on-grid
-  :args (s/cat :cell (s/cat :x int? :y int?))
-  :ret boolean?)
-
 (defn find-runs
   "Returns a list of [horizontal-run vertical-run], indicating the state of the board
   around this x,y position. For instance, on a board like this:
@@ -52,10 +42,11 @@
   [[1 3] [3 10]]."
   [grid x y]
   (let [run-in-direction (fn [xdir ydir]
-                           (let [values-in-direction (select (grid-values (+ x xdir)
-                                                                          (+ y ydir)
-                                                                          (+ x (* xdir MAX-RUN-LENGTH))
-                                                                          (+ y (* ydir MAX-RUN-LENGTH)))
+                           (let [values-in-direction (select [(grid-values-2 (+ x xdir)
+                                                                             (+ y ydir)
+                                                                             (+ x (* xdir MAX-RUN-LENGTH))
+                                                                             (+ y (* ydir MAX-RUN-LENGTH)))
+                                                              ALL]
                                                              grid)
                                  run-values (take-while (comp not nil?) values-in-direction)]
                              [(count run-values) (apply + run-values)]))
