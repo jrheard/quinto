@@ -628,3 +628,63 @@ we draw the selected cell as orange and stop drawing anything as green
 
 continue until you confirm the move, at which point we go back to :default mode
 
+temporary digression - specter
+------------------------------
+
+nathan says:
+
+"""
+@jrheard your use case is probably best handled with matrix-specific navigators
+
+here's an excerpt from some code I have:
+```(defnav matrix-elem [row col]
+  (select* [this structure next-fn]
+    (next-fn (-> structure :rows (nth row) (nth col)))
+    )
+  (transform* [this structure next-fn]
+    (let [rows (:rows structure)
+          r (nth rows row)
+          new-elem (next-fn (nth r col))]
+      (->Matrix (assoc rows row (assoc r col new-elem)))
+      )))
+```
+
+
+you could also make a "submat" navigator that navigates you to a submatrix
+
+then you could do something like `(select [(submat 4 2 8 2) ALL ALL] mat)` to get the "down run" (edited)
+
+
+nathanmarz [1:47 PM]
+for a less flexible approach you could have a `submat-elems` function like so:
+```(defnav matrix-elem [row col]
+  (select* [this structure next-fn]
+    (next-fn (-> structure(nth row) (nth col)))
+    )
+  (transform* [this structure next-fn]
+    (let [rows (:rows structure)
+          r (nth rows row)
+          new-elem (next-fn (nth r col))]
+      (assoc rows row (assoc r col new-elem))
+      )))
+
+(defn ^:direct-nav submat-elems [row col row2 col2]
+  (reduce
+    multi-path
+    (for [r (range row (inc row2))
+          c (range col (inc col2))]
+      (matrix-elem r c)
+      )))
+
+(def data
+  [[1   2   3   4]
+   [5   6   7   8]
+   [9   :a  :b  :c]
+   [:d  :e  :f  :g]])
+
+(select (submat-elems 1 1 3 1) data)
+;; => [6 :a :e]
+```
+
+technically you don't really need `matrix-elem` and can just use `nthpath`
+"""
