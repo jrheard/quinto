@@ -628,6 +628,9 @@ we draw the selected cell as orange and stop drawing anything as green
 
 continue until you confirm the move, at which point we go back to :default mode
 
+temporary pause on modes
+------------------------
+
 temporary digression - specter
 ------------------------------
 
@@ -649,13 +652,10 @@ here's an excerpt from some code I have:
       )))
 ```
 
-
 you could also make a "submat" navigator that navigates you to a submatrix
 
 then you could do something like `(select [(submat 4 2 8 2) ALL ALL] mat)` to get the "down run" (edited)
 
-
-nathanmarz [1:47 PM]
 for a less flexible approach you could have a `submat-elems` function like so:
 ```(defnav matrix-elem [row col]
   (select* [this structure next-fn]
@@ -688,3 +688,61 @@ for a less flexible approach you could have a `submat-elems` function like so:
 
 technically you don't really need `matrix-elem` and can just use `nthpath`
 """
+
+=====
+
+12/17/17
+
+ok let's take a look at nathan's advice
+
+taking a look at matrix-elem's select* operation:
+
+=> (-> (@app-state :grid)
+      (get 6)
+      (get 4))
+7
+
+=> (select
+    [(nthpath 6 4)]
+    (@app-state :grid))
+
+[7]
+
+so like he says, we don't need matrix-elem, just nthpath and ALL
+
+so let's look at what's going on in submat-elems
+
+ok awesome, i poked around at it and ended up with
+
+(defn ^:direct-nav grid-elems
+  [x1 y1 x2 y2]
+  (if (g/cell-is-on-grid x1 y1)
+    (let [x2 (bound-between x2 0 (dec GRID-WIDTH))
+          y2 (bound-between y2 0 (dec GRID-HEIGHT))]
+
+      (reduce
+        multi-path
+        (for [x (if (< x1 x2)
+                  (range x1 (inc x2))
+                  (reverse (range x2 (inc x1))))
+              y (if (< y1 y2)
+                  (range y1 (inc y2))
+                  (reverse (range y2 (inc y1))))]
+          (nthpath x y))))
+
+    STOP))
+
+which seems to be exactly what i wanted!
+
+ok well it's exactly what i wanted but it's way slower
+
+usage ended up looking like this
+
+(fn [xdir ydir]
+   (let [values-in-direction (select (grid-values (+ x xdir)
+                                                  (+ y ydir)
+                                                  (+ x (* xdir MAX-RUN-LENGTH))
+                                                  (+ y (* ydir MAX-RUN-LENGTH)))
+                                     grid)
+         run-values (take-while (comp not nil?) values-in-direction)]
+     [(count run-values) (apply + run-values)]))
