@@ -120,7 +120,7 @@
         valid-cells-for-move (reduce (fn [available-cells [x y]]
                                        ; A move can only consist of cells that are _on_ the grid in the first place,
                                        ; and a move can't create a run that's >= MAX-RUN-LENGTH.
-                                       (if (and (g/cell-is-on-grid grid x y)
+                                       (if (and (g/cell-is-on-grid x y)
                                                 (<= (+ relevant-run-length (count available-cells))
                                                     MAX-RUN-LENGTH))
                                          (conj available-cells [x y])
