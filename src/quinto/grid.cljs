@@ -42,11 +42,10 @@
   [[1 3] [3 10]]."
   [grid x y]
   (let [run-in-direction (fn [xdir ydir]
-                           (let [values-in-direction (select [(grid-values (+ x xdir)
-                                                                           (+ y ydir)
-                                                                           (+ x (* xdir MAX-RUN-LENGTH))
-                                                                           (+ y (* ydir MAX-RUN-LENGTH)))
-                                                              ALL]
+                           (let [values-in-direction (select (grid-values (+ x xdir)
+                                                                          (+ y ydir)
+                                                                          (+ x (* xdir MAX-RUN-LENGTH))
+                                                                          (+ y (* ydir MAX-RUN-LENGTH)))
                                                              grid)
                                  run-values (take-while some? values-in-direction)]
                              [(count run-values) (apply + run-values)]))

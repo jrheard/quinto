@@ -839,3 +839,17 @@ so the codepath i need to focus on optimizing is
 . hm - i’m actually not sure how to do this in a more performant way - the ranges and reverses don’t
 seem to be the issue afaict, it’s just the bit where we have to use nth to index into each column and
 then call nth on that column to find our value
+
+ok, things to try
+1) replace the select* implementation with calls to `loop`
+2) represent the grid as a 1d vector instead of a 2d vector
+
+be sure to benchmark before and after
+
+also benchmark multi next-fns vs single next-fn
+
+single next-fn for whole collection, 50 executions of pick-move takes about 9300ms
+multiple next-fn calls, one per item in the collection, no noticeable perf difference, still about 9300ms
+maybe it makes more of a difference if you're selecting a ton of stuff, this just does at most 5 items
+
+

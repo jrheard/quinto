@@ -2,8 +2,10 @@
   (:require [com.rpl.specter :refer [select ALL]]
             [orchestra-cljs.spec.test :as stest]
             [reagent.core :as r]
+            [quinto.ai :as ai]
             [quinto.deck :refer [make-deck draw-tiles MAX-HAND-SIZE]]
             [quinto.html :refer [draw-game]]
+            [quinto.specter :refer [grid-values]]
             [quinto.grid :as g]))
 
 (defonce app-state
@@ -42,4 +44,11 @@
 (def on-js-reload render-game)
 
 (comment
+  (select (grid-values 5 4 6 4) (@app-state :grid))
+
+  (simple-benchmark
+    []
+    (ai/pick-move (@app-state :grid) (@app-state :hand))
+    50
+    )
   )
