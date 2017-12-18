@@ -44,7 +44,7 @@
 (def on-js-reload render-game)
 
 (comment
-  (select (grid-values 5 4 6 4) (@app-state :grid))
+  (select (grid-values 6 4 5 4) (@app-state :grid))
 
   (simple-benchmark
     []

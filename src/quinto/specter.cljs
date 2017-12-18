@@ -22,17 +22,28 @@
                (if (= x1 x2)
                  (let [column (nth structure x1)]
                    (doseq [value (if (< y1 y2)
-                                 (subvec column y1 (inc y2))
-                                 (reverse (subvec column y2 (inc y1))))]
+                                   (subvec column y1 (inc y2))
+                                   (reverse (subvec column y2 (inc y1))))]
                      (next-fn value)))
 
-                 (doseq [x (if (< x1 x2)
-                           (range x1 (inc x2))
-                           (reverse (range x2 (inc x1))))]
-                   (next-fn
-                     (-> structure
-                         (nth x)
-                         (nth y1))))))))
+
+                 (if (< x1 x2)
+                   ; If x1 is less than x2, then loop forward across the x-axis.
+                   (loop [x x1]
+                     (next-fn (-> structure
+                                  (nth x)
+                                  (nth y1)))
+                     (when (< x x2)
+                       (recur (inc x))))
+
+                   ; Otherwise, loop backward across the x-axis.
+                   (loop [x x1]
+                     (next-fn (-> structure
+                                  (nth x)
+                                  (nth y1)))
+
+                     (when (> x x2)
+                       (recur (dec x)))))))))
 
   (transform* [this structure next-fn]
               (assert false)))

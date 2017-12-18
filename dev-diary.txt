@@ -852,4 +852,6 @@ single next-fn for whole collection, 50 executions of pick-move takes about 9300
 multiple next-fn calls, one per item in the collection, no noticeable perf difference, still about 9300ms
 maybe it makes more of a difference if you're selecting a ton of stuff, this just does at most 5 items
 
+switching the along-the-x-axis case to two hand-rolled loops takes us down to 7200ms
 
+next up: try a 1d vector
