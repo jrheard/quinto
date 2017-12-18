@@ -4,9 +4,7 @@
             [reagent.core :as r]
             [quinto.deck :refer [make-deck draw-tiles MAX-HAND-SIZE]]
             [quinto.html :refer [draw-game]]
-            [quinto.grid :as g]
-            [quinto.specter :refer [grid-values grid-values-2]]
-            ))
+            [quinto.grid :as g]))
 
 (defonce app-state
          (r/atom {:grid g/empty-grid
@@ -44,9 +42,4 @@
 (def on-js-reload render-game)
 
 (comment
-  (select (grid-values 6 8 6 4)
-          (@app-state :grid))
-
-  (select [(grid-values-2 6 4 6 8) ALL]
-          (@app-state :grid))
   )

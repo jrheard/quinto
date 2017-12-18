@@ -2,7 +2,7 @@
   (:require [com.rpl.specter :refer [select collect-one selected? INDEXED-VALS FIRST LAST ALL]]
             [clojure.spec.alpha :as s]
             [quinto.specs :as sp :refer [MAX-RUN-LENGTH GRID-HEIGHT GRID-WIDTH]]
-            [quinto.specter :refer [grid-values grid-values-2]]))
+            [quinto.specter :refer [grid-values]]))
 
 (def empty-grid (vec (repeat GRID-WIDTH (vec (repeat GRID-HEIGHT nil)))))
 
@@ -42,10 +42,10 @@
   [[1 3] [3 10]]."
   [grid x y]
   (let [run-in-direction (fn [xdir ydir]
-                           (let [values-in-direction (select [(grid-values-2 (+ x xdir)
-                                                                             (+ y ydir)
-                                                                             (+ x (* xdir MAX-RUN-LENGTH))
-                                                                             (+ y (* ydir MAX-RUN-LENGTH)))
+                           (let [values-in-direction (select [(grid-values (+ x xdir)
+                                                                           (+ y ydir)
+                                                                           (+ x (* xdir MAX-RUN-LENGTH))
+                                                                           (+ y (* ydir MAX-RUN-LENGTH)))
                                                               ALL]
                                                              grid)
                                  run-values (take-while (comp not nil?) values-in-direction)]
