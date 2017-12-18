@@ -45,7 +45,8 @@
 
   (render-game app-state))
 
-(def on-js-reload render-game)
+(defn on-js-reload []
+  (render-game app-state))
 
 (comment
   (@app-state :mode)

@@ -1,6 +1,6 @@
 (ns quinto.html
   (:require [com.rpl.specter :refer [select ALL]]
-            [cljs.core.async :refer [chan <!]]
+            [cljs.core.async :refer [chan <! put!]]
             [reagent.core :as r]
             [quinto.ai :as ai]
             [quinto.deck :as deck]
@@ -21,6 +21,8 @@
                         (when (= selected-cell [x y])
                           "selected "))]
 
+    ; xxxxx if we're in assembling mode and this cell is playable, put an event in the channel
+
     [:div {:class cell-class}
      (if (nil? cell)
        ""
@@ -36,11 +38,11 @@
    (for [x (range (count grid))]
      ^{:key x} [draw-column grid game-event-chan x playable-cells blocked-cells selected-cell])])
 
-(defn draw-tile [value mode]
+(defn draw-tile [game-event-chan value mode]
   [:div.tile
    {:on-click (when (= (mode :mode/type) :assembling-move)
                 #(do
-                   (js/console.log "clicked" value)
+                   (put! game-event-chan value)
                    nil))}
    value])
 
@@ -52,7 +54,7 @@
 
      [:div#hand
       (for [[index value] (map-indexed vector hand)]
-        ^{:key index} [draw-tile value mode])]
+        ^{:key index} [draw-tile game-event-chan value mode])]
 
      [:div.button
       {:on-click #(do
@@ -88,9 +90,9 @@
 
 (defn handle-game-events [state game-event-chan]
   (go-loop []
-           (js/console.log "AAAAA")
-           (let [msg (<! game-event-chan)]
-             (js/console.log msg))))
+    (let [msg (<! game-event-chan)]
+      (js/console.log msg))
+    (recur)))
 
 (defn render-game [state]
   (assert (g/is-grid-valid? (@state :grid)))
