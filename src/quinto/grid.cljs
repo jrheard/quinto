@@ -48,7 +48,7 @@
                                                                            (+ y (* ydir MAX-RUN-LENGTH)))
                                                               ALL]
                                                              grid)
-                                 run-values (take-while (comp not nil?) values-in-direction)]
+                                 run-values (take-while some? values-in-direction)]
                              [(count run-values) (apply + run-values)]))
         [[x-length-1 x-sum-1] [x-length-2 x-sum-2]] [(run-in-direction -1 0) (run-in-direction 1 0)]
         [[y-length-1 y-sum-1] [y-length-2 y-sum-2]] [(run-in-direction 0 -1) (run-in-direction 0 1)]

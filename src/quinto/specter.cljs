@@ -11,9 +11,13 @@
                        (= y1 y2)))
 
            (next-fn
-             (if (cell-is-on-grid x1 y1)
+             (if (not (cell-is-on-grid x1 y1))
+               ; If your starting cell isn't on the grid, you get nothing.
+               []
+
                (let [x2 (bound-between x2 0 (dec GRID-WIDTH))
                      y2 (bound-between y2 0 (dec GRID-HEIGHT))]
+
                  (if (= x1 x2)
                    (let [column (nth structure x1)]
                      (if (< y1 y2)
@@ -25,8 +29,7 @@
                              (reverse (range x2 (inc x1))))]
                      (-> structure
                          (nth x)
-                         (nth y1)))))
-               [])))
+                         (nth y1))))))))
 
   (transform* [this structure next-fn]
               (assert false)))
