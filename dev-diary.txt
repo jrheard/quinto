@@ -855,3 +855,17 @@ maybe it makes more of a difference if you're selecting a ton of stuff, this jus
 switching the along-the-x-axis case to two hand-rolled loops takes us down to 7200ms
 
 next up: try a 1d vector
+
+ok i tried that and it gave us zero speed boost!!!
+
+presumably this is because vectors are implemented under the hood as trees, and so a 1d vector
+doesn't guarantee you a contiguous block of memory, and so there's basically no difference between
+a 1d vector and a 2d vector here
+
+TODO read http://hypirion.com/musings/persistent-vector-performance
+
+the perf with this hand-rolled loop is totally acceptable when advance-compiled so F it
+
+ok so anyway read that article
+and then tidy up the specter branch and merge it into master
+and then get back to work on modes
