@@ -57,9 +57,9 @@
     "make a move"]])
 
 (defn draw-game [state]
-  (let [playable-cells (if (seq (get-in @state [:mode :available-cells]))
-                         (get-in @state [:mode :available-cells])
-                         (set (g/find-playable-cells (@state :grid))))]
+  (let [playable-cells (if (= (get-in @state [:mode :mode/type]) :default)
+                         (set (g/find-playable-cells (@state :grid)))
+                         (get-in @state [:mode :available-cells]))]
     [:div.game
      [draw-controls state (@state :hand)]
      [draw-grid
