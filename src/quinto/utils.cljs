@@ -24,4 +24,3 @@
 (s/fdef cell-is-on-grid
   :args (s/cat :cell (s/cat :x int? :y int?))
   :ret boolean?)
-

@@ -1,10 +1,8 @@
 (ns quinto.core
   (:require [com.rpl.specter :refer [select ALL srange nthpath multi-path STOP]]
-            [orchestra-cljs.spec.test :as stest]
             [reagent.core :as r]
-            [quinto.ai :as ai]
             [quinto.deck :refer [make-deck draw-tiles MAX-HAND-SIZE]]
-            [quinto.html :refer [draw-game]]
+            [quinto.html :refer [render-game]]
             [quinto.specter :refer [grid-values]]
             [quinto.grid :as g]))
 
@@ -14,14 +12,9 @@
                   :hand []
                   :mode {:mode/type :default}}))
 
-(defn render-game []
-  (assert (g/is-grid-valid? (@app-state :grid)))
-
-  (r/render-component [draw-game app-state]
-                      (js/document.getElementById "app")))
-
 (defn enter-assembling-move-mode! [selected-cell]
-  ; XXX assert selected-cell is a playable cell
+  (assert (contains? (set (g/find-playable-cells (@app-state :grid)))
+                     selected-cell))
   (swap! app-state assoc :mode
          {:mode/type       :assembling-move
           :selected-cell   selected-cell
@@ -37,8 +30,6 @@
     (swap! app-state assoc :deck new-deck)
     (swap! app-state assoc :hand new-hand))
 
-  #_(enter-assembling-move-mode! [5 5])
-
   (swap! app-state update-in [:grid] g/make-move [[[6 4] 7]
                                                   [[6 5] 3]
                                                   [[6 6] 5]
@@ -50,7 +41,9 @@
                                                   [[3 4] 2]
                                                   [[2 4] 8]])
 
-  (render-game))
+  (enter-assembling-move-mode! [5 5])
+
+  (render-game app-state))
 
 (def on-js-reload render-game)
 

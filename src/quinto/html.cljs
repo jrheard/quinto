@@ -1,11 +1,14 @@
 (ns quinto.html
   (:require [com.rpl.specter :refer [select ALL]]
+            [cljs.core.async :refer [chan <!]]
+            [reagent.core :as r]
             [quinto.ai :as ai]
             [quinto.deck :as deck]
             [quinto.grid :as g]
-            [quinto.utils :refer [remove-item]]))
+            [quinto.utils :refer [remove-item]])
+  (:require-macros [cljs.core.async :refer [go-loop]]))
 
-(defn draw-cell [grid x y playable-cells blocked-cells selected-cell]
+(defn draw-cell [grid game-event-chan x y playable-cells blocked-cells selected-cell]
   (let [cell (get-in grid [x y])
         cell-class (str "cell "
                         (if (nil? cell)
@@ -23,48 +26,77 @@
        ""
        cell)]))
 
-(defn draw-column [grid x playable-cells blocked-cells selected-cell]
+(defn draw-column [grid game-event-chan x playable-cells blocked-cells selected-cell]
   [:div.column
    (for [y (range (count (grid x)))]
-     ^{:key y} [draw-cell grid x y playable-cells blocked-cells selected-cell])])
+     ^{:key y} [draw-cell grid game-event-chan x y playable-cells blocked-cells selected-cell])])
 
-(defn draw-grid [grid playable-cells blocked-cells selected-cell]
+(defn draw-grid [grid game-event-chan playable-cells blocked-cells selected-cell]
   [:div#grid
    (for [x (range (count grid))]
-     ^{:key x} [draw-column grid x playable-cells blocked-cells selected-cell])])
+     ^{:key x} [draw-column grid game-event-chan x playable-cells blocked-cells selected-cell])])
 
-(defn draw-controls [state hand]
-  [:div#controls
-   [:div#hand
-    (for [[index value] (map-indexed vector hand)]
-      ^{:key index} [:div.tile value])]
-   [:div.button
-    ; TODO make this saner
-    {:on-click #(do
-                  (swap! state
-                         (fn [state]
-                           (let [move (ai/pick-move (state :grid) (state :hand))
-                                 move-tiles (select [ALL 1] move)
-                                 spent-hand (reduce remove-item (state :hand) move-tiles)
-                                 [new-deck new-hand] (deck/draw-tiles (state :deck)
-                                                                      spent-hand
-                                                                      (count move-tiles))]
-                             (-> state
-                                 (assoc :grid (g/make-move (state :grid) move))
-                                 (assoc :hand new-hand)
-                                 (assoc :deck new-deck)))))
-                  nil)}
-    "make a move"]])
+(defn draw-tile [value mode]
+  [:div.tile
+   {:on-click (when (= (mode :mode/type) :assembling-move)
+                #(do
+                   (js/console.log "clicked" value)
+                   nil))}
+   value])
 
-(defn draw-game [state]
+(defn draw-controls [state hand game-event-chan]
+  (let [mode (@state :mode)]
+    [:div#controls
+     {:class (when (= (mode :mode/type) :assembling-move)
+               "assembling-move")}
+
+     [:div#hand
+      (for [[index value] (map-indexed vector hand)]
+        ^{:key index} [draw-tile value mode])]
+
+     [:div.button
+      {:on-click #(do
+                    (swap! state
+                           (fn [state]
+                             (let [move (ai/pick-move (state :grid) (state :hand))
+                                   move-tiles (select [ALL 1] move)
+                                   spent-hand (reduce remove-item (state :hand) move-tiles)
+                                   [new-deck new-hand] (deck/draw-tiles (state :deck)
+                                                                        spent-hand
+                                                                        (count move-tiles))]
+                               (-> state
+                                   (assoc :grid (g/make-move (state :grid) move))
+                                   (assoc :hand new-hand)
+                                   (assoc :deck new-deck)))))
+                    nil)}
+      "make a move"]]))
+
+(defn draw-game [state game-event-chan]
   (let [playable-cells (if (= (get-in @state [:mode :mode/type]) :default)
                          (set (g/find-playable-cells (@state :grid)))
                          (get-in @state [:mode :available-cells]))]
+
     [:div.game
-     [draw-controls state (@state :hand)]
+     [draw-controls state (@state :hand) game-event-chan]
+
      [draw-grid
       (@state :grid)
+      game-event-chan
       playable-cells
       (set (g/find-blocked-cells (@state :grid)))
       (get-in @state [:mode :selected-cell])]]))
 
+(defn handle-game-events [state game-event-chan]
+  (go-loop []
+           (js/console.log "AAAAA")
+           (let [msg (<! game-event-chan)]
+             (js/console.log msg))))
+
+(defn render-game [state]
+  (assert (g/is-grid-valid? (@state :grid)))
+
+  (let [game-event-chan (chan)]
+    (r/render-component [draw-game state game-event-chan]
+                        (js/document.getElementById "app"))
+
+    (handle-game-events state game-event-chan)))

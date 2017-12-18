@@ -1,5 +1,6 @@
 html {
     font-family: sans-serif;
+    user-select: none;
 }
 
 #app {
@@ -30,6 +31,11 @@ html {
     border: solid 1px #AAA;
     margin: 0 10px;
     font-size: 50px;
+}
+
+#controls.assembling-move .tile:hover {
+    cursor: pointer;
+    background-color: #EE821D;
 }
 
 .button {

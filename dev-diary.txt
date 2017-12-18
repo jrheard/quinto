@@ -848,6 +848,10 @@ be sure to benchmark before and after
 
 also benchmark multi next-fns vs single next-fn
 
+=========
+
+12/18/17
+
 single next-fn for whole collection, 50 executions of pick-move takes about 9300ms
 multiple next-fn calls, one per item in the collection, no noticeable perf difference, still about 9300ms
 maybe it makes more of a difference if you're selecting a ton of stuff, this just does at most 5 items
@@ -872,3 +876,21 @@ and then get back to work on modes
 
 memoizing find-runs gives us a 50% speedup, which is cool! not insane or even
 that noticeable, but still very welcome!
+
+http://blog.fikesfarm.com/posts/2016-01-20-self-calls-type-hints-and-memoization.html
+
+looks like you have to be careful when memoizing recurisve functions in cljs
+
+what if all-moves-for-cells-and-hand used a transient grid?
+you'd have to undo your change after every branch
+and it's not a 1-line change to make a 2d vector transient
+and there isn't all _that_ much modification, most of the work is in find-runs
+so whatever
+
+ok whatever stop thinking about performance
+perf is fine
+particularly when advance compiled
+just think about modes now
+
+
+

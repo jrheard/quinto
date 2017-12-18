@@ -35,10 +35,10 @@
       3
       3
 
-  If you asked find-runs about the position immediately above that board's 4, you'd get
+  If you ask find-runs about the position immediately above that board's 4, you'll get
   [[0 0] [3 10]].
 
-  If you asked find-runs about the position occupied by that board's bottommost 3, you'd get
+  If you ask find-runs about the position occupied by that board's bottommost 3, you'll get
   [[1 3] [3 10]]."
   [grid x y]
   (let [run-in-direction (fn [xdir ydir]
