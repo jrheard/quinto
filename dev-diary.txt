@@ -628,6 +628,9 @@ we draw the selected cell as orange and stop drawing anything as green
 
 continue until you confirm the move, at which point we go back to :default mode
 
+temporary pause on modes
+------------------------
+
 temporary digression - specter
 ------------------------------
 
@@ -649,13 +652,10 @@ here's an excerpt from some code I have:
       )))
 ```
 
-
 you could also make a "submat" navigator that navigates you to a submatrix
 
 then you could do something like `(select [(submat 4 2 8 2) ALL ALL] mat)` to get the "down run" (edited)
 
-
-nathanmarz [1:47 PM]
 for a less flexible approach you could have a `submat-elems` function like so:
 ```(defnav matrix-elem [row col]
   (select* [this structure next-fn]
@@ -688,3 +688,184 @@ for a less flexible approach you could have a `submat-elems` function like so:
 
 technically you don't really need `matrix-elem` and can just use `nthpath`
 """
+
+=====
+
+12/17/17
+
+ok let's take a look at nathan's advice
+
+taking a look at matrix-elem's select* operation:
+
+=> (-> (@app-state :grid)
+      (get 6)
+      (get 4))
+7
+
+=> (select
+    [(nthpath 6 4)]
+    (@app-state :grid))
+
+[7]
+
+so like he says, we don't need matrix-elem, just nthpath and ALL
+
+so let's look at what's going on in submat-elems
+
+ok awesome, i poked around at it and ended up with
+
+(defn ^:direct-nav grid-elems
+  [x1 y1 x2 y2]
+  (if (g/cell-is-on-grid x1 y1)
+    (let [x2 (bound-between x2 0 (dec GRID-WIDTH))
+          y2 (bound-between y2 0 (dec GRID-HEIGHT))]
+
+      (reduce
+        multi-path
+        (for [x (if (< x1 x2)
+                  (range x1 (inc x2))
+                  (reverse (range x2 (inc x1))))
+              y (if (< y1 y2)
+                  (range y1 (inc y2))
+                  (reverse (range y2 (inc y1))))]
+          (nthpath x y))))
+
+    STOP))
+
+which seems to be exactly what i wanted!
+
+ok well it's exactly what i wanted but it's way slower
+
+usage ended up looking like this
+
+(fn [xdir ydir]
+   (let [values-in-direction (select (grid-values (+ x xdir)
+                                                  (+ y ydir)
+                                                  (+ x (* xdir MAX-RUN-LENGTH))
+                                                  (+ y (* ydir MAX-RUN-LENGTH)))
+                                     grid)
+         run-values (take-while (comp not nil?) values-in-direction)]
+     [(count run-values) (apply + run-values)]))
+
+asked nathan in #specter, he says:
+
+"
+it would be a lot faster as a first-class navigator
+implementation would be similar to `ALL`, except in two dimensions
+it would be easy to also avoid needing to do two `nth` per element, since you can do
+every matching value in a row one after another
+"
+
+so, what's the deal with first-class navigators?
+
+ALL looks like this:
+
+(defnav
+  ^{:doc "Navigate to every element of the collection. For maps navigates to
+          a vector of `[key value]`."}
+  ALL
+  []
+  (select* [this structure next-fn]
+    (n/all-select structure next-fn))
+  (transform* [this structure next-fn]
+    (n/all-transform structure next-fn)))
+
+per http://nathanmarz.com/blog/clojures-missing-piece.html,
+a nav has "two codepaths, one for querying (select*) and one for transforming (transform*)"
+
+"A navigator that navigates to multiple subvalues (like ALL) must call next-fn on each subvalue."
+
+ok so it looks like srange might actually be a closer fit for this situation?
+
+(defnav
+  ^{:doc "Navigates to the subsequence bound by the indexes start (inclusive)
+          and end (exclusive)"}
+  srange
+  [start end]
+  (select* [this structure next-fn]
+    (n/srange-select structure start end next-fn))
+  (transform* [this structure next-fn]
+    (n/srange-transform structure start end next-fn)))
+
+here's what i said in slack
+
+i ended up with this, it’s 4-5x faster than the previous specter approach but still _roughly_
+(no benchmarks collected, going solely on how the app feels to use)  1.5-2x slower than the
+reduce approach. it’s also kind of hideous but that’s my fault:
+```(defnav
+  grid-values-2
+  [x1 y1 x2 y2]
+  (select* [this structure next-fn]
+           (assert (or (= x1 x2)
+                       (= y1 y2)))
+
+           (next-fn
+             (if (cell-is-on-grid x1 y1)
+               (let [x2 (bound-between x2 0 (dec GRID-WIDTH))
+                     y2 (bound-between y2 0 (dec GRID-HEIGHT))]
+                 (if (= x1 x2)
+                   (let [column (nth structure x1)]
+                     (if (< y1 y2)
+                       (subvec column y1 (inc y2))
+                       (reverse (subvec column y2 (inc y1)))))
+
+                   (for [x (if (< x1 x2)
+                             (range x1 (inc x2))
+                             (reverse (range x2 (inc x1))))]
+                     (-> structure
+                         (nth x)
+                         (nth y1)))))
+               [])))
+
+  (transform* [this structure next-fn]
+              ; punting on this for now
+              (assert false)))```
+(edited)
+
+
+i’m sure there’s a better and faster way to express this, will stare at it until something comes to mind :smile:
+hell, sometimes the performance seems noticeably slower, sometimes it seems precisely the same or even faster
+perf is actually pretty acceptable when run through advanced compliation, nice (edited)
+benchmarking stuff now; as you’d expect, that code runs pretty fast (~35ms in 1000000 runs) when x1 = x2,
+but about 50x slower (~1400 ms in 1000000 runs) when x1 != x2 (edited)
+so the codepath i need to focus on optimizing is
+
+```(for [x (if (< x1 x2)
+          (range x1 (inc x2))
+          (reverse (range x2 (inc x1))))]
+  (-> data
+      (nth x)
+      (nth y1)))```
+. hm - i’m actually not sure how to do this in a more performant way - the ranges and reverses don’t
+seem to be the issue afaict, it’s just the bit where we have to use nth to index into each column and
+then call nth on that column to find our value
+
+ok, things to try
+1) replace the select* implementation with calls to `loop`
+2) represent the grid as a 1d vector instead of a 2d vector
+
+be sure to benchmark before and after
+
+also benchmark multi next-fns vs single next-fn
+
+single next-fn for whole collection, 50 executions of pick-move takes about 9300ms
+multiple next-fn calls, one per item in the collection, no noticeable perf difference, still about 9300ms
+maybe it makes more of a difference if you're selecting a ton of stuff, this just does at most 5 items
+
+switching the along-the-x-axis case to two hand-rolled loops takes us down to 7200ms
+
+next up: try a 1d vector
+
+ok i tried that and it gave us zero speed boost!!!
+
+presumably this is because vectors are implemented under the hood as trees, and so a 1d vector
+doesn't guarantee you a contiguous block of memory, and so there's basically no difference between
+a 1d vector and a 2d vector here
+
+TODO read http://hypirion.com/musings/persistent-vector-performance
+
+the perf with this hand-rolled loop is totally acceptable when advance-compiled so F it
+
+ok so anyway read that article
+and then tidy up the specter branch and merge it into master
+and then get back to work on modes

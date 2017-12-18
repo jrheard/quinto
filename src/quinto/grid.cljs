@@ -1,7 +1,8 @@
 (ns quinto.grid
-  (:require [com.rpl.specter :refer [select collect-one selected? INDEXED-VALS FIRST LAST]]
+  (:require [com.rpl.specter :refer [select collect-one selected? INDEXED-VALS FIRST LAST ALL]]
             [clojure.spec.alpha :as s]
-            [quinto.specs :as sp :refer [MAX-RUN-LENGTH GRID-HEIGHT GRID-WIDTH]]))
+            [quinto.specs :as sp :refer [MAX-RUN-LENGTH GRID-HEIGHT GRID-WIDTH]]
+            [quinto.specter :refer [grid-values]]))
 
 (def empty-grid (vec (repeat GRID-WIDTH (vec (repeat GRID-HEIGHT nil)))))
 
@@ -26,16 +27,6 @@
   :args (s/cat :grid ::sp/grid)
   :ret (s/coll-of ::sp/cell))
 
-(defn cell-is-on-grid [grid x y]
-  (and (>= x 0)
-       (< x (count grid))
-       (>= y 0)
-       (< y (count (first grid)))))
-
-(s/fdef cell-is-on-grid
-  :args (s/cat :grid ::sp/grid :cell (s/cat :x int? :y int?))
-  :ret boolean?)
-
 (defn find-runs
   "Returns a list of [horizontal-run vertical-run], indicating the state of the board
   around this x,y position. For instance, on a board like this:
@@ -51,19 +42,13 @@
   [[1 3] [3 10]]."
   [grid x y]
   (let [run-in-direction (fn [xdir ydir]
-                           (reduce (fn [[run-length run-sum] num-steps-in-direction]
-                                     ; Find the position of the cell we're currently examining.
-                                     (let [run-x (+ x (* xdir num-steps-in-direction))
-                                           run-y (+ y (* ydir num-steps-in-direction))]
-                                       (if (or (not (cell-is-on-grid grid run-x run-y))
-                                               (nil? (get-in grid [run-x run-y])))
-                                         ; If the cell's value is nil or this position is off the grid, the run is over.
-                                         (reduced [run-length run-sum])
-                                         ; Otherwise, record this cell's value and continue following the run.
-                                         [(inc run-length)
-                                          (+ run-sum (get-in grid [run-x run-y]))])))
-                                   [0 0]
-                                   (map inc (range))))
+                           (let [values-in-direction (select (grid-values (+ x xdir)
+                                                                          (+ y ydir)
+                                                                          (+ x (* xdir MAX-RUN-LENGTH))
+                                                                          (+ y (* ydir MAX-RUN-LENGTH)))
+                                                             grid)
+                                 run-values (take-while some? values-in-direction)]
+                             [(count run-values) (apply + run-values)]))
         [[x-length-1 x-sum-1] [x-length-2 x-sum-2]] [(run-in-direction -1 0) (run-in-direction 1 0)]
         [[y-length-1 y-sum-1] [y-length-2 y-sum-2]] [(run-in-direction 0 -1) (run-in-direction 0 1)]
         cell-value (get-in grid [x y])]
