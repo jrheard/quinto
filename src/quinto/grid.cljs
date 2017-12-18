@@ -27,7 +27,7 @@
   :args (s/cat :grid ::sp/grid)
   :ret (s/coll-of ::sp/cell))
 
-(defn find-runs
+(defn -find-runs
   "Returns a list of [horizontal-run vertical-run], indicating the state of the board
   around this x,y position. For instance, on a board like this:
 
@@ -57,6 +57,8 @@
       (+ x-sum-1 x-sum-2 cell-value)]
      [(+ y-length-1 y-length-2 (if (nil? cell-value) 0 1))
       (+ y-sum-1 y-sum-2 cell-value)]]))
+
+(def find-runs (memoize -find-runs))
 
 (s/fdef find-runs
   :args (s/cat :grid ::sp/grid :cell ::sp/cell)

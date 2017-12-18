@@ -869,3 +869,6 @@ the perf with this hand-rolled loop is totally acceptable when advance-compiled 
 ok so anyway read that article
 and then tidy up the specter branch and merge it into master
 and then get back to work on modes
+
+memoizing find-runs gives us a 50% speedup, which is cool! not insane or even
+that noticeable, but still very welcome!
