@@ -2,10 +2,11 @@
   (:require [com.rpl.specter :refer [select ALL srange nthpath multi-path STOP]]
             [orchestra-cljs.spec.test :as stest]
             [reagent.core :as r]
+            [quinto.ai :as ai]
             [quinto.deck :refer [make-deck draw-tiles MAX-HAND-SIZE]]
             [quinto.html :refer [draw-game]]
-            [quinto.grid :as g]
-            [quinto.specs :refer [GRID-WIDTH GRID-HEIGHT MAX-RUN-LENGTH]]))
+            [quinto.specter :refer [grid-values]]
+            [quinto.grid :as g]))
 
 (defonce app-state
          (r/atom {:grid g/empty-grid

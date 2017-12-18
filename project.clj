@@ -51,7 +51,7 @@
              ;; :server-port 3449 ;; default
              ;; :server-ip "127.0.0.1"
 
-             :repl-eval-timeout 1000000000
+             ;:repl-eval-timeout 1000000000
 
              :css-dirs          ["resources/public/css"]    ;; watch and update CSS
 
