@@ -787,4 +787,55 @@ ok so it looks like srange might actually be a closer fit for this situation?
   (transform* [this structure next-fn]
     (n/srange-transform structure start end next-fn)))
 
+here's what i said in slack
 
+i ended up with this, it’s 4-5x faster than the previous specter approach but still _roughly_
+(no benchmarks collected, going solely on how the app feels to use)  1.5-2x slower than the
+reduce approach. it’s also kind of hideous but that’s my fault:
+```(defnav
+  grid-values-2
+  [x1 y1 x2 y2]
+  (select* [this structure next-fn]
+           (assert (or (= x1 x2)
+                       (= y1 y2)))
+
+           (next-fn
+             (if (cell-is-on-grid x1 y1)
+               (let [x2 (bound-between x2 0 (dec GRID-WIDTH))
+                     y2 (bound-between y2 0 (dec GRID-HEIGHT))]
+                 (if (= x1 x2)
+                   (let [column (nth structure x1)]
+                     (if (< y1 y2)
+                       (subvec column y1 (inc y2))
+                       (reverse (subvec column y2 (inc y1)))))
+
+                   (for [x (if (< x1 x2)
+                             (range x1 (inc x2))
+                             (reverse (range x2 (inc x1))))]
+                     (-> structure
+                         (nth x)
+                         (nth y1)))))
+               [])))
+
+  (transform* [this structure next-fn]
+              ; punting on this for now
+              (assert false)))```
+(edited)
+
+
+i’m sure there’s a better and faster way to express this, will stare at it until something comes to mind :smile:
+hell, sometimes the performance seems noticeably slower, sometimes it seems precisely the same or even faster
+perf is actually pretty acceptable when run through advanced compliation, nice (edited)
+benchmarking stuff now; as you’d expect, that code runs pretty fast (~35ms in 1000000 runs) when x1 = x2,
+but about 50x slower (~1400 ms in 1000000 runs) when x1 != x2 (edited)
+so the codepath i need to focus on optimizing is
+
+```(for [x (if (< x1 x2)
+          (range x1 (inc x2))
+          (reverse (range x2 (inc x1))))]
+  (-> data
+      (nth x)
+      (nth y1)))```
+. hm - i’m actually not sure how to do this in a more performant way - the ranges and reverses don’t
+seem to be the issue afaict, it’s just the bit where we have to use nth to index into each column and
+then call nth on that column to find our value
