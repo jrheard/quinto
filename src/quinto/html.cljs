@@ -8,7 +8,7 @@
             [quinto.utils :refer [remove-item]])
   (:require-macros [cljs.core.async :refer [go-loop]]))
 
-(defn draw-cell [grid game-event-chan x y playable-cells blocked-cells selected-cell]
+(defn draw-cell [game-event-chan grid x y playable-cells blocked-cells selected-cell]
   (let [cell (get-in grid [x y])
         cell-class (str "cell "
                         (if (nil? cell)
@@ -28,15 +28,15 @@
        ""
        cell)]))
 
-(defn draw-column [grid game-event-chan x playable-cells blocked-cells selected-cell]
-  [:div.column
-   (for [y (range (count (grid x)))]
-     ^{:key y} [draw-cell grid game-event-chan x y playable-cells blocked-cells selected-cell])])
-
-(defn draw-grid [grid game-event-chan playable-cells blocked-cells selected-cell]
+(defn draw-grid [game-event-chan grid playable-cells blocked-cells selected-cell]
   [:div#grid
    (for [x (range (count grid))]
-     ^{:key x} [draw-column grid game-event-chan x playable-cells blocked-cells selected-cell])])
+     ^{:key x}
+     [:div.column
+
+      (for [y (range (count (grid x)))]
+        ^{:key y}
+        [draw-cell game-event-chan grid x y playable-cells blocked-cells selected-cell])])])
 
 (defn draw-tile [game-event-chan value mode]
   [:div.tile
@@ -82,8 +82,8 @@
      [draw-controls state (@state :hand) game-event-chan]
 
      [draw-grid
-      (@state :grid)
       game-event-chan
+      (@state :grid)
       playable-cells
       (set (g/find-blocked-cells (@state :grid)))
       (get-in @state [:mode :selected-cell])]]))
