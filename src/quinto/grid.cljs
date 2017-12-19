@@ -86,6 +86,17 @@
   [grid]
   (filter #(cell-is-blocked? grid %) (find-empty-cells grid)))
 
+#_(defn find-next-open-cells-for-move
+  [grid move]
+  (for [[xdir ydir] [[-1 0] [1 0] [0 -1] [0 1]]]
+
+    )
+  )
+
+(s/fdef find-next-open-cells-for-move
+  :args (s/cat :grid ::sp/grid :move ::sp/move)
+  :ret (s/coll-of ::sp/cell))
+
 (defn is-grid-valid? [grid]
   (every?
     identity

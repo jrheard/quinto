@@ -1,9 +1,9 @@
 (ns quinto.core
-  (:require [com.rpl.specter :refer [select ALL srange nthpath multi-path STOP]]
+  (:require [com.rpl.specter :refer [select ALL srange nthpath multi-path STOP collect-one selected? FIRST LAST]]
             [reagent.core :as r]
             [quinto.deck :refer [make-deck draw-tiles MAX-HAND-SIZE]]
             [quinto.html :refer [render-game]]
-            [quinto.specter :refer [grid-values]]
+            [quinto.specter :refer [grid-values indexed-grid-values]]
             [quinto.grid :as g]))
 
 (defonce app-state
@@ -39,4 +39,7 @@
 
 (comment
   (@app-state :mode)
+
+  (select [(indexed-grid-values 6 4 6 10) (selected? LAST nil?) FIRST]
+          (@app-state :grid))
   )

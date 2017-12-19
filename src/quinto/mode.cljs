@@ -11,6 +11,7 @@
          {:mode/type       :assembling-move
           :selected-cell   selected-cell
           :available-cells []
+          :move-so-far []
           :original-hand   (app-state :hand)
           :original-grid   (app-state :grid)}))
 
@@ -20,6 +21,7 @@
         (assoc-in [:grid x y] value)
         (assoc-in [:mode :selected-cell] nil)
         (update-in [:hand] remove-item value)
+        (update-in [:mode :mode-so-far] conj [[x y] value])
         ; xxxxx update available-cells
         ; this will be kind of tricky, because you have to handle situations where
         ; the move crosses one or more filled cells

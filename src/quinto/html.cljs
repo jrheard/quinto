@@ -113,6 +113,7 @@
 
 ; Atom used for removing preexisting event handlers when fighweel reloads our code.
 (defonce keyup-handler (atom nil))
+(def ESCAPE-KEY-CODE 27)
 
 (defn render-game [state]
   (when @keyup-handler
@@ -123,8 +124,10 @@
   (let [game-event-chan (chan)
         escape-handler (fn [event]
                          (let [key-code (.-keyCode event)]
-                           (if (= key-code 27) (put! game-event-chan
-                                                     {:event/type :cancel-mode}))))]
+                           (when (= key-code ESCAPE-KEY-CODE)
+                             (put! game-event-chan
+                                   {:event/type :cancel-mode}))))]
+
     (r/render-component [draw-game state game-event-chan]
                         (js/document.getElementById "app"))
 

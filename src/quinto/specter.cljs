@@ -4,6 +4,8 @@
             [quinto.specs :refer [GRID-WIDTH GRID-HEIGHT]]))
 
 (defnav
+  ^{:doc "Navigates to values in a _straight, axis-aligned line_ between two points on a grid.
+  Tuned to be pretty fast."}
   grid-values
   [x1 y1 x2 y2]
 
@@ -47,6 +49,37 @@
 
                      (when (> x x2)
                        (recur (dec x)))))))))
+
+  (transform* [this structure next-fn]
+              (assert false)))
+
+(defnav
+  ^{:doc "Navigates to positions and values in a _straight, axis-aligned line_ between two points on a grid.
+  Not fast. Probably slow!"}
+  indexed-grid-values
+  [x1 y1 x2 y2]
+
+  (select* [this structure next-fn]
+           (assert (or (= x1 x2)
+                       (= y1 y2)))
+
+           (if (not (cell-is-on-grid x1 y1))
+             ; If your starting cell isn't on the grid, you get nothing.
+             []
+
+             (let [x2 (bound-between x2 0 (dec GRID-WIDTH))
+                   y2 (bound-between y2 0 (dec GRID-HEIGHT))]
+               (doseq [x (if (= x1 x2)
+                         [x1]
+                         (if (< x1 x2)
+                           (range x1 (inc x2))
+                           (reverse (range x2 (inc x1)))))
+                     y (if (= y1 y2)
+                         [y1]
+                         (if (< y1 y2)
+                           (range y1 (inc y2))
+                           (reverse (range y2 (inc y1)))))]
+                 (next-fn [[x y] (get-in structure [x y])])))))
 
   (transform* [this structure next-fn]
               (assert false)))
