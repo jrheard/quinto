@@ -22,8 +22,6 @@
                         (when (= selected-cell [x y])
                           "selected "))]
 
-    ; xxxxx if we're in assembling mode and this cell is playable, put an event in the channel
-
     [:div
      {:class    cell-class
       :on-click (when (and (contains? playable-cells [x y])
@@ -51,7 +49,9 @@
   [:div.tile
    {:on-click (when (= (mode :mode/type) :assembling-move)
                 #(do
-                   (put! game-event-chan value)
+                   (put! game-event-chan
+                         {:event/type :select-tile
+                          :value value})
                    nil))}
    value])
 
@@ -59,6 +59,8 @@
   (let [mode (@state :mode)]
     [:div#controls
      {:class (when (= (mode :mode/type) :assembling-move)
+               ; xxxxx have some separate class that controls whether the orange border is shown
+               ; only show the orange border if selected-cell is non nil
                "assembling-move")}
 
      [:div#hand
@@ -98,14 +100,13 @@
       (set (g/find-blocked-cells (@state :grid)))
       (get-in @state [:mode :selected-cell])]]))
 
-; TODO if the user presses escape while we're in assembling-move mode, back out and go to default
-
 (defn handle-game-events [state game-event-chan]
   (go-loop []
     (let [event (<! game-event-chan)]
       (js/console.log event)
       (condp = (event :event/type)
         :select-cell (swap! state m/enter-assembling-move-mode (event :cell))
+        :select-tile (swap! state m/select-tile (event :value))
         :cancel-mode (swap! state m/cancel-mode)
         nil))
     (recur)))
