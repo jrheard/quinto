@@ -1,5 +1,6 @@
 (ns quinto.core
   (:require [com.rpl.specter :refer [select ALL srange nthpath multi-path STOP collect-one selected? FIRST LAST]]
+            [clojure.core.match :refer [match]]
             [reagent.core :as r]
             [quinto.deck :refer [make-deck draw-tiles MAX-HAND-SIZE]]
             [quinto.html :refer [render-game]]
@@ -40,6 +41,13 @@
 (comment
   (@app-state :mode)
 
-  (select [(indexed-grid-values 6 4 6 10) (selected? LAST nil?) FIRST]
-          (@app-state :grid))
+  (g/find-next-open-cells-for-move
+    (assoc-in (@app-state :grid)
+              [5 7] 3)
+    [[[1 4] 3]]
+
+    )
+
+
+
   )

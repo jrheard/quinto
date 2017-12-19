@@ -11,6 +11,7 @@
                  [org.clojure/core.async "0.3.465"]
                  [reagent "0.8.0-alpha2"]
                  [com.rpl/specter "1.0.5"]
+                 [org.clojure/core.match "0.3.0-alpha5"]
 
                  [orchestra "2017.11.12-1"]
                  [org.clojure/spec.alpha "0.1.143"]

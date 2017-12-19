@@ -1,8 +1,10 @@
 (ns quinto.grid
   (:require [com.rpl.specter :refer [select collect-one selected? INDEXED-VALS FIRST LAST ALL]]
+            [clojure.core.match :refer [match]]
+            [clojure.set :refer [intersection]]
             [clojure.spec.alpha :as s]
             [quinto.specs :as sp :refer [MAX-RUN-LENGTH GRID-HEIGHT GRID-WIDTH]]
-            [quinto.specter :refer [grid-values]]))
+            [quinto.specter :refer [grid-values indexed-grid-values]]))
 
 (def empty-grid (vec (repeat GRID-WIDTH (vec (repeat GRID-HEIGHT nil)))))
 
@@ -86,12 +88,43 @@
   [grid]
   (filter #(cell-is-blocked? grid %) (find-empty-cells grid)))
 
-#_(defn find-next-open-cells-for-move
-  [grid move]
-  (for [[xdir ydir] [[-1 0] [1 0] [0 -1] [0 1]]]
+(defn move-direction
+  [move]
+  (let [xs (set (select [ALL FIRST FIRST] move))
+        ys (set (select [ALL FIRST 1] move))]
+    (match [(count xs)
+            (count ys)
+            (> (last xs) (first xs))
+            (> (last ys) (first ys))]
+      [1 _ _ true] [0 1]
+      [1 _ _ false] [0 -1]
+      [_ 1 true _] [1 0]
+      [_ 1 false _] [-1 0])))
 
-    )
-  )
+(s/fdef move-direction
+  :args (s/cat :move ::sp/move)
+  :ret (s/cat :xdir int? :ydir int?))
+
+(defn find-next-open-cells-for-move
+  [grid move]
+  (let [[[x y] _] (first move)
+        playable-cells (set (find-playable-cells grid))]
+
+    (for [[xdir ydir] (if (= (count move) 1)
+                        [[-1 0] [1 0] [0 -1] [0 1]]
+                        (move-direction move))
+
+          :let [nil-cells (select [(indexed-grid-values (+ x xdir)
+                                                        (+ y ydir)
+                                                        (+ x (* xdir MAX-RUN-LENGTH))
+                                                        (+ y (* ydir MAX-RUN-LENGTH)))
+                                   (selected? LAST nil?)
+                                   FIRST]
+                                  grid)
+                first-playable-cell-in-direction (first (filter playable-cells nil-cells))]
+
+          :when first-playable-cell-in-direction]
+      first-playable-cell-in-direction)))
 
 (s/fdef find-next-open-cells-for-move
   :args (s/cat :grid ::sp/grid :move ::sp/move)
