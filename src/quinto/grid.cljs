@@ -1,6 +1,5 @@
 (ns quinto.grid
   (:require [com.rpl.specter :refer [select collect-one selected? INDEXED-VALS FIRST LAST ALL]]
-            [clojure.core.match :refer [match]]
             [clojure.set :refer [intersection]]
             [clojure.spec.alpha :as s]
             [quinto.specs :as sp :refer [MAX-RUN-LENGTH GRID-HEIGHT GRID-WIDTH]]
@@ -90,18 +89,10 @@
 
 (defn move-direction
   [move]
-  ;  xxxxxx this is probably overkill
-  ; can probably just return :vertical or :horizontal, no noeed for match i bet
-  (let [xs (set (select [ALL FIRST FIRST] move))
-        ys (set (select [ALL FIRST 1] move))]
-    (match [(count xs)
-            (count ys)
-            (> (last xs) (first xs))
-            (> (last ys) (first ys))]
-      [1 _ _ true] [0 1]
-      [1 _ _ false] [0 -1]
-      [_ 1 true _] [1 0]
-      [_ 1 false _] [-1 0])))
+  (let [xs (set (select [ALL FIRST FIRST] move))]
+    (if (= (count xs) 1)
+      [[0 1] [0 -1]]
+      [[1 0] [-1 0]]) ))
 
 (s/fdef move-direction
   :args (s/cat :move ::sp/move)
@@ -114,9 +105,7 @@
 
     (for [[xdir ydir] (if (= (count move) 1)
                         [[-1 0] [1 0] [0 -1] [0 1]]
-                        [(move-direction move)])
-
-          ;; XXXXX UP AND ALSO DOWN
+                        (move-direction move))
 
           :let [nil-cells (select [(indexed-grid-values (+ x xdir)
                                                         (+ y ydir)
