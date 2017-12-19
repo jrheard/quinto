@@ -892,5 +892,6 @@ perf is fine
 particularly when advance compiled
 just think about modes now
 
-
+ok so modes have been going well so far
+right now my next thing to do is to recalculate :mode :available-cells whenever you place a tile
 
