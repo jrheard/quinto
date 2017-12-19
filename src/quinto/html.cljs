@@ -105,7 +105,8 @@
     (let [event (<! game-event-chan)]
       (js/console.log event)
       (condp = (event :event/type)
-        :select-cell (m/enter-assembling-move-mode! state (event :cell))
+        :select-cell (swap! state m/enter-assembling-move-mode (event :cell))
+        :cancel-mode (swap! state m/cancel-mode)
         nil))
     (recur)))
 
@@ -115,5 +116,13 @@
   (let [game-event-chan (chan)]
     (r/render-component [draw-game state game-event-chan]
                         (js/document.getElementById "app"))
+
+    ; Back out of modes if the user hits the escape key.
+    (.addEventListener js/document
+                       "keyup"
+                       (fn [event]
+                         (let [key-code (.-keyCode event)]
+                           (if (= key-code 27) (put! game-event-chan
+                                                     {:event/type :cancel-mode})))))
 
     (handle-game-events state game-event-chan)))

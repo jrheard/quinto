@@ -3,7 +3,6 @@
             [reagent.core :as r]
             [quinto.deck :refer [make-deck draw-tiles MAX-HAND-SIZE]]
             [quinto.html :refer [render-game]]
-            [quinto.mode :refer [enter-assembling-move-mode!]]
             [quinto.specter :refer [grid-values]]
             [quinto.grid :as g]))
 
