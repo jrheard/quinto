@@ -12,6 +12,7 @@ html {
     width: 600px;
     margin: 20px auto;
     background-color: #EEE;
+    border: solid 2px #EEE;
     padding: 20px;
     overflow: hidden;
 }
@@ -31,6 +32,10 @@ html {
     border: solid 1px #AAA;
     margin: 0 10px;
     font-size: 50px;
+}
+
+#controls.assembling-move {
+    border: solid 2px #EE821D;
 }
 
 #controls.assembling-move .tile:hover {
@@ -87,6 +92,11 @@ html {
 
 .cell.playable {
     background-color: #B4FFB4;
+}
+
+.cell.playable:hover {
+    cursor: pointer;
+    background-color: #8BE58B;
 }
 
 .cell.selected {

@@ -3,6 +3,7 @@
             [reagent.core :as r]
             [quinto.deck :refer [make-deck draw-tiles MAX-HAND-SIZE]]
             [quinto.html :refer [render-game]]
+            [quinto.mode :refer [enter-assembling-move-mode!]]
             [quinto.specter :refer [grid-values]]
             [quinto.grid :as g]))
 
@@ -11,15 +12,6 @@
                   :deck (make-deck)
                   :hand []
                   :mode {:mode/type :default}}))
-
-(defn enter-assembling-move-mode! [selected-cell]
-  (assert (contains? (set (g/find-playable-cells (@app-state :grid)))
-                     selected-cell))
-  (swap! app-state assoc :mode
-         {:mode/type       :assembling-move
-          :selected-cell   selected-cell
-          :available-cells []
-          :move-so-far     []}))
 
 (defn ^:export main []
   ;(stest/instrument)
@@ -40,8 +32,6 @@
                                                   [[4 4] 3]
                                                   [[3 4] 2]
                                                   [[2 4] 8]])
-
-  (enter-assembling-move-mode! [5 5])
 
   (render-game app-state))
 
