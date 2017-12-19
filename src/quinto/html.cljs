@@ -51,7 +51,7 @@
                 #(do
                    (put! game-event-chan
                          {:event/type :select-tile
-                          :value value})
+                          :value      value})
                    nil))}
    value])
 
@@ -111,19 +111,25 @@
         nil))
     (recur)))
 
+; Atom used for removing preexisting event handlers when fighweel reloads our code.
+(defonce keyup-handler (atom nil))
+
 (defn render-game [state]
+  (when @keyup-handler
+    (.removeEventListener js/document "keyup" @keyup-handler))
+
   (assert (g/is-grid-valid? (@state :grid)))
 
-  (let [game-event-chan (chan)]
+  (let [game-event-chan (chan)
+        escape-handler (fn [event]
+                         (let [key-code (.-keyCode event)]
+                           (if (= key-code 27) (put! game-event-chan
+                                                     {:event/type :cancel-mode}))))]
     (r/render-component [draw-game state game-event-chan]
                         (js/document.getElementById "app"))
 
     ; Back out of modes if the user hits the escape key.
-    (.addEventListener js/document
-                       "keyup"
-                       (fn [event]
-                         (let [key-code (.-keyCode event)]
-                           (if (= key-code 27) (put! game-event-chan
-                                                     {:event/type :cancel-mode})))))
+    (.addEventListener js/document "keyup" escape-handler)
+    (reset! keyup-handler escape-handler)
 
     (handle-game-events state game-event-chan)))

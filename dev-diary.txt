@@ -894,4 +894,12 @@ just think about modes now
 
 ok so modes have been going well so far
 right now my next thing to do is to recalculate :mode :available-cells whenever you place a tile
+TODO: that
+will be tricky when your move crosses one or more preexisting tiles
 
+after second tile placed:
+figure out what direction you're going in, then select the cells in that direction
+until you find your first non-nil one (up until max run length)
+
+after first cell placed:
+same as above, but for each of the four cardinal directions

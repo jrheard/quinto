@@ -21,7 +21,8 @@
         (assoc-in [:mode :selected-cell] nil)
         (update-in [:hand] remove-item value)
         ; xxxxx update available-cells
-        ; this will be kind of tricky, because you have to handle situations where the move crosses one or more filled cells
+        ; this will be kind of tricky, because you have to handle situations where
+        ; the move crosses one or more filled cells
         )))
 
 (defn cancel-mode [app-state]
