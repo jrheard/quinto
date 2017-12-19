@@ -903,3 +903,29 @@ until you find your first non-nil one (up until max run length)
 
 after first cell placed:
 same as above, but for each of the four cardinal directions
+
+=====
+
+12/19/17
+
+spent most of today so far continuing to work on assembling-move mode
+added code that finds the next playable cells for a move
+it's mostly working but i'm tracking down some weird crash that happens when
+you've picked a cell, then selected a tile, then picked another cell, then you select another tile
+we crash in find-next-open-cells-for-move, something about how you can't call nth on a Number
+not obvious to me where that nth call is actually happening though
+
+ok duh it was this, i was doing
+
+(if (= (count move) 1)
+    [[-1 0] [1 0] [0 -1] [0 1]]
+    (move-direction move))
+
+when i should have been doing
+
+(if (= (count move) 1)
+    [[-1 0] [1 0] [0 -1] [0 1]]
+    [(move-direction move)])
+
+ok now it's looking like direction-finding behavior is a bit too strict
+it should be vertical moves and horizontal moves, not up/left/down/right moves

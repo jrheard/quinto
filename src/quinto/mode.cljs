@@ -11,21 +11,22 @@
          {:mode/type       :assembling-move
           :selected-cell   selected-cell
           :available-cells []
-          :move-so-far []
+          :move-so-far     []
           :original-hand   (app-state :hand)
           :original-grid   (app-state :grid)}))
 
 (defn select-tile [app-state value]
   (let [[x y] (get-in app-state [:mode :selected-cell])]
-    (-> app-state
-        (assoc-in [:grid x y] value)
-        (assoc-in [:mode :selected-cell] nil)
-        (update-in [:hand] remove-item value)
-        (update-in [:mode :mode-so-far] conj [[x y] value])
-        ; xxxxx update available-cells
-        ; this will be kind of tricky, because you have to handle situations where
-        ; the move crosses one or more filled cells
-        )))
+    (as-> app-state $
+          (assoc-in $ [:grid x y] value)
+          (assoc-in $ [:mode :selected-cell] nil)
+          (update-in $ [:hand] remove-item value)
+          ; xxxxx move-so-far never has length > 1
+          (update-in $ [:mode :move-so-far] conj [[x y] value])
+          (assoc-in $ [:mode :available-cells]
+                    (g/find-next-open-cells-for-move
+                      ($ :grid)
+                      (get-in $ [:mode :move-so-far]))))))
 
 (defn cancel-mode [app-state]
   (cond-> app-state

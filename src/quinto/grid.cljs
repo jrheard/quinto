@@ -90,6 +90,8 @@
 
 (defn move-direction
   [move]
+  ;  xxxxxx this is probably overkill
+  ; can probably just return :vertical or :horizontal, no noeed for match i bet
   (let [xs (set (select [ALL FIRST FIRST] move))
         ys (set (select [ALL FIRST 1] move))]
     (match [(count xs)
@@ -112,7 +114,9 @@
 
     (for [[xdir ydir] (if (= (count move) 1)
                         [[-1 0] [1 0] [0 -1] [0 1]]
-                        (move-direction move))
+                        [(move-direction move)])
+
+          ;; XXXXX UP AND ALSO DOWN
 
           :let [nil-cells (select [(indexed-grid-values (+ x xdir)
                                                         (+ y ydir)

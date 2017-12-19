@@ -47,7 +47,7 @@
 
 (defn draw-tile [game-event-chan value mode]
   [:div.tile
-   {:on-click (when (= (mode :mode/type) :assembling-move)
+   {:on-click (when (mode :selected-cell)
                 #(do
                    (put! game-event-chan
                          {:event/type :select-tile
@@ -58,9 +58,7 @@
 (defn draw-controls [state hand game-event-chan]
   (let [mode (@state :mode)]
     [:div#controls
-     {:class (when (= (mode :mode/type) :assembling-move)
-               ; xxxxx have some separate class that controls whether the orange border is shown
-               ; only show the orange border if selected-cell is non nil
+     {:class (when (mode :selected-cell)
                "assembling-move")}
 
      [:div#hand
@@ -85,9 +83,11 @@
       "make a move"]]))
 
 (defn draw-game [state game-event-chan]
-  (let [playable-cells (if (= (get-in @state [:mode :mode/type]) :default)
-                         (set (g/find-playable-cells (@state :grid)))
-                         (get-in @state [:mode :available-cells]))]
+  (let [playable-cells (set
+                         (if (= (get-in @state [:mode :mode/type]) :default)
+                           (g/find-playable-cells (@state :grid))
+                           (get-in @state [:mode :available-cells])))]
+    (js/console.log playable-cells)
 
     [:div.game
      [draw-controls state (@state :hand) game-event-chan]
@@ -105,7 +105,10 @@
     (let [event (<! game-event-chan)]
       (js/console.log event)
       (condp = (event :event/type)
-        :select-cell (swap! state m/enter-assembling-move-mode (event :cell))
+        :select-cell (if (= (get-in @state [:mode :mode/type])
+                            :default)
+                       (swap! state m/enter-assembling-move-mode (event :cell))
+                       (swap! state assoc-in [:mode :selected-cell] (event :cell)))
         :select-tile (swap! state m/select-tile (event :value))
         :cancel-mode (swap! state m/cancel-mode)
         nil))
@@ -119,7 +122,7 @@
   (when @keyup-handler
     (.removeEventListener js/document "keyup" @keyup-handler))
 
-  (assert (g/is-grid-valid? (@state :grid)))
+  ;(assert (g/is-grid-valid? (@state :grid)))
 
   (let [game-event-chan (chan)
         escape-handler (fn [event]
