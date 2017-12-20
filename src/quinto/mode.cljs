@@ -97,15 +97,18 @@
         ; xxxx deck function here too
         [new-deck new-hand] (deck/draw-tiles (state :deck)
                                              (state :player-hand)
-                                             (count move-tiles))]
-    (-> state
-        (assoc :grid (g/make-move (get-in state [:mode :original-grid])
-                                  move))
-        (assoc :mode {:mode/type :default})
-        (update-in [:player-scores]
-                   conj
-                   (g/score-move (get-in state [:mode :original-grid])
-                                 move))
-        (assoc :deck new-deck)
-        (assoc :player-hand new-hand)
-        -make-ai-move)))
+                                             (count move-tiles))
+        new-state (-> state
+                      (assoc :grid (g/make-move (get-in state [:mode :original-grid])
+                                                move))
+                      (assoc :mode {:mode/type :default})
+                      (update-in [:player-scores]
+                                 conj
+                                 (g/score-move (get-in state [:mode :original-grid])
+                                               move))
+                      (assoc :deck new-deck)
+                      (assoc :player-hand new-hand)
+                      -make-ai-move)]
+
+    (assert (g/is-grid-valid? (new-state :grid)))
+    new-state))

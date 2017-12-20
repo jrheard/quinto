@@ -7,19 +7,14 @@
 
 (def empty-grid (vec (repeat GRID-WIDTH (vec (repeat GRID-HEIGHT nil)))))
 
-(declare is-grid-valid?)
-
 (defn make-move
   "Applies `move` to `grid`."
   [grid move]
-  (let [new-grid (reduce (fn [grid [[x y] value]]
-                           (assert (nil? (get-in grid [x y])))
-                           (assoc-in grid [x y] value))
-                         grid
-                         move)]
-
-    ;(assert (is-grid-valid? new-grid))
-    new-grid))
+  (reduce (fn [grid [[x y] value]]
+            (assert (nil? (get-in grid [x y])))
+            (assoc-in grid [x y] value))
+          grid
+          move))
 
 (s/fdef make-move
   :args (s/cat :grid ::sp/grid :move ::sp/move)

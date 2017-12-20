@@ -991,4 +991,6 @@ ok, that was easy
 now i'm letting the ai play against the player, and it _usually_ works, but sometimes
 when it's scoring moves, the is-grid-valid? assert in make-move gets triggered
 
-it's failing when it's trying
+found the bug. removing the is-grid-valid? assert drastically increases perf, which isn't
+all that surprising, but i'd like to have it checked _somewhere_. maybe in quinto.mode
+
