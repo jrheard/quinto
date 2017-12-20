@@ -10,6 +10,7 @@
 (defonce app-state
          (r/atom {:grid g/empty-grid
                   :deck (make-deck)
+                  :player-scores []
                   :hand []
                   :mode {:mode/type :default}}))
 
@@ -20,8 +21,7 @@
                                         (@app-state :hand)
                                         MAX-HAND-SIZE)]
     (swap! app-state assoc :deck new-deck)
-    (swap! app-state assoc :hand new-hand)
-    (swap! app-state assoc :hand [5 5 5 5 5]))
+    (swap! app-state assoc :hand new-hand))
 
   (swap! app-state update-in [:grid] g/make-move [[[6 4] 7]
                                                   [[6 5] 3]

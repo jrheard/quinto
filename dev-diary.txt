@@ -956,7 +956,7 @@ if you have this board
 it's marked as invalid, but it should be marked as valid
 this is because of a bug in is-grid-valid? (AND LIKELY ELSEWHERE)
 having to do with the cells inbetween the 1 and 8, and between the 7 and 2
-TODO FIX THAT
+DONE FIX THAT
 
 eventual TODO - let player (or AI!) make first move on an empty board
 
@@ -971,3 +971,12 @@ let's fix that first
 
 oh, it was a simple bug in quinto.modes, we were remove-iteming in both select-tile
 and confirm-move. just removed the remove-item from confirm-move, ez
+
+ok the gap problem in is-grid-valid? was an easy fix, nice
+just added a (nil? (get-in grid [x y])) to make it so that nil cells are fine
+
+ok sick so now we've just gotta do:
+1) score tracking
+2) let the player play against the ai
+
+anyway this is stable enough to merge into master so let's do that

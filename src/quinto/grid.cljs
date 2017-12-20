@@ -125,7 +125,6 @@
   :args (s/cat :grid ::sp/grid :move ::sp/move)
   :ret (s/coll-of ::sp/cell))
 
-; xxxxxxxxxxxxxx this is buggy
 (defn is-grid-valid? [grid]
   (every?
     identity
@@ -142,8 +141,10 @@
                       ; and you're examining the cell with value 3 from an axis that's
                       ; perpendicular to the axis of that run, it's fine that 3 isn't a multiple of 5.
                       (or (<= x-run-length 1)
+                          (nil? (get-in grid [x y]))
                           (= 0 (mod x-run-sum 5)))
                       (or (<= y-run-length 1)
+                          (nil? (get-in grid [x y]))
                           (= 0 (mod y-run-sum 5))))))))))
 
 (s/fdef is-grid-valid?
