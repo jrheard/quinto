@@ -135,8 +135,7 @@
         :select-cell (if (= (get-in @state [:mode :mode/type])
                             :default)
                        (swap! state m/enter-assembling-move-mode (event :cell))
-                       ; xxxxx does this not set :available-cells to [] somehow?
-                       (swap! state assoc-in [:mode :selected-cell] (event :cell)))
+                       (swap! state m/select-cell (event :cell)))
         :select-tile (swap! state m/select-tile (event :value))
         :go-back (swap! state m/go-back)
         :cancel-mode (swap! state m/cancel-mode)

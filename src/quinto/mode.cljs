@@ -15,17 +15,24 @@
           :original-hand   (app-state :hand)
           :original-grid   (app-state :grid)}))
 
+(defn select-cell [app-state cell]
+  (assert (nil? (get-in app-state [:mode :selected-cell])))
+
+  (-> app-state
+      (assoc-in [:mode :selected-cell] cell)
+      (assoc-in [:mode :available-cells] [])))
+
 (defn select-tile [app-state value]
   (let [[x y] (get-in app-state [:mode :selected-cell])]
     (as-> app-state $
-          (assoc-in $ [:grid x y] value)
-          (assoc-in $ [:mode :selected-cell] nil)
-          (update-in $ [:hand] remove-item value)
-          (update-in $ [:mode :move-so-far] conj [[x y] value])
-          (assoc-in $ [:mode :available-cells]
-                    (g/find-next-open-cells-for-move
-                      ($ :grid)
-                      (get-in $ [:mode :move-so-far]))))))
+      (assoc-in $ [:grid x y] value)
+      (assoc-in $ [:mode :selected-cell] nil)
+      (update-in $ [:hand] remove-item value)
+      (update-in $ [:mode :move-so-far] conj [[x y] value])
+      (assoc-in $ [:mode :available-cells]
+                (g/find-next-open-cells-for-move
+                  ($ :grid)
+                  (get-in $ [:mode :move-so-far]))))))
 
 (defn cancel-mode [app-state]
   (cond-> app-state
@@ -46,7 +53,12 @@
     (cancel-mode app-state)
 
     (some? (get-in app-state [:mode :selected-cell]))
-    (assoc-in app-state [:mode :selected-cell] nil)
+    (as-> app-state $
+      (assoc-in $ [:mode :selected-cell] nil)
+      (assoc-in $ [:mode :available-cells]
+                (g/find-next-open-cells-for-move
+                  ($ :grid)
+                  (get-in $ [:mode :move-so-far]))))
 
     (seq (get-in app-state [:mode :move-so-far]))
     (let [[[x y] value] (last (get-in app-state [:mode :move-so-far]))]
@@ -54,6 +66,6 @@
       (-> app-state
           (assoc-in [:grid x y] nil)
           (update-in [:mode :move-so-far] pop)
-          ; xxxx available cells
           (update-in [:hand] conj value)
+          (assoc-in [:mode :available-cells] [])
           (assoc-in [:mode :selected-cell] [x y])))))
