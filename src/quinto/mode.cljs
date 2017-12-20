@@ -1,5 +1,7 @@
 (ns quinto.mode
-  (:require [quinto.grid :as g]
+  (:require [com.rpl.specter :refer [select ALL LAST]]
+            [quinto.deck :as deck]
+            [quinto.grid :as g]
             [quinto.utils :refer [remove-item]]))
 
 (defn enter-assembling-move-mode [app-state selected-cell]
@@ -51,7 +53,9 @@
       (some? (get-in app-state [:mode :selected-cell]))
       (= (count (get-in app-state [:mode :move-so-far]))
          0))
-    (cancel-mode app-state)
+    (-> app-state
+        (assoc :grid (get-in app-state [:mode :original-grid]))
+        (assoc :mode {:mode/type :default}))
 
     (some? (get-in app-state [:mode :selected-cell]))
     (as-> app-state $
@@ -70,3 +74,17 @@
           (update-in [:hand] conj value)
           (assoc-in [:mode :available-cells] [])
           (assoc-in [:mode :selected-cell] [x y])))))
+
+(defn confirm-move [app-state]
+  (let [move (get-in app-state [:mode :move-so-far])
+        move-tiles (select [ALL LAST] move)
+        spent-hand (reduce remove-item (app-state :hand) move-tiles)
+        [new-deck new-hand] (deck/draw-tiles (app-state :deck)
+                                             spent-hand
+                                             (count move-tiles))]
+    (-> app-state
+        (assoc :grid (g/make-move (get-in app-state [:mode :original-grid])
+                                  move))
+        (assoc :mode {:mode/type :default})
+        (assoc :deck new-deck)
+        (assoc :hand new-hand))))

@@ -943,3 +943,16 @@ TODO consider putting goog analytics tag on the page before publishing eventual 
 DONE if a tile's in assembling mode's :move-so-far, draw it in a different color
 
 next up: implement back button
+
+ok back button's done
+ran into an interesting programming error just now
+
+if you have this board
+
+1 7 7
+    5
+8 2 3 7
+
+it's marked as invalid, but it should be marked as valid
+this is because of a bug in is-grid-valid? (AND LIKELY ELSEWHERE)
+having to do with the cells inbetween the 1 and 8, and between the 7 and 2

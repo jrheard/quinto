@@ -79,9 +79,7 @@
    "make a move"]
 
 (defn draw-controls [state hand game-event-chan]
-  (let [mode (@state :mode)
-        button-class (when (= (mode :mode/type) :default)
-                       "inactive ")]
+  (let [mode (@state :mode)]
     [:div#controls
      {:class (when (mode :selected-cell)
                "assembling-move")}
@@ -90,23 +88,33 @@
       (for [[index value] (map-indexed vector hand)]
         ^{:key index} [draw-tile game-event-chan value mode])]
 
-     ; TODO logic and css for highlighting these buttons or graying them out
      [:div.button.confirm
-      {:class button-class}
+      {:class    (when (or (= (mode :mode/type) :default)
+                           (not (g/is-grid-valid? (@state :grid))))
+                   "inactive")
+       :on-click #(do
+                    (when (and (not= (mode :mode/type) :default)
+                               (g/is-grid-valid? (@state :grid)))
+                      (put! game-event-chan {:event/type :confirm-move}))
+                    nil)}
       "✔"]
 
      [:div.button.back
-      {:class    button-class
+      {:class    (when (= (mode :mode/type) :default)
+                   "inactive ")
        :on-click #(do
-                    (put! game-event-chan {:event/type :go-back})
+                    (when (not= (mode :mode/type) :default)
+                      (put! game-event-chan {:event/type :go-back}))
                     nil)}
       "◀"]
 
      [:div.button.cancel
-      {:class    button-class
+      {:class    (when (= (mode :mode/type) :default)
+                   "inactive ")
        :on-click #(do
-                    (put! game-event-chan
-                          {:event/type :cancel-mode})
+                    (when (not= (mode :mode/type) :default)
+                      (put! game-event-chan
+                            {:event/type :cancel-mode}))
                     nil)}
       "✖"]]))
 
@@ -137,6 +145,7 @@
                        (swap! state m/enter-assembling-move-mode (event :cell))
                        (swap! state m/select-cell (event :cell)))
         :select-tile (swap! state m/select-tile (event :value))
+        :confirm-move (swap! state m/confirm-move)
         :go-back (swap! state m/go-back)
         :cancel-mode (swap! state m/cancel-mode)
         nil))

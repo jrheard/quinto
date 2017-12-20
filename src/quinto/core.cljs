@@ -39,6 +39,8 @@
   (render-game app-state))
 
 (comment
-  (@app-state :mode)
+  (@app-state :grid)
+  (g/is-grid-valid?
+    (get-in @app-state [:grid]))
 
   )

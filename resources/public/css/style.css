@@ -73,6 +73,14 @@ html {
     background-color: #FF9D0C;
 }
 
+.button.confirm {
+    background-color: #0BD921;
+}
+
+.button.confirm:hover {
+    background-color: #0DFF27;
+}
+
 .button:hover {
     cursor: pointer;
 }
