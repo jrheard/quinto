@@ -51,7 +51,9 @@
 
 (defn draw-tile [game-event-chan value mode]
   [:div.tile
-   {:on-click (when (mode :selected-cell)
+   {:class    (when-not (mode :selected-cell)
+                "inactive")
+    :on-click (when (mode :selected-cell)
                 #(do
                    (put! game-event-chan
                          {:event/type :select-tile

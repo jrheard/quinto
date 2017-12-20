@@ -18,7 +18,7 @@ html {
 }
 
 #controls.assembling-move {
-    border: solid 4px #EE821D;
+    /*border: solid 4px #EE821D;*/
 }
 
 #hand {
@@ -38,6 +38,10 @@ html {
     font-size: 50px;
 }
 
+#hand .tile.inactive {
+    background-color: #EEE;
+}
+
 #controls.assembling-move .tile:hover {
     cursor: pointer;
     /*background-color: #EE821D;*/
@@ -53,11 +57,6 @@ html {
     margin-left: 25px;
 }
 
-.button.cancel.inactive,
-.button.cancel.inactive:hover {
-    background-color: #333;
-}
-
 .button.cancel {
     background-color: #D93D27;
 }
@@ -66,8 +65,22 @@ html {
     background-color: #EB422A;
 }
 
+.button.back {
+    background-color: #E88F0B;
+}
+
+.button.back:hover {
+    background-color: #FF9D0C;
+}
+
 .button:hover {
     cursor: pointer;
+}
+
+.button.inactive,
+.button.inactive:hover {
+    background-color: #333;
+    cursor: default;
 }
 
 #grid {
