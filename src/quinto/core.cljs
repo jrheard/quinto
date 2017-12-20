@@ -41,14 +41,4 @@
 (comment
   (@app-state :mode)
 
-  (g/find-next-open-cells-for-move
-    (assoc-in (@app-state :grid)
-              [5 7] 3)
-    [[[1 4] 3]]
-
-
-    )
-
-
-
   )

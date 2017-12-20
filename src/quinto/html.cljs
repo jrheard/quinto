@@ -59,8 +59,27 @@
                    nil))}
    value])
 
+#_[:div.button
+   {:on-click #(do
+                 (swap! state
+                        (fn [state]
+                          (let [move (ai/pick-move (state :grid) (state :hand))
+                                move-tiles (select [ALL LAST] move)
+                                spent-hand (reduce remove-item (state :hand) move-tiles)
+                                [new-deck new-hand] (deck/draw-tiles (state :deck)
+                                                                     spent-hand
+                                                                     (count move-tiles))]
+                            (-> state
+                                (assoc :grid (g/make-move (state :grid) move))
+                                (assoc :hand new-hand)
+                                (assoc :deck new-deck)))))
+                 nil)}
+   "make a move"]
+
 (defn draw-controls [state hand game-event-chan]
-  (let [mode (@state :mode)]
+  (let [mode (@state :mode)
+        button-class (when (= (mode :mode/type) :default)
+                       "inactive ")]
     [:div#controls
      {:class (when (mode :selected-cell)
                "assembling-move")}
@@ -69,22 +88,22 @@
       (for [[index value] (map-indexed vector hand)]
         ^{:key index} [draw-tile game-event-chan value mode])]
 
-     [:div.button
-      {:on-click #(do
-                    (swap! state
-                           (fn [state]
-                             (let [move (ai/pick-move (state :grid) (state :hand))
-                                   move-tiles (select [ALL LAST] move)
-                                   spent-hand (reduce remove-item (state :hand) move-tiles)
-                                   [new-deck new-hand] (deck/draw-tiles (state :deck)
-                                                                        spent-hand
-                                                                        (count move-tiles))]
-                               (-> state
-                                   (assoc :grid (g/make-move (state :grid) move))
-                                   (assoc :hand new-hand)
-                                   (assoc :deck new-deck)))))
+     ; TODO logic and css for highlighting these buttons or graying them out
+     [:div.button.confirm
+      {:class button-class}
+      "✔"]
+
+     [:div.button.back
+      {:class button-class}
+      "◀"]
+
+     [:div.button.cancel
+      {:class    button-class
+       :on-click #(do
+                    (put! game-event-chan
+                          {:event/type :cancel-mode})
                     nil)}
-      "make a move"]]))
+      "✖"]]))
 
 (defn draw-game [state game-event-chan]
   (let [playable-cells (set

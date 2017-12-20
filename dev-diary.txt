@@ -940,6 +940,6 @@ TODO replace "make a move" button with checkmark, left arrow, and X
 
 TODO consider putting goog analytics tag on the page before publishing eventual blog post
 
-TODO if a tile's in assembling mode's :move-so-far, draw it in a different color
+DONE if a tile's in assembling mode's :move-so-far, draw it in a different color
 
 

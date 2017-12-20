@@ -12,9 +12,13 @@ html {
     width: 600px;
     margin: 20px auto;
     background-color: #EEE;
-    border: solid 2px #EEE;
+    border: solid 4px #EEE;
     padding: 20px;
     overflow: hidden;
+}
+
+#controls.assembling-move {
+    border: solid 4px #EE821D;
 }
 
 #hand {
@@ -34,10 +38,6 @@ html {
     font-size: 50px;
 }
 
-#controls.assembling-move {
-    border: solid 2px #EE821D;
-}
-
 #controls.assembling-move .tile:hover {
     cursor: pointer;
     /*background-color: #EE821D;*/
@@ -48,14 +48,26 @@ html {
     float: right;
     font-size: 30px;
     background-color: #333;
-    color: #EEE;
+    color: white;
     padding: 10px;
+    margin-left: 25px;
+}
+
+.button.cancel.inactive,
+.button.cancel.inactive:hover {
+    background-color: #333;
+}
+
+.button.cancel {
+    background-color: #D93D27;
+}
+
+.button.cancel:hover {
+    background-color: #EB422A;
 }
 
 .button:hover {
     cursor: pointer;
-    background-color: #EE821D;
-    color: white;
 }
 
 #grid {
@@ -104,7 +116,6 @@ html {
 .cell.selected:hover {
     background-color: #EE821D;
 }
-
 
 .cell.speculative,
 .cell.speculative:hover {
