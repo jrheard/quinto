@@ -980,3 +980,15 @@ ok sick so now we've just gotta do:
 2) let the player play against the ai
 
 anyway this is stable enough to merge into master so let's do that
+
+ok score tracking was easy
+
+now let's separate :hand out into :player-hand and :ai-hand
+and add an :ai-scores
+
+ok, that was easy
+
+now i'm letting the ai play against the player, and it _usually_ works, but sometimes
+when it's scoring moves, the is-grid-valid? assert in make-move gets triggered
+
+it's failing when it's trying

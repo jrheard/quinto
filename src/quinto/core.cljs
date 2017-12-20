@@ -11,17 +11,26 @@
          (r/atom {:grid g/empty-grid
                   :deck (make-deck)
                   :player-scores []
-                  :hand []
+                  :player-hand []
+                  :ai-scores []
+                  :ai-hand []
                   :mode {:mode/type :default}}))
 
 (defn ^:export main []
   ;(stest/instrument)
 
+  ; xxxx function in deck
   (let [[new-deck new-hand] (draw-tiles (@app-state :deck)
-                                        (@app-state :hand)
+                                        (@app-state :player-hand)
                                         MAX-HAND-SIZE)]
     (swap! app-state assoc :deck new-deck)
-    (swap! app-state assoc :hand new-hand))
+    (swap! app-state assoc :player-hand new-hand))
+
+  (let [[new-deck new-hand] (draw-tiles (@app-state :deck)
+                                        (@app-state :ai-hand)
+                                        MAX-HAND-SIZE)]
+    (swap! app-state assoc :deck new-deck)
+    (swap! app-state assoc :ai-hand new-hand))
 
   (swap! app-state update-in [:grid] g/make-move [[[6 4] 7]
                                                   [[6 5] 3]
@@ -44,5 +53,12 @@
   (@app-state :grid)
   (g/is-grid-valid?
     (get-in @app-state [:grid]))
+
+  (g/score-move
+    (@app-state :grid)
+    [[[6 10] 0] [[5 10] 5] [[4 10] 1]]
+    )
+
+
 
   )

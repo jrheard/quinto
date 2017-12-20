@@ -1,94 +1,111 @@
 (ns quinto.mode
   (:require [com.rpl.specter :refer [select ALL LAST]]
+            [quinto.ai :as ai]
             [quinto.deck :as deck]
             [quinto.grid :as g]
             [quinto.utils :refer [remove-item]]))
 
 ; TODO DOCUMENT THIS MODULE AND PROBABLY SOME OR MOST OF THE FUNCTIONS
-(defn enter-assembling-move-mode [app-state selected-cell]
-  (assert (contains? (set (g/find-playable-cells (app-state :grid)))
+(defn enter-assembling-move-mode [state selected-cell]
+  (assert (contains? (set (g/find-playable-cells (state :grid)))
                      selected-cell))
 
-  (assoc app-state
+  (assoc state
          :mode
          {:mode/type       :assembling-move
           :selected-cell   selected-cell
           :available-cells []
           :move-so-far     []
-          :original-hand   (app-state :hand)
-          :original-grid   (app-state :grid)}))
+          :original-hand   (state :player-hand)
+          :original-grid   (state :grid)}))
 
-(defn select-cell [app-state cell]
-  (assert (nil? (get-in app-state [:mode :selected-cell])))
+(defn select-cell [state cell]
+  (assert (nil? (get-in state [:mode :selected-cell])))
 
-  (-> app-state
+  (-> state
       (assoc-in [:mode :selected-cell] cell)
       (assoc-in [:mode :available-cells] [])))
 
-(defn select-tile [app-state value]
-  (assert (some? (get-in app-state [:mode :selected-cell])))
+(defn select-tile [state value]
+  (assert (some? (get-in state [:mode :selected-cell])))
 
-  (let [[x y] (get-in app-state [:mode :selected-cell])]
-    (as-> app-state $
+  (let [[x y] (get-in state [:mode :selected-cell])]
+    (as-> state $
       (assoc-in $ [:grid x y] value)
       (assoc-in $ [:mode :selected-cell] nil)
-      (update-in $ [:hand] remove-item value)
+      (update-in $ [:player-hand] remove-item value)
       (update-in $ [:mode :move-so-far] conj [[x y] value])
       (assoc-in $ [:mode :available-cells]
                 (g/find-next-open-cells-for-move
                   ($ :grid)
                   (get-in $ [:mode :move-so-far]))))))
 
-(defn cancel-mode [app-state]
-  (cond-> app-state
-    (contains? (app-state :mode) :original-grid) (assoc :grid (get-in app-state [:mode :original-grid]))
-    (contains? (app-state :mode) :original-hand) (assoc :hand (get-in app-state [:mode :original-hand]))
+(defn cancel-mode [state]
+  (cond-> state
+    (contains? (state :mode) :original-grid) (assoc :grid (get-in state [:mode :original-grid]))
+    (contains? (state :mode) :original-hand) (assoc :player-hand (get-in state [:mode :original-hand]))
     true (assoc :mode {:mode/type :default})))
 
-(defn go-back [app-state]
-  (assert (not= (get-in app-state [:mode :mode/type])
+(defn go-back [state]
+  (assert (not= (get-in state [:mode :mode/type])
                 :default))
 
   (cond
     (and
-      (some? (get-in app-state [:mode :selected-cell]))
-      (= (count (get-in app-state [:mode :move-so-far]))
+      (some? (get-in state [:mode :selected-cell]))
+      (= (count (get-in state [:mode :move-so-far]))
          0))
-    (-> app-state
-        (assoc :grid (get-in app-state [:mode :original-grid]))
+    (-> state
+        (assoc :grid (get-in state [:mode :original-grid]))
         (assoc :mode {:mode/type :default}))
 
-    (some? (get-in app-state [:mode :selected-cell]))
-    (as-> app-state $
+    (some? (get-in state [:mode :selected-cell]))
+    (as-> state $
       (assoc-in $ [:mode :selected-cell] nil)
       (assoc-in $ [:mode :available-cells]
                 (g/find-next-open-cells-for-move
                   ($ :grid)
                   (get-in $ [:mode :move-so-far]))))
 
-    (seq (get-in app-state [:mode :move-so-far]))
-    (let [[[x y] value] (last (get-in app-state [:mode :move-so-far]))]
+    (seq (get-in state [:mode :move-so-far]))
+    (let [[[x y] value] (last (get-in state [:mode :move-so-far]))]
 
-      (-> app-state
+      (-> state
           (assoc-in [:grid x y] nil)
           (update-in [:mode :move-so-far] pop)
-          (update-in [:hand] conj value)
+          (update-in [:player-hand] conj value)
           (assoc-in [:mode :available-cells] [])
           (assoc-in [:mode :selected-cell] [x y])))))
 
-(defn confirm-move [app-state]
-  (let [move (get-in app-state [:mode :move-so-far])
+(defn -make-ai-move [state]
+  (let [move (ai/pick-move (state :grid) (state :ai-hand))
         move-tiles (select [ALL LAST] move)
-        [new-deck new-hand] (deck/draw-tiles (app-state :deck)
-                                             (app-state :hand)
+        spent-hand (reduce remove-item (state :ai-hand) move-tiles)
+        ; xxxx deck function
+        [new-deck new-hand] (deck/draw-tiles (state :deck)
+                                             spent-hand
                                              (count move-tiles))]
-    (-> app-state
-        (assoc :grid (g/make-move (get-in app-state [:mode :original-grid])
+    (-> state
+        (update-in [:ai-scores] conj (g/score-move (state :grid) move))
+        (assoc :grid (g/make-move (state :grid) move))
+        (assoc :ai-hand new-hand)
+        (assoc :deck new-deck))))
+
+(defn confirm-move [state]
+  (let [move (get-in state [:mode :move-so-far])
+        move-tiles (select [ALL LAST] move)
+        ; xxxx deck function here too
+        [new-deck new-hand] (deck/draw-tiles (state :deck)
+                                             (state :player-hand)
+                                             (count move-tiles))]
+    (-> state
+        (assoc :grid (g/make-move (get-in state [:mode :original-grid])
                                   move))
         (assoc :mode {:mode/type :default})
         (update-in [:player-scores]
                    conj
-                   (g/score-move (get-in app-state [:mode :original-grid])
+                   (g/score-move (get-in state [:mode :original-grid])
                                  move))
         (assoc :deck new-deck)
-        (assoc :hand new-hand))))
+        (assoc :player-hand new-hand)
+        -make-ai-move)))

@@ -63,23 +63,6 @@
                    nil))}
    value])
 
-#_[:div.button
-   {:on-click #(do
-                 (swap! state
-                        (fn [state]
-                          (let [move (ai/pick-move (state :grid) (state :hand))
-                                move-tiles (select [ALL LAST] move)
-                                spent-hand (reduce remove-item (state :hand) move-tiles)
-                                [new-deck new-hand] (deck/draw-tiles (state :deck)
-                                                                     spent-hand
-                                                                     (count move-tiles))]
-                            (-> state
-                                (assoc :grid (g/make-move (state :grid) move))
-                                (assoc :hand new-hand)
-                                (assoc :deck new-deck)))))
-                 nil)}
-   "make a move"]
-
 (defn draw-controls [state hand game-event-chan]
   (let [mode (@state :mode)
         confirm-button-active (and (not= (mode :mode/type) :default)
@@ -141,7 +124,7 @@
                            (get-in @state [:mode :available-cells])))]
 
     [:div.game
-     [draw-controls state (@state :hand) game-event-chan]
+     [draw-controls state (@state :player-hand) game-event-chan]
 
      [:div.board-container
       [draw-scores (@state :player-scores) "Player"]
@@ -154,7 +137,7 @@
        (set (g/find-blocked-cells (@state :grid)))
        (get-in @state [:mode :selected-cell])]
 
-      [draw-scores (@state :player-scores) "Computer"]]]))
+      [draw-scores (@state :ai-scores) "Computer"]]]))
 
 ;;; Event handling
 
