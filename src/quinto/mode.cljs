@@ -4,6 +4,7 @@
             [quinto.grid :as g]
             [quinto.utils :refer [remove-item]]))
 
+; TODO DOCUMENT THIS MODULE AND PROBABLY SOME OR MOST OF THE FUNCTIONS
 (defn enter-assembling-move-mode [app-state selected-cell]
   (assert (contains? (set (g/find-playable-cells (app-state :grid)))
                      selected-cell))

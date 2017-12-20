@@ -79,7 +79,11 @@
    "make a move"]
 
 (defn draw-controls [state hand game-event-chan]
-  (let [mode (@state :mode)]
+  (let [mode (@state :mode)
+        confirm-button-active (and (not= (mode :mode/type) :default)
+                                   (g/is-grid-valid? (@state :grid))
+                                   (> (count (mode :move-so-far))
+                                      0))]
     [:div#controls
      {:class (when (mode :selected-cell)
                "assembling-move")}
@@ -89,12 +93,10 @@
         ^{:key index} [draw-tile game-event-chan value mode])]
 
      [:div.button.confirm
-      {:class    (when (or (= (mode :mode/type) :default)
-                           (not (g/is-grid-valid? (@state :grid))))
+      {:class    (when (not confirm-button-active)
                    "inactive")
        :on-click #(do
-                    (when (and (not= (mode :mode/type) :default)
-                               (g/is-grid-valid? (@state :grid)))
+                    (when confirm-button-active
                       (put! game-event-chan {:event/type :confirm-move}))
                     nil)}
       "✔"]

@@ -936,7 +936,7 @@ you could actually have a generic :animation mode, and the mode dict has any dat
 that quinto.html needs in order to draw the animation
 that could have worked in cljstone too i think, interesting
 
-TODO replace "make a move" button with checkmark, left arrow, and X
+DONE replace "make a move" button with checkmark, left arrow, and X
 
 TODO consider putting goog analytics tag on the page before publishing eventual blog post
 
@@ -956,3 +956,4 @@ if you have this board
 it's marked as invalid, but it should be marked as valid
 this is because of a bug in is-grid-valid? (AND LIKELY ELSEWHERE)
 having to do with the cells inbetween the 1 and 8, and between the 7 and 2
+TODO FIX THAT
