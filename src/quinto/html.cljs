@@ -124,10 +124,15 @@
 
 (defn draw-scores [scores whose-score]
   [:div.scores
-   [:p whose-score]
-   [:ul
-    (for [[index value] (map-indexed vector scores)]
-      ^{:key index} [:li value])]])
+   [:h3 whose-score]
+   (when (seq scores)
+     [:ul
+      (for [[index value] (map-indexed vector scores)]
+        ^{:key index} [:li value])])
+   (when (> (count scores) 1)
+     [:hr])
+   (when (> (count scores) 1)
+     [:p (apply + scores)])])
 
 (defn draw-game [state game-event-chan]
   (let [playable-cells (set

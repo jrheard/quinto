@@ -112,6 +112,20 @@ html {
     color: #333;
 }
 
+.scores li {
+    padding: 2px;
+}
+
+.scores hr {
+    width: 20%;
+    margin: 4px auto:
+}
+
+.scores p {
+    font-size: 20px;
+    color: #333;
+}
+
 #grid {
     width: 612px;
     background-color: #EEE;
