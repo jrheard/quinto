@@ -126,8 +126,6 @@
   (when @keyup-handler
     (.removeEventListener js/document "keyup" @keyup-handler))
 
-  ;(assert (g/is-grid-valid? (@state :grid)))
-
   (let [game-event-chan (chan)
         escape-handler (fn [event]
                          (let [key-code (.-keyCode event)]

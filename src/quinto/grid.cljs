@@ -7,21 +7,27 @@
 
 (def empty-grid (vec (repeat GRID-WIDTH (vec (repeat GRID-HEIGHT nil)))))
 
+(declare is-grid-valid?)
+
 (defn make-move
   "Applies `move` to `grid`."
   [grid move]
-  (reduce (fn [grid [[x y] value]]
-            (assert (nil? (get-in grid [x y])))
-            (assoc-in grid [x y] value))
-          grid
-          move))
+  (let [new-grid (reduce (fn [grid [[x y] value]]
+                           (assert (nil? (get-in grid [x y])))
+                           (assoc-in grid [x y] value))
+                         grid
+                         move)]
+
+    (assert (is-grid-valid? new-grid))
+    new-grid))
 
 (s/fdef make-move
   :args (s/cat :grid ::sp/grid :move ::sp/move)
   :ret ::sp/grid)
 
 (defn find-empty-cells [grid]
-  (select [INDEXED-VALS (collect-one FIRST) LAST INDEXED-VALS (selected? LAST nil?) FIRST]
+  (select [INDEXED-VALS (collect-one FIRST) LAST
+           INDEXED-VALS (selected? LAST nil?) FIRST]
           grid))
 
 (s/fdef find-empty-cells
@@ -87,25 +93,21 @@
   [grid]
   (filter #(cell-is-blocked? grid %) (find-empty-cells grid)))
 
-(defn move-direction
-  [move]
-  (let [xs (set (select [ALL FIRST FIRST] move))]
-    (if (= (count xs) 1)
-      [[0 1] [0 -1]]
-      [[1 0] [-1 0]]) ))
-
-(s/fdef move-direction
-  :args (s/cat :move ::sp/move)
-  :ret (s/cat :xdir int? :ydir int?))
-
 (defn find-next-open-cells-for-move
+  "Returns a vector like [[3 5] [3 7] [4 6]] indicating which cells on `grid` can
+  be used as part of a `move` that's being assembled by the user."
   [grid move]
   (let [[[x y] _] (first move)
-        playable-cells (set (find-playable-cells grid))]
+        playable-cells (set (find-playable-cells grid))
+        directions-to-check (if (= (count move) 1)
+                              [[-1 0] [1 0] [0 -1] [0 1]]
 
-    (for [[xdir ydir] (if (= (count move) 1)
-                        [[-1 0] [1 0] [0 -1] [0 1]]
-                        (move-direction move))
+                              (let [xs (set (select [ALL FIRST FIRST] move))]
+                                (if (= (count xs) 1)
+                                  [[0 1] [0 -1]]
+                                  [[1 0] [-1 0]])))]
+
+    (for [[xdir ydir] directions-to-check
 
           :let [nil-cells (select [(indexed-grid-values (+ x xdir)
                                                         (+ y ydir)
