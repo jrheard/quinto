@@ -21,7 +21,6 @@
           (assoc-in $ [:grid x y] value)
           (assoc-in $ [:mode :selected-cell] nil)
           (update-in $ [:hand] remove-item value)
-          ; xxxxx move-so-far never has length > 1
           (update-in $ [:mode :move-so-far] conj [[x y] value])
           (assoc-in $ [:mode :available-cells]
                     (g/find-next-open-cells-for-move
@@ -33,3 +32,28 @@
     (contains? (app-state :mode) :original-grid) (assoc :grid (get-in app-state [:mode :original-grid]))
     (contains? (app-state :mode) :original-hand) (assoc :hand (get-in app-state [:mode :original-hand]))
     true (assoc :mode {:mode/type :default})))
+
+
+(defn go-back [app-state]
+  (assert (not= (get-in app-state [:mode :mode/type])
+                :default))
+
+  (cond
+    (and
+      (some? (get-in app-state [:mode :selected-cell]))
+      (= (count (get-in app-state [:mode :move-so-far]))
+         1))
+    (cancel-mode app-state)
+
+    (some? (get-in app-state [:mode :selected-cell]))
+    (assoc-in app-state [:mode :selected-cell] nil)
+
+    (seq (get-in app-state [:mode :move-so-far]))
+    (let [[[x y] value] (last (get-in app-state [:mode :move-so-far]))]
+
+      (-> app-state
+          (assoc-in [:grid x y] nil)
+          (update-in [:mode :move-so-far] pop)
+          ; xxxx available cells
+          (update-in [:hand] conj value)
+          (assoc-in [:mode :selected-cell] [x y])))))

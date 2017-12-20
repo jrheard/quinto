@@ -942,4 +942,4 @@ TODO consider putting goog analytics tag on the page before publishing eventual 
 
 DONE if a tile's in assembling mode's :move-so-far, draw it in a different color
 
-
+next up: implement back button

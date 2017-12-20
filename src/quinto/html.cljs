@@ -96,7 +96,10 @@
       "✔"]
 
      [:div.button.back
-      {:class button-class}
+      {:class    button-class
+       :on-click #(do
+                    (put! game-event-chan {:event/type :go-back})
+                    nil)}
       "◀"]
 
      [:div.button.cancel
@@ -112,7 +115,6 @@
                          (if (= (get-in @state [:mode :mode/type]) :default)
                            (g/find-playable-cells (@state :grid))
                            (get-in @state [:mode :available-cells])))]
-    (js/console.log playable-cells)
 
     [:div.game
      [draw-controls state (@state :hand) game-event-chan]
@@ -133,8 +135,10 @@
         :select-cell (if (= (get-in @state [:mode :mode/type])
                             :default)
                        (swap! state m/enter-assembling-move-mode (event :cell))
+                       ; xxxxx does this not set :available-cells to [] somehow?
                        (swap! state assoc-in [:mode :selected-cell] (event :cell)))
         :select-tile (swap! state m/select-tile (event :value))
+        :go-back (swap! state m/go-back)
         :cancel-mode (swap! state m/cancel-mode)
         nil))
     (recur)))
