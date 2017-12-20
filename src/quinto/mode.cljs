@@ -79,9 +79,8 @@
 (defn confirm-move [app-state]
   (let [move (get-in app-state [:mode :move-so-far])
         move-tiles (select [ALL LAST] move)
-        spent-hand (reduce remove-item (app-state :hand) move-tiles)
         [new-deck new-hand] (deck/draw-tiles (app-state :deck)
-                                             spent-hand
+                                             (app-state :hand)
                                              (count move-tiles))]
     (-> app-state
         (assoc :grid (g/make-move (get-in app-state [:mode :original-grid])

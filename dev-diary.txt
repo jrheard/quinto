@@ -957,3 +957,17 @@ it's marked as invalid, but it should be marked as valid
 this is because of a bug in is-grid-valid? (AND LIKELY ELSEWHERE)
 having to do with the cells inbetween the 1 and 8, and between the 7 and 2
 TODO FIX THAT
+
+eventual TODO - let player (or AI!) make first move on an empty board
+
+=========
+
+12/20/17
+
+DONE - sometimes the hand isn't refilled with enough tiles. i think this happens
+when you make a move with dupes in it, eg two 7s
+
+let's fix that first
+
+oh, it was a simple bug in quinto.modes, we were remove-iteming in both select-tile
+and confirm-move. just removed the remove-item from confirm-move, ez

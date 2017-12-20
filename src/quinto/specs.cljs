@@ -28,3 +28,5 @@
 (s/def :mode/type #{:default :assembling-move})
 (s/def ::mode (s/keys :req [:mode/type]))
 
+; TODO spec modes more, use a multispec
+; TODO spec app state, add an fdef in quinto.html that validates app state spec

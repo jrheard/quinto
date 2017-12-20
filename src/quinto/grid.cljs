@@ -125,6 +125,7 @@
   :args (s/cat :grid ::sp/grid :move ::sp/move)
   :ret (s/coll-of ::sp/cell))
 
+; xxxxxxxxxxxxxx this is buggy
 (defn is-grid-valid? [grid]
   (every?
     identity

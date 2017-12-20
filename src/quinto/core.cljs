@@ -1,6 +1,6 @@
 (ns quinto.core
   (:require [com.rpl.specter :refer [select ALL srange nthpath multi-path STOP collect-one selected? FIRST LAST]]
-            [clojure.core.match :refer [match]]
+            [orchestra-cljs.spec.test :as stest]
             [reagent.core :as r]
             [quinto.deck :refer [make-deck draw-tiles MAX-HAND-SIZE]]
             [quinto.html :refer [render-game]]
@@ -20,7 +20,8 @@
                                         (@app-state :hand)
                                         MAX-HAND-SIZE)]
     (swap! app-state assoc :deck new-deck)
-    (swap! app-state assoc :hand new-hand))
+    (swap! app-state assoc :hand new-hand)
+    (swap! app-state assoc :hand [5 5 5 5 5]))
 
   (swap! app-state update-in [:grid] g/make-move [[[6 4] 7]
                                                   [[6 5] 3]
