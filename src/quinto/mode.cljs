@@ -23,6 +23,8 @@
       (assoc-in [:mode :available-cells] [])))
 
 (defn select-tile [app-state value]
+  (assert (some? (get-in app-state [:mode :selected-cell])))
+
   (let [[x y] (get-in app-state [:mode :selected-cell])]
     (as-> app-state $
       (assoc-in $ [:grid x y] value)
@@ -40,7 +42,6 @@
     (contains? (app-state :mode) :original-hand) (assoc :hand (get-in app-state [:mode :original-hand]))
     true (assoc :mode {:mode/type :default})))
 
-
 (defn go-back [app-state]
   (assert (not= (get-in app-state [:mode :mode/type])
                 :default))
@@ -49,7 +50,7 @@
     (and
       (some? (get-in app-state [:mode :selected-cell]))
       (= (count (get-in app-state [:mode :move-so-far]))
-         1))
+         0))
     (cancel-mode app-state)
 
     (some? (get-in app-state [:mode :selected-cell]))
