@@ -154,60 +154,6 @@
   :args (s/cat :grid ::sp/grid :hand ::sp/hand :cell ::sp/cell)
   :ret (s/coll-of ::sp/move))
 
-(defn score-move
-  "Returns a number (a multiple of 5, like 10 or 25, etc) indicating the score that would
-  be earned by a player who applies `move` to `grid`."
-  [grid move]
-  (let [move-x-values (select [ALL 0 0] move)
-        move-direction (if (apply = move-x-values) :vertical :horizontal)
-
-        grid-with-move (g/make-move grid move)
-        runs (for [[[x y] _] move]
-               (g/find-runs grid-with-move x y))
-        horizontal-runs (select [ALL 0] runs)
-        vertical-runs (select [ALL 1] runs)
-
-        primary-direction-runs (if (= move-direction :horizontal) horizontal-runs vertical-runs)
-        perpendicular-runs (if (= move-direction :horizontal) vertical-runs horizontal-runs)
-        [a-primary-run-length a-primary-run-sum] (first primary-direction-runs)]
-
-    ; A move's score is:
-    ; The sum of the run of values along its "primary direction", plus
-    ; all the sums of the runs of values along its "perpendicular direction".
-    ;
-    ; So on a board like this:
-    ; 5 4 1
-    ;     2
-    ;     2 3
-    ;
-    ; If you make a move that would cause the board to look like this:
-    ; 5 4 1
-    ;   1 2 7 5
-    ;     2 3
-    ;
-    ; Then that move's score is:
-    ; The run sum along that move's horizontal axis (1 + 2 + 7 + 5 = 15), plus
-    ; The run sum along the vertical axis of the first cell in the move (1 + 4), plus
-    ; The run sum along the vertical axis of the second cell in the move (7 + 3), plus
-    ; The run sum along the vertical axis of the third and final cell in the move.
-    ; But the third cell of the move is that single number 5, and that cell's vertical run
-    ; has length 1, so it doesn't qualify to be included in the score; perpendicular-axis
-    ; run sums only count if those runs are of length > 1.
-    ; So the final score for that move is
-    ; (1 + 2 + 7 + 5) = 15, plus
-    ; (1 + 4) = 5, plus
-    ; (7 + 3) = 10,
-    ; which is 15 + 5 + 10, which is 30.
-
-    (apply +
-           (if (> a-primary-run-length 1) a-primary-run-sum 0)
-           (select [ALL (fn [[run-length _]] (> run-length 1)) 1]
-                   perpendicular-runs))))
-
-(s/fdef score-move
-  :args (s/cat :grid ::sp/grid :move ::sp/move)
-  :ret pos-int?)
-
 (defn pick-move
   "Returns the highest-scoring move that can be made using this hand on this board."
   [grid hand]
@@ -215,7 +161,7 @@
         moves (into #{}
                     (mapcat #(apply moves-for-cell grid hand %) playable-cells))]
 
-    (apply max-key #(score-move grid %) moves)))
+    (apply max-key #(g/score-move grid %) moves)))
 
 (s/fdef pick-move
   :args (s/cat :grid ::sp/grid :hand ::sp/hand)

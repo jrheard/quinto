@@ -9,6 +9,8 @@
             [quinto.utils :refer [remove-item]])
   (:require-macros [cljs.core.async :refer [go-loop]]))
 
+;;; HTML rendering
+
 (defn draw-cell [game-event-chan mode grid x y playable-cells blocked-cells selected-cell]
   (let [cell (get-in grid [x y])
         cell-class (str "cell "
@@ -120,6 +122,13 @@
                     nil)}
       "✖"]]))
 
+(defn draw-scores [scores whose-score]
+  [:div.scores
+   [:p whose-score]
+   [:ul
+    (for [[index value] (map-indexed vector scores)]
+      ^{:key index} [:li value])]])
+
 (defn draw-game [state game-event-chan]
   (let [playable-cells (set
                          (if (= (get-in @state [:mode :mode/type]) :default)
@@ -129,13 +138,20 @@
     [:div.game
      [draw-controls state (@state :hand) game-event-chan]
 
-     [draw-grid
-      game-event-chan
-      (@state :mode)
-      (@state :grid)
-      playable-cells
-      (set (g/find-blocked-cells (@state :grid)))
-      (get-in @state [:mode :selected-cell])]]))
+     [:div.board-container
+      [draw-scores (@state :player-scores) "Player"]
+
+      [draw-grid
+       game-event-chan
+       (@state :mode)
+       (@state :grid)
+       playable-cells
+       (set (g/find-blocked-cells (@state :grid)))
+       (get-in @state [:mode :selected-cell])]
+
+      [draw-scores (@state :player-scores) "Computer"]]]))
+
+;;; Event handling
 
 (defn handle-game-events [state game-event-chan]
   (go-loop []
@@ -156,6 +172,8 @@
 ; Atom used for removing preexisting event handlers when fighweel reloads our code.
 (defonce keyup-handler (atom nil))
 (def ESCAPE-KEY-CODE 27)
+
+;;; Public API
 
 (defn render-game [state]
   (when @keyup-handler

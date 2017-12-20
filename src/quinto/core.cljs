@@ -40,6 +40,7 @@
   (render-game app-state))
 
 (comment
+  (identity @app-state)
   (@app-state :grid)
   (g/is-grid-valid?
     (get-in @app-state [:grid]))

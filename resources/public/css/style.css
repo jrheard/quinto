@@ -4,7 +4,7 @@ html {
 }
 
 #app {
-    width: 720px;
+    width: 900px;
     margin: 0 auto;
 }
 
@@ -91,11 +91,32 @@ html {
     cursor: default;
 }
 
+.board-container {
+    overflower: hidden;
+    margin: 20px auto;
+}
+
+.scores {
+    float: left;
+    width: 144px;
+    text-align: center;
+    color: #555;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.scores ul {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #333;
+}
+
 #grid {
     width: 612px;
-    margin: 20px auto;
     background-color: #EEE;
     overflow: hidden;
+    float: left;
 }
 
 .column {

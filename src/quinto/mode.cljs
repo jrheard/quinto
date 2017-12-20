@@ -86,5 +86,9 @@
         (assoc :grid (g/make-move (get-in app-state [:mode :original-grid])
                                   move))
         (assoc :mode {:mode/type :default})
+        (update-in [:player-scores]
+                   conj
+                   (g/score-move (get-in app-state [:mode :original-grid])
+                                 move))
         (assoc :deck new-deck)
         (assoc :hand new-hand))))
