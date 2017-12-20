@@ -40,7 +40,8 @@ html {
 
 #controls.assembling-move .tile:hover {
     cursor: pointer;
-    background-color: #EE821D;
+    /*background-color: #EE821D;*/
+    background-color: #FFB36C;
 }
 
 .button {
@@ -99,6 +100,13 @@ html {
     background-color: #8BE58B;
 }
 
-.cell.selected {
+.cell.selected,
+.cell.selected:hover {
     background-color: #EE821D;
+}
+
+
+.cell.speculative,
+.cell.speculative:hover {
+    background-color: #FFB36C;
 }

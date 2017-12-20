@@ -115,7 +115,7 @@ ok that still worked, wow
 
 anyway there's lots of duplication so let's start with that i guess
 
-TODO at some point: make the board have 2 non-nil cells, and start thinking about xdir/ydir
+DONE at some point: make the board have 2 non-nil cells, and start thinking about xdir/ydir
 
 hm i mean things are actually looking pretty good so far
 
@@ -182,7 +182,7 @@ that helps / is necessary
 
 12/13/18
 
-TODO idea for breaking up the big insane function when we include xdir/ydir conds
+DONE idea for breaking up the big insane function when we include xdir/ydir conds
 
 make a function like `are-runs-valid?` that takes the runs and xdir ydir
 also returns false if either run is too long
@@ -400,7 +400,7 @@ ok yeah it looks like srange might do the trick
           (@app-state :grid))
 [nil nil nil 5 5 7 3 nil nil nil nil nil nil]
 
-; TODO what about right-to-left? i guess just reverse the sequence?
+; DONE what about right-to-left? i guess just reverse the sequence?
 
 ok i specterized find-runs and now it runs noticeably slower!
 because i'm doing a bunch of stuff outside of the specter query
@@ -866,7 +866,7 @@ presumably this is because vectors are implemented under the hood as trees, and 
 doesn't guarantee you a contiguous block of memory, and so there's basically no difference between
 a 1d vector and a 2d vector here
 
-TODO read http://hypirion.com/musings/persistent-vector-performance
+DONE read http://hypirion.com/musings/persistent-vector-performance
 
 the perf with this hand-rolled loop is totally acceptable when advance-compiled so F it
 
@@ -894,7 +894,7 @@ just think about modes now
 
 ok so modes have been going well so far
 right now my next thing to do is to recalculate :mode :available-cells whenever you place a tile
-TODO: that
+DONE: that
 will be tricky when your move crosses one or more preexisting tiles
 
 after second tile placed:
@@ -929,3 +929,17 @@ when i should have been doing
 
 ok now it's looking like direction-finding behavior is a bit too strict
 it should be vertical moves and horizontal moves, not up/left/down/right moves
+
+unrelated TODO - maybe some sort of :animate-computer-move mode, which flashes one move
+of the tile at a time, with a one-second pause inbetween each part of the move?
+you could actually have a generic :animation mode, and the mode dict has any data
+that quinto.html needs in order to draw the animation
+that could have worked in cljstone too i think, interesting
+
+TODO replace "make a move" button with checkmark, left arrow, and X
+
+TODO consider putting goog analytics tag on the page before publishing eventual blog post
+
+TODO if a tile's in assembling mode's :move-so-far, draw it in a different color
+
+

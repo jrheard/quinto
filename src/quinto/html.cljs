@@ -1,5 +1,5 @@
 (ns quinto.html
-  (:require [com.rpl.specter :refer [select ALL LAST]]
+  (:require [com.rpl.specter :refer [select ALL LAST FIRST]]
             [cljs.core.async :refer [chan <! put!]]
             [reagent.core :as r]
             [quinto.ai :as ai]
@@ -19,6 +19,10 @@
                           "blocked ")
                         (when (contains? playable-cells [x y])
                           "playable ")
+                        (when (contains? (set (select [ALL FIRST]
+                                                      (mode :move-so-far)))
+                                         [x y])
+                          "speculative ")
                         (when (= selected-cell [x y])
                           "selected "))]
 
