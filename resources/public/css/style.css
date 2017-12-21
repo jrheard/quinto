@@ -191,3 +191,17 @@ html {
     background-color: #EEA764;
     }
 }
+
+.scores .most-recent-score {
+    animation: 5s glow-score;
+}
+
+@keyframes glow-score {
+    from {
+        color: #333;
+    }
+
+    50% {
+        color: #EEA764;
+    }
+}

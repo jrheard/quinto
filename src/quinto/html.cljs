@@ -115,7 +115,10 @@
    (when (seq scores)
      [:ul
       (for [[index value] (map-indexed vector scores)]
-        ^{:key index} [:li value])])
+        ^{:key index} [:li
+                       {:class (when (= index (dec (count scores)))
+                                 "most-recent-score")}
+                       value])])
    (when (> (count scores) 1)
      [:hr])
    (when (> (count scores) 1)
