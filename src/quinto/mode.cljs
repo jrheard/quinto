@@ -81,21 +81,19 @@
   (let [move (ai/pick-move (state :grid) (state :ai-hand))
         move-tiles (select [ALL LAST] move)
         spent-hand (reduce remove-item (state :ai-hand) move-tiles)
-        ; xxxx deck function
         [new-deck new-hand] (deck/draw-tiles (state :deck)
                                              spent-hand
                                              (count move-tiles))]
     (-> state
         (update-in [:ai-scores] conj (g/score-move (state :grid) move))
         (assoc :grid (g/make-move (state :grid) move))
-        (assoc-in [:mode :most-recent-computer-move] move)
+        (assoc :most-recent-computer-move move)
         (assoc :ai-hand new-hand)
         (assoc :deck new-deck))))
 
 (defn confirm-move [state]
   (let [move (get-in state [:mode :move-so-far])
         move-tiles (select [ALL LAST] move)
-        ; xxxx deck function here too
         [new-deck new-hand] (deck/draw-tiles (state :deck)
                                              (state :player-hand)
                                              (count move-tiles))

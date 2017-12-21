@@ -2,8 +2,6 @@
   (:require [com.rpl.specter :refer [select ALL LAST FIRST]]
             [cljs.core.async :refer [chan <! put!]]
             [reagent.core :as r]
-            [quinto.ai :as ai]
-            [quinto.deck :as deck]
             [quinto.grid :as g]
             [quinto.mode :as m]
             [quinto.utils :refer [remove-item]])
@@ -11,8 +9,9 @@
 
 ;;; HTML rendering
 
-(defn draw-cell [game-event-chan mode grid x y playable-cells blocked-cells selected-cell]
+(defn draw-cell [game-event-chan state grid x y playable-cells blocked-cells selected-cell]
   (let [cell (get-in grid [x y])
+        mode (state :mode)
         cell-class (str "cell "
                         (if (nil? cell)
                           "empty "
@@ -22,7 +21,7 @@
                         (when (contains? playable-cells [x y])
                           "playable ")
                         (when (contains? (set (select [ALL FIRST]
-                                                      (mode :most-recent-computer-move)))
+                                                      (state :most-recent-computer-move)))
                                          [x y])
                           "just-played ")
                         (when (contains? (set (select [ALL FIRST]
@@ -45,7 +44,7 @@
        ""
        cell)]))
 
-(defn draw-grid [game-event-chan mode grid playable-cells blocked-cells selected-cell]
+(defn draw-grid [game-event-chan state grid playable-cells blocked-cells selected-cell]
   [:div#grid
    (for [x (range (count grid))]
      ^{:key x}
@@ -53,7 +52,7 @@
 
       (for [y (range (count (grid x)))]
         ^{:key y}
-        [draw-cell game-event-chan mode grid x y playable-cells blocked-cells selected-cell])])])
+        [draw-cell game-event-chan state grid x y playable-cells blocked-cells selected-cell])])])
 
 (defn draw-tile [game-event-chan value mode]
   [:div.tile
@@ -139,7 +138,7 @@
 
       [draw-grid
        game-event-chan
-       (@state :mode)
+       @state
        (@state :grid)
        playable-cells
        (set (g/find-blocked-cells (@state :grid)))
