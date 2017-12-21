@@ -177,3 +177,17 @@ html {
 .cell.speculative:hover {
     background-color: #FFB36C;
 }
+
+.cell.just-played {
+    animation: 3s glow-cells;
+}
+
+@keyframes glow-cells {
+    from {
+        background-color: #CCC;
+    }
+
+    50% {
+    background-color: #EEA764;
+    }
+}

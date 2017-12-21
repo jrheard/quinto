@@ -88,6 +88,7 @@
     (-> state
         (update-in [:ai-scores] conj (g/score-move (state :grid) move))
         (assoc :grid (g/make-move (state :grid) move))
+        (assoc-in [:mode :most-recent-computer-move] move)
         (assoc :ai-hand new-hand)
         (assoc :deck new-deck))))
 

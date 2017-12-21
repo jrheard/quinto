@@ -22,6 +22,10 @@
                         (when (contains? playable-cells [x y])
                           "playable ")
                         (when (contains? (set (select [ALL FIRST]
+                                                      (mode :most-recent-computer-move)))
+                                         [x y])
+                          "just-played ")
+                        (when (contains? (set (select [ALL FIRST]
                                                       (mode :move-so-far)))
                                          [x y])
                           "speculative ")

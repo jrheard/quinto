@@ -994,3 +994,16 @@ when it's scoring moves, the is-grid-valid? assert in make-move gets triggered
 found the bug. removing the is-grid-valid? assert drastically increases perf, which isn't
 all that surprising, but i'd like to have it checked _somewhere_. maybe in quinto.mode
 
+yeah cool i put it there
+perf's looking good, especially in advanced mode
+
+next up:
+animate computer player's move
+also briefly highlight their score when they make the move
+
+TODO: let the player press a number key on their keyboard if they want to do that instead
+of clicking on it
+
+TODO: kick off the computer's move _after_ your move has been made, so the board shows your move while you wait
+
+

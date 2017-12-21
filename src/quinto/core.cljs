@@ -8,13 +8,14 @@
             [quinto.grid :as g]))
 
 (defonce app-state
-         (r/atom {:grid g/empty-grid
-                  :deck (make-deck)
+         (r/atom {:grid          g/empty-grid
+                  :deck          (make-deck)
                   :player-scores []
-                  :player-hand []
-                  :ai-scores []
-                  :ai-hand []
-                  :mode {:mode/type :default}}))
+                  :player-hand   []
+                  :ai-scores     []
+                  :ai-hand       []
+                  :mode          {:mode/type                 :default
+                                  :most-recent-computer-move []}}))
 
 (defn ^:export main []
   ;(stest/instrument)
@@ -59,6 +60,7 @@
     [[[6 10] 0] [[5 10] 5] [[4 10] 1]]
     )
 
-
+  (set (select [ALL FIRST]
+                ((@app-state :mode) :most-recent-computer-move)))
 
   )
