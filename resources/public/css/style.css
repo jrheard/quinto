@@ -103,7 +103,7 @@ html {
     color: #555;
     text-transform: uppercase;
     font-weight: bold;
-    font-size: 15px;
+    font-size: 20px;
 }
 
 .scores ul {
@@ -203,6 +203,5 @@ html {
 
     50% {
         color: #FF8000;
-        font-size: 25px;
     }
 }

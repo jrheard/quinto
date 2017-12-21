@@ -110,23 +110,20 @@
       "✖"]]))
 
 (defn draw-scores [scores whose-score]
-  ; TODO clean up these whens somehow
-  (if (seq scores)
+  (let [scores (or (seq scores) [0])]
     [:div.scores
      [:h3 whose-score]
      [:ul
       (for [[index value] (map-indexed vector scores)]
         ^{:key index} [:li
-                       {:class (when (= index (dec (count scores)))
+                       {:class (when (and (= index (dec (count scores)))
+                                          (not= scores [0]))
                                  "most-recent-score")}
                        value])]
      (when (> (count scores) 1)
        [:hr])
      (when (> (count scores) 1)
-       [:p (apply + scores)])]
-
-    [:div.scores
-     {:dangerouslySetInnerHTML {:__html "&nbsp;"}}]))
+       [:p (apply + scores)])]))
 
 (defn draw-game [state game-event-chan]
   (let [playable-cells (set
