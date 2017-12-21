@@ -51,7 +51,7 @@
 
 (comment
   (identity @app-state)
-  (@app-state :grid)
+  (@app-state :deck)
   (g/is-grid-valid?
     (get-in @app-state [:grid]))
 

@@ -179,10 +179,10 @@ html {
 }
 
 .cell.just-played {
-    animation: 3s glow-cells;
+    animation: 3s glow-background;
 }
 
-@keyframes glow-cells {
+@keyframes glow-background {
     from {
         background-color: #CCC;
     }
@@ -193,15 +193,16 @@ html {
 }
 
 .scores .most-recent-score {
-    animation: 5s glow-score;
+    animation: 5s glow-text;
 }
 
-@keyframes glow-score {
+@keyframes glow-text {
     from {
         color: #333;
     }
 
     50% {
-        color: #EEA764;
+        color: #FF8000;
+        font-size: 25px;
     }
 }

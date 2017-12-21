@@ -3,7 +3,8 @@
             [clojure.set :refer [intersection]]
             [clojure.spec.alpha :as s]
             [quinto.specs :as sp :refer [MAX-RUN-LENGTH GRID-HEIGHT GRID-WIDTH]]
-            [quinto.specter :refer [grid-values indexed-grid-values]]))
+            [quinto.specter :refer [grid-values indexed-grid-values]]
+            [quinto.utils :refer [index-of-first-truthy-item]]))
 
 (def empty-grid (vec (repeat GRID-WIDTH (vec (repeat GRID-HEIGHT nil)))))
 
@@ -94,6 +95,7 @@
   [grid move]
   (let [[[x y] _] (first move)
         playable-cells (set (find-playable-cells grid))
+        blocked-cells (set (find-blocked-cells grid))
         directions-to-check (if (= (count move) 1)
                               [[-1 0] [1 0] [0 -1] [0 1]]
 
@@ -111,9 +113,20 @@
                                    (selected? LAST nil?)
                                    FIRST]
                                   grid)
+
+                index-of-first-blocked-cell (index-of-first-truthy-item (map blocked-cells nil-cells))
+                index-of-first-playable-cell (index-of-first-truthy-item (map playable-cells nil-cells))
+
                 first-playable-cell-in-direction (first (filter playable-cells nil-cells))]
 
-          :when first-playable-cell-in-direction]
+          :when (and first-playable-cell-in-direction
+                     ; If there's a blocked cell between us and the first playable cell,
+                     ; that cell is not in fact playable for this move.
+                     ; Blocked cells are empty, and moves can't have an empty cell in the middle.
+                     (not
+                       (and (> index-of-first-blocked-cell -1)
+                            (< index-of-first-blocked-cell index-of-first-playable-cell))))]
+
       first-playable-cell-in-direction)))
 
 (s/fdef find-next-open-cells-for-move

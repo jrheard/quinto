@@ -24,3 +24,12 @@
 (s/fdef cell-is-on-grid
   :args (s/cat :cell (s/cat :x int? :y int?))
   :ret boolean?)
+
+(defn index-of-first-truthy-item
+  ([xs]
+   (index-of-first-truthy-item xs 0))
+  ([xs curr-index]
+   (cond
+     (not (seq xs)) -1
+     (first xs) curr-index
+     :else (index-of-first-truthy-item (rest xs) (inc curr-index)))))
