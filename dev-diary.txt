@@ -1005,7 +1005,7 @@ of clicking on it
 
 i thought i found a bug in the game's ai but it's just better at the game than i am
 
-TODO let player make first move on an empty board
+DONE let player make first move on an empty board
 
 ===========
 

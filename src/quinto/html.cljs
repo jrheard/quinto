@@ -166,7 +166,14 @@
 
 ; Atom used for removing preexisting event handlers when fighweel reloads our code.
 (defonce keyup-handler (atom nil))
+
 (def ESCAPE-KEY-CODE 27)
+(def LEFT-ARROW-KEY-CODE 37)
+(def NUMBER-KEY-CODES {49 1
+                       50 2
+                       51 3
+                       52 4
+                       53 5})
 
 ;;; Public API
 
@@ -176,10 +183,23 @@
 
   (let [game-event-chan (chan)
         escape-handler (fn [event]
-                         (let [key-code (.-keyCode event)]
-                           (when (= key-code ESCAPE-KEY-CODE)
-                             (put! game-event-chan
-                                   {:event/type :cancel-mode}))))]
+                         (let [key-code (.-keyCode event)
+
+                               event (condp contains? key-code
+                                       #{ESCAPE-KEY-CODE} {:event/type :cancel-mode}
+
+                                       #{LEFT-ARROW-KEY-CODE} {:event/type :go-back}
+
+                                       NUMBER-KEY-CODES (when (get-in @state [:mode :selected-cell])
+                                                          (let [hand (@state :player-hand)
+                                                                hand-index (dec (NUMBER-KEY-CODES key-code))]
+                                                            (when (< hand-index (count hand))
+                                                              {:event/type :select-tile
+                                                               :value      (nth hand hand-index)})))
+                                       nil)]
+
+                           (when event
+                             (put! game-event-chan event))))]
 
     (r/render-component [draw-game state game-event-chan]
                         (js/document.getElementById "app"))
