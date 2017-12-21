@@ -930,7 +930,7 @@ when i should have been doing
 ok now it's looking like direction-finding behavior is a bit too strict
 it should be vertical moves and horizontal moves, not up/left/down/right moves
 
-unrelated TODO - maybe some sort of :animate-computer-move mode, which flashes one move
+unrelated DONE - maybe some sort of :animate-computer-move mode, which flashes one move
 of the tile at a time, with a one-second pause inbetween each part of the move?
 you could actually have a generic :animation mode, and the mode dict has any data
 that quinto.html needs in order to draw the animation
@@ -958,7 +958,6 @@ this is because of a bug in is-grid-valid? (AND LIKELY ELSEWHERE)
 having to do with the cells inbetween the 1 and 8, and between the 7 and 2
 DONE FIX THAT
 
-eventual TODO - let player (or AI!) make first move on an empty board
 
 =========
 
@@ -1004,6 +1003,6 @@ also briefly highlight their score when they make the move
 TODO: let the player press a number key on their keyboard if they want to do that instead
 of clicking on it
 
-TODO: kick off the computer's move _after_ your move has been made, so the board shows your move while you wait
+i thought i found a bug in the game's ai but it's just better at the game than i am
 
-
+TODO let player make first move on an empty board

@@ -179,7 +179,7 @@ html {
 }
 
 .cell.just-played {
-    animation: 3s glow-background;
+    animation: 5s glow-background;
 }
 
 @keyframes glow-background {
