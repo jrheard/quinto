@@ -169,6 +169,7 @@
 
 (def ESCAPE-KEY-CODE 27)
 (def LEFT-ARROW-KEY-CODE 37)
+(def ENTER-KEY-CODE 13)
 (def NUMBER-KEY-CODES {49 1
                        50 2
                        51 3
@@ -184,13 +185,22 @@
   (let [game-event-chan (chan)
         escape-handler (fn [event]
                          (let [key-code (.-keyCode event)
+                               mode (@state :mode)
 
                                event (condp contains? key-code
                                        #{ESCAPE-KEY-CODE} {:event/type :cancel-mode}
 
-                                       #{LEFT-ARROW-KEY-CODE} {:event/type :go-back}
+                                       #{LEFT-ARROW-KEY-CODE} (when (not= (mode :mode/type)
+                                                                          :default)
+                                                                {:event/type :go-back})
 
-                                       NUMBER-KEY-CODES (when (get-in @state [:mode :selected-cell])
+                                       #{ENTER-KEY-CODE} (when (and (not= (mode :mode/type) :default)
+                                                                    (g/is-grid-valid? (@state :grid))
+                                                                    (> (count (mode :move-so-far))
+                                                                       0))
+                                                           {:event/type :confirm-move})
+
+                                       NUMBER-KEY-CODES (when (mode :selected-cell)
                                                           (let [hand (@state :player-hand)
                                                                 hand-index (dec (NUMBER-KEY-CODES key-code))]
                                                             (when (< hand-index (count hand))
