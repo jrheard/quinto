@@ -15,6 +15,7 @@
                   :ai-scores     []
                   :ai-hand       []
                   :mode          {:mode/type                 :default
+                                  ; xxx this should go up a level, not live on mode
                                   :most-recent-computer-move []}}))
 
 (defn ^:export main []
@@ -32,17 +33,6 @@
                                         MAX-HAND-SIZE)]
     (swap! app-state assoc :deck new-deck)
     (swap! app-state assoc :ai-hand new-hand))
-
-  (swap! app-state update-in [:grid] g/make-move [[[6 4] 7]
-                                                  [[6 5] 3]
-                                                  [[6 6] 5]
-                                                  [[6 7] 4]
-                                                  [[6 8] 1]])
-
-  (swap! app-state update-in [:grid] g/make-move [[[5 4] 5]
-                                                  [[4 4] 3]
-                                                  [[3 4] 2]
-                                                  [[2 4] 8]])
 
   (render-game app-state))
 

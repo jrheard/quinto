@@ -1006,3 +1006,13 @@ of clicking on it
 i thought i found a bug in the game's ai but it's just better at the game than i am
 
 TODO let player make first move on an empty board
+
+===========
+
+12/21/17
+
+TODO do another pass on the colors, they currently look bad
+the green and red cells are good, everything else is bad
+find something that lets you find colors that are the same, like, intensity as other colors?
+
+

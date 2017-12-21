@@ -76,8 +76,10 @@
 (defn find-playable-cells
   "Returns a list of all of the cells where a move can be started."
   [grid]
-  ; XXX this should return [[middle-cell-x middle-cell-y]] if the grid is empty
-  (filter #(cell-is-playable? grid %) (find-empty-cells grid)))
+  (let [playable-cells (filter #(cell-is-playable? grid %) (find-empty-cells grid))]
+    (if (seq playable-cells)
+      playable-cells
+      [[(quot GRID-WIDTH 2) (quot GRID-HEIGHT 2)]])))
 
 (defn cell-is-blocked? [grid [x y]]
   (let [[[x-run-length _] [y-run-length _]] (find-runs grid x y)]
