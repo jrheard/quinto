@@ -7,6 +7,20 @@
             [quinto.utils :refer [remove-item]])
   (:require-macros [cljs.core.async :refer [go-loop]]))
 
+;;; Helper functions
+
+(defn can-go-back? [state]
+  (not= (get-in state [:mode :mode/type]) :default))
+
+(defn can-confirm-move? [state]
+  (and (not= (get-in state [:mode :mode/type]) :default)
+       (g/is-grid-valid? (state :grid))
+       (> (count (get-in state [:mode :move-so-far]))
+          0)))
+
+(defn can-select-a-tile? [state]
+  (some? (get-in state [:mode :selected-cell])))
+
 ;;; HTML rendering
 
 (defn draw-cell [game-event-chan state grid x y playable-cells blocked-cells selected-cell]
@@ -54,11 +68,11 @@
         ^{:key y}
         [draw-cell game-event-chan state grid x y playable-cells blocked-cells selected-cell])])])
 
-(defn draw-tile [game-event-chan value mode]
+(defn draw-tile [game-event-chan state value mode]
   [:div.tile
    {:class    (when-not (mode :selected-cell)
                 "inactive")
-    :on-click (when (mode :selected-cell)
+    :on-click (when (can-select-a-tile? state)
                 #(do
                    (put! game-event-chan
                          {:event/type :select-tile
@@ -67,18 +81,15 @@
    value])
 
 (defn draw-controls [state hand game-event-chan]
-  (let [mode (@state :mode)
-        confirm-button-active (and (not= (mode :mode/type) :default)
-                                   (g/is-grid-valid? (@state :grid))
-                                   (> (count (mode :move-so-far))
-                                      0))]
+  (let [mode (state :mode)
+        confirm-button-active (can-confirm-move? state)]
     [:div#controls
      {:class (when (mode :selected-cell)
                "assembling-move")}
 
      [:div#hand
       (for [[index value] (map-indexed vector hand)]
-        ^{:key index} [draw-tile game-event-chan value mode])]
+        ^{:key index} [draw-tile game-event-chan state value mode])]
 
      [:div.button.confirm
       {:class    (when (not confirm-button-active)
@@ -90,10 +101,10 @@
       "✔"]
 
      [:div.button.back
-      {:class    (when (= (mode :mode/type) :default)
+      {:class    (when-not (can-go-back? state)
                    "inactive ")
        :on-click #(do
-                    (when (not= (mode :mode/type) :default)
+                    (when (can-go-back? state)
                       (put! game-event-chan {:event/type :go-back}))
                     nil)}
       "◀"]
@@ -131,7 +142,7 @@
                            (get-in @state [:mode :available-cells])))]
 
     [:div.game
-     [draw-controls state (@state :player-hand) game-event-chan]
+     [draw-controls @state (@state :player-hand) game-event-chan]
 
      [:div.board-container
       [draw-scores (@state :player-scores) "Player"]
@@ -185,22 +196,17 @@
   (let [game-event-chan (chan)
         escape-handler (fn [event]
                          (let [key-code (.-keyCode event)
-                               mode (@state :mode)
 
                                event (condp contains? key-code
                                        #{ESCAPE-KEY-CODE} {:event/type :cancel-mode}
 
-                                       #{LEFT-ARROW-KEY-CODE} (when (not= (mode :mode/type)
-                                                                          :default)
+                                       #{LEFT-ARROW-KEY-CODE} (when (can-go-back? @state)
                                                                 {:event/type :go-back})
 
-                                       #{ENTER-KEY-CODE} (when (and (not= (mode :mode/type) :default)
-                                                                    (g/is-grid-valid? (@state :grid))
-                                                                    (> (count (mode :move-so-far))
-                                                                       0))
+                                       #{ENTER-KEY-CODE} (when (can-confirm-move? @state)
                                                            {:event/type :confirm-move})
 
-                                       NUMBER-KEY-CODES (when (mode :selected-cell)
+                                       NUMBER-KEY-CODES (when (can-select-a-tile? @state)
                                                           (let [hand (@state :player-hand)
                                                                 hand-index (dec (NUMBER-KEY-CODES key-code))]
                                                             (when (< hand-index (count hand))

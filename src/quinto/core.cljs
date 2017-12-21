@@ -35,4 +35,6 @@
 
 (comment
   (identity @app-state)
+  (@app-state :grid)
+  (g/is-grid-valid? (@app-state :grid))
   )
