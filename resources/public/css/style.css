@@ -58,27 +58,27 @@ html {
 }
 
 .button.cancel {
-    background-color: #D93D27;
+    background-color: #FF3333;
 }
 
 .button.cancel:hover {
-    background-color: #EB422A;
+    background-color: #C40000;
 }
 
 .button.back {
-    background-color: #E88F0B;
+    background-color: #EDCF07;
 }
 
 .button.back:hover {
-    background-color: #FF9D0C;
+    background-color: #C6AC06;
 }
 
 .button.confirm {
-    background-color: #0BD921;
+    background-color: #0DFF27;
 }
 
 .button.confirm:hover {
-    background-color: #0DFF27;
+    background-color: #0BD921;
 }
 
 .button:hover {
