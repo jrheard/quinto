@@ -66,11 +66,11 @@ html {
 }
 
 .button.back {
-    background-color: #EDCF07;
+    background-color: #EBBF2E;
 }
 
 .button.back:hover {
-    background-color: #C6AC06;
+    background-color: #BF9711;
 }
 
 .button.confirm {
