@@ -1017,4 +1017,4 @@ find something that lets you find colors that are the same, like, intensity as o
 
 DONE document quinto.modes
 
-
+ok i guess i'm done?

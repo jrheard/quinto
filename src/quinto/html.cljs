@@ -49,11 +49,9 @@
      {:class    cell-class
       :on-click (when (and (contains? playable-cells [x y])
                            (nil? (mode :selected-cell)))
-                  #(do
-                     (put! game-event-chan
-                           {:event/type :select-cell
-                            :cell       [x y]})
-                     nil))}
+                  #(put! game-event-chan
+                         {:event/type :select-cell
+                          :cell       [x y]}))}
      (if (nil? cell)
        ""
        cell)]))
@@ -73,11 +71,9 @@
    {:class    (when-not (mode :selected-cell)
                 "inactive")
     :on-click (when (can-select-a-tile? state)
-                #(do
-                   (put! game-event-chan
-                         {:event/type :select-tile
-                          :value      value})
-                   nil))}
+                #(put! game-event-chan
+                       {:event/type :select-tile
+                        :value      value}))}
    value])
 
 (defn draw-controls [state hand game-event-chan]
@@ -94,29 +90,23 @@
      [:div.button.confirm
       {:class    (when (not confirm-button-active)
                    "inactive")
-       :on-click #(do
-                    (when confirm-button-active
-                      (put! game-event-chan {:event/type :confirm-move}))
-                    nil)}
+       :on-click #(when confirm-button-active
+                    (put! game-event-chan {:event/type :confirm-move}))}
       "✔"]
 
      [:div.button.back
       {:class    (when-not (can-go-back? state)
                    "inactive ")
-       :on-click #(do
-                    (when (can-go-back? state)
-                      (put! game-event-chan {:event/type :go-back}))
-                    nil)}
+       :on-click #(when (can-go-back? state)
+                    (put! game-event-chan {:event/type :go-back}))}
       "◀"]
 
      [:div.button.cancel
       {:class    (when (= (mode :mode/type) :default)
                    "inactive ")
-       :on-click #(do
-                    (when (not= (mode :mode/type) :default)
-                      (put! game-event-chan
-                            {:event/type :cancel-mode}))
-                    nil)}
+       :on-click #(when (not= (mode :mode/type) :default)
+                    (put! game-event-chan
+                          {:event/type :cancel-mode}))}
       "✖"]]))
 
 (defn draw-scores [scores whose-score]

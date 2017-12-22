@@ -18,7 +18,7 @@
     (> horizontal-length MAX-RUN-LENGTH)
     (> vertical-length MAX-RUN-LENGTH)
 
-    ; A cell value is definitely invalid if it's part a horizontal move
+    ; A cell value is definitely invalid if it's part of a horizontal move
     ; and it causes an invalid vertical run to exist.
     (and
       (= move-direction :horizontal)
