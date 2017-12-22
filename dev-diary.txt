@@ -938,7 +938,7 @@ that could have worked in cljstone too i think, interesting
 
 DONE replace "make a move" button with checkmark, left arrow, and X
 
-TODO consider putting goog analytics tag on the page before publishing eventual blog post
+DONE consider putting goog analytics tag on the page before publishing eventual blog post
 
 DONE if a tile's in assembling mode's :move-so-far, draw it in a different color
 
