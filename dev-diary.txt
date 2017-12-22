@@ -262,7 +262,7 @@ ok i messed with the ui, now there's a visible hand and a button
 
 so next up, wire up the button!
 
-also eventual todo: get quinto.ai to handle making the first move on an empty board
+also eventual DONE: get quinto.ai to handle making the first move on an empty board
 
 ok sick i wired up the button
 
@@ -1000,7 +1000,7 @@ next up:
 animate computer player's move
 also briefly highlight their score when they make the move
 
-TODO: let the player press a number key on their keyboard if they want to do that instead
+DONE: let the player press a number key on their keyboard if they want to do that instead
 of clicking on it
 
 i thought i found a bug in the game's ai but it's just better at the game than i am
@@ -1014,5 +1014,10 @@ DONE let player make first move on an empty board
 TODO do another pass on the colors, they currently look bad
 the green and red cells are good, everything else is bad
 find something that lets you find colors that are the same, like, intensity as other colors?
+
+DONE document quinto.modes
+
+TODO spec modes
+TODO spec app state, fdef top level quinto.html fn
 
 
