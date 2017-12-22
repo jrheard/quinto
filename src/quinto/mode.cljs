@@ -79,7 +79,6 @@
 
     (seq (get-in state [:mode :move-so-far]))
     (let [[[x y] value] (last (get-in state [:mode :move-so-far]))]
-
       (-> state
           (assoc-in [:grid x y] nil)
           (update-in [:mode :move-so-far] pop)
@@ -102,8 +101,8 @@
         (assoc :deck new-deck))))
 
 (defn confirm-move [state]
-  "Used when the baord is in assembling-move mode and a valid move has been assembled.
-  Applies the move to the board, then lets the AI make a move. Updates both players' scores."
+  "Used when the board is in assembling-move mode and a valid move has been assembled.
+  Applies the move to the board, then has the AI make a move. Updates both players' scores."
   (let [move (get-in state [:mode :move-so-far])
         move-tiles (select [ALL LAST] move)
         [new-deck new-hand] (deck/draw-tiles (state :deck)

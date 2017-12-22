@@ -56,7 +56,7 @@
 ; indexed-grid-values duplicates a lot of stuff from grid-values. This is fine and not worth stressing about.
 (defnav
   ^{:doc "Navigates to positions and values in a _straight, axis-aligned line_ between two points on a grid.
-  Not fast. Probably really slow actually!"}
+  Not fast - don't call this in a super-tight loop."}
   indexed-grid-values
   [x1 y1 x2 y2]
 
