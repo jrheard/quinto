@@ -1053,7 +1053,7 @@ no bug!
 
 12/22/17
 
-TODO clare requests a feature:
+DONE clare requests a feature:
 if you played the "optimal move" for your turn, draw that turn's score in a different color
 there could be several moves tied for optimal, so just calculate the highest possible score
 for your turn, and compare your actual score against that
@@ -1073,4 +1073,5 @@ DONE clare suggests having a this-is-how-much-your-move-will-be-worth readout wh
 
 DONE tentative-score coloration is misleading, needs to be gray if your move isn't valid
 
-
+TODO: let the player hover over a past score to see what their optimal move would have been
+TODO: randomize the starting player

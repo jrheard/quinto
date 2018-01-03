@@ -47,8 +47,7 @@
 
     [:div
      {:class    cell-class
-      :on-click (when (and (contains? playable-cells [x y])
-                           (nil? (mode :selected-cell)))
+      :on-click (when (contains? playable-cells [x y])
                   #(put! game-event-chan
                          {:event/type :select-cell
                           :cell       [x y]}))}

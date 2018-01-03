@@ -207,7 +207,7 @@ html {
 }
 
 .tentative-score {
-    color: #999;
+    color: #C40000;
 }
 
 .scores .optimal {
@@ -215,5 +215,5 @@ html {
 }
 
 .tentative-score.valid {
-    color: #FFB36C;
+    color: #777;
 }

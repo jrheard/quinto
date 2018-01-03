@@ -5,6 +5,7 @@
             [quinto.deck :refer [make-deck draw-tiles MAX-HAND-SIZE]]
             [quinto.html :refer [render-game]]
             [quinto.specter :refer [grid-values indexed-grid-values]]
+            [quinto.ai :as ai]
             [quinto.grid :as g]))
 
 (defonce app-state
@@ -37,4 +38,6 @@
   (identity @app-state)
   (@app-state :grid)
   (g/is-grid-valid? (@app-state :grid))
+
+  (ai/pick-move (@app-state :grid) (@app-state :player-hand))
   )

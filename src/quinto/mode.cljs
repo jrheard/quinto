@@ -26,11 +26,8 @@
 (defn select-cell [state cell]
   "Used when the board is already in assembling-move mode and the user
   has selected another cell they'd like to include in their move."
-  (assert (nil? (get-in state [:mode :selected-cell])))
-
   (-> state
-      (assoc-in [:mode :selected-cell] cell)
-      (assoc-in [:mode :available-cells] [])))
+      (assoc-in [:mode :selected-cell] cell)))
 
 (defn calculate-tentative-score
   [grid move-so-far]
@@ -137,7 +134,7 @@
                       (assoc :mode {:mode/type :default})
                       (update-in [:player-scores]
                                  conj
-                                 {:value   move-score
+                                 {:value       move-score
                                   :was-optimal (= move-score optimal-score)})
                       (assoc :deck new-deck)
                       (assoc :player-hand new-hand)
