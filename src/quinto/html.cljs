@@ -113,18 +113,20 @@
   (let [tentative-score (mode :tentative-score)
         scores (if (and (not (seq scores))
                         (not tentative-score))
-                 [0]
+                 [{:value 0}]
                  scores)]
     [:div.scores
      [:h3 whose-score]
      [:ul
-      (for [[index value] (map-indexed vector scores)]
+      (for [[index score] (map-indexed vector scores)]
         ^{:key index} [:li
-                       {:class (when (and (= index (dec (count scores)))
-                                          (not= scores [0])
-                                          (= whose-score "Computer"))
-                                 "most-recent-score")}
-                       value])
+                       {:class (str (when (and (= index (dec (count scores)))
+                                               (not= scores [{:value 0}])
+                                               (= whose-score "Computer"))
+                                      "most-recent-score ")
+                                    (when (score :was-optimal)
+                                      "optimal "))}
+                       (score :value)])
 
       (when (and tentative-score
                  (= whose-score "Player"))
@@ -138,7 +140,7 @@
      (when (> (count scores) 1)
        [:hr])
      (when (> (count scores) 1)
-       [:p (apply + scores)])]))
+       [:p (apply + (map :value scores))])]))
 
 (defn draw-game [state game-event-chan]
   (let [playable-cells (set

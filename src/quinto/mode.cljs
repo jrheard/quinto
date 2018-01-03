@@ -109,7 +109,7 @@
                                              spent-hand
                                              (count move-tiles))]
     (-> state
-        (update-in [:ai-scores] conj (g/score-move (state :grid) move))
+        (update-in [:ai-scores] conj {:value (g/score-move (state :grid) move)})
         (assoc :grid (g/make-move (state :grid) move))
         (assoc :most-recent-computer-move move)
         (assoc :ai-hand new-hand)
@@ -123,14 +123,22 @@
         [new-deck new-hand] (deck/draw-tiles (state :deck)
                                              (state :player-hand)
                                              (count move-tiles))
+
+        optimal-move (ai/pick-move (get-in state [:mode :original-grid])
+                                   (get-in state [:mode :original-hand]))
+        optimal-score (g/score-move (get-in state [:mode :original-grid])
+                                    optimal-move)
+        move-score (g/score-move (get-in state [:mode :original-grid])
+                                 move)
+
         new-state (-> state
                       (assoc :grid (g/make-move (get-in state [:mode :original-grid])
                                                 move))
                       (assoc :mode {:mode/type :default})
                       (update-in [:player-scores]
                                  conj
-                                 (g/score-move (get-in state [:mode :original-grid])
-                                               move))
+                                 {:value   move-score
+                                  :was-optimal (= move-score optimal-score)})
                       (assoc :deck new-deck)
                       (assoc :player-hand new-hand)
                       -make-ai-move)]
