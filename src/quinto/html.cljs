@@ -109,8 +109,9 @@
                           {:event/type :cancel-mode}))}
       "✖"]]))
 
-(defn draw-scores [scores tentative-score whose-score]
-  (let [scores (if (and (not (seq scores))
+(defn draw-scores [scores mode whose-score]
+  (let [tentative-score (mode :tentative-score)
+        scores (if (and (not (seq scores))
                         (not tentative-score))
                  [0]
                  scores)]
@@ -120,11 +121,20 @@
       (for [[index value] (map-indexed vector scores)]
         ^{:key index} [:li
                        {:class (when (and (= index (dec (count scores)))
-                                          (not= scores [0]))
+                                          (not= scores [0])
+                                          (= whose-score "Computer"))
                                  "most-recent-score")}
                        value])
-      (when tentative-score
-        [:li.tentative-score tentative-score])]
+
+      (when (and tentative-score
+                 (= whose-score "Player"))
+        [:li.tentative-score
+         (when (and (g/is-move-valid? (mode :original-grid)
+                                      (mode :move-so-far))
+                    (> tentative-score 0))
+           {:class "valid"})
+         tentative-score])]
+
      (when (> (count scores) 1)
        [:hr])
      (when (> (count scores) 1)
@@ -140,7 +150,7 @@
      [draw-controls @state (@state :player-hand) game-event-chan]
 
      [:div.board-container
-      [draw-scores (@state :player-scores) (get-in @state [:mode :tentative-score]) "Player"]
+      [draw-scores (@state :player-scores) (@state :mode) "Player"]
 
       [draw-grid
        game-event-chan
@@ -150,7 +160,7 @@
        (set (g/find-blocked-cells (@state :grid)))
        (get-in @state [:mode :selected-cell])]
 
-      [draw-scores (@state :ai-scores) nil "Computer"]]]))
+      [draw-scores (@state :ai-scores) (@state :mode) "Computer"]]]))
 
 ;;; Event handling
 

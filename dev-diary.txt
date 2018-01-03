@@ -1071,4 +1071,6 @@ DONE kill console.log in event loop
 
 DONE clare suggests having a this-is-how-much-your-move-will-be-worth readout when you're in assembling-move mode
 
+DONE tentative-score coloration is misleading, needs to be gray if your move isn't valid
+
 

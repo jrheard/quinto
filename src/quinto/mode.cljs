@@ -35,15 +35,9 @@
 (defn calculate-tentative-score
   [grid move-so-far]
   (cond
-    (nil? (seq move-so-far))
-    0
-
-    (and (g/is-grid-valid? (g/make-move grid move-so-far))
-         (= (mod (g/score-move grid move-so-far) 5) 0))
-    (g/score-move grid move-so-far)
-
-    :else
-    (calculate-tentative-score grid (butlast move-so-far))))
+    (nil? (seq move-so-far)) 0
+    (g/is-move-valid? grid move-so-far) (g/score-move grid move-so-far)
+    :else (calculate-tentative-score grid (butlast move-so-far))))
 
 (defn select-tile [state value]
   "Used when the board is in assembling-mode, the user has previously selected

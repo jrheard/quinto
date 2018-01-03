@@ -12,7 +12,7 @@
   "Applies `move` to `grid`."
   [grid move]
   (reduce (fn [grid [[x y] value]]
-            ;(assert (nil? (get-in grid [x y])))
+            (assert (nil? (get-in grid [x y])))
             (assoc-in grid [x y] value))
           grid
           move))
@@ -219,3 +219,8 @@
 (s/fdef is-grid-valid?
   :args (s/cat :grid ::sp/grid)
   :ret boolean?)
+
+(defn is-move-valid?
+  [grid move]
+  (and (is-grid-valid? (make-move grid move))
+       (= (mod (score-move grid move) 5) 0)))

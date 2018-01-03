@@ -207,5 +207,9 @@ html {
 }
 
 .tentative-score {
+    color: #999;
+}
+
+.tentative-score.valid {
     color: #FFB36C;
 }
