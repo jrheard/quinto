@@ -152,7 +152,7 @@
 (defn handle-game-events [state game-event-chan]
   (go-loop []
     (let [event (<! game-event-chan)]
-      (js/console.log event)
+      ;(js/console.log event)
       (condp = (event :event/type)
         :select-cell (if (= (get-in @state [:mode :mode/type])
                             :default)
@@ -184,7 +184,7 @@
     (.removeEventListener js/document "keyup" @keyup-handler))
 
   (let [game-event-chan (chan)
-        escape-handler (fn [event]
+        key-handler (fn [event]
                          (let [key-code (.-keyCode event)
 
                                event (condp contains? key-code
@@ -211,7 +211,7 @@
                         (js/document.getElementById "app"))
 
     ; Back out of modes if the user hits the escape key.
-    (.addEventListener js/document "keyup" escape-handler)
-    (reset! keyup-handler escape-handler)
+    (.addEventListener js/document "keyup" key-handler)
+    (reset! keyup-handler key-handler)
 
     (handle-game-events state game-event-chan)))
