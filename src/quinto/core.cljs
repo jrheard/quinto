@@ -39,5 +39,9 @@
   (@app-state :grid)
   (g/is-grid-valid? (@app-state :grid))
 
+  (pr-str @app-state)
+
+
+
   (ai/pick-move (@app-state :grid) (@app-state :player-hand))
   )

@@ -187,6 +187,7 @@
 (def ESCAPE-KEY-CODE 27)
 (def LEFT-ARROW-KEY-CODE 37)
 (def ENTER-KEY-CODE 13)
+(def ZERO-KEY-CODE 48)
 (def NUMBER-KEY-CODES {49 1
                        50 2
                        51 3
@@ -203,31 +204,44 @@
         key-handler (fn [event]
                       (let [key-code (.-keyCode event)
 
-                            event (condp contains? key-code
-                                    #{ESCAPE-KEY-CODE} {:event/type :cancel-mode}
+                            game-event (condp contains? key-code
+                                         #{ESCAPE-KEY-CODE} {:event/type :cancel-mode}
 
-                                    #{LEFT-ARROW-KEY-CODE} (when (can-go-back? @state)
-                                                             {:event/type :go-back})
+                                         #{LEFT-ARROW-KEY-CODE} (when (can-go-back? @state)
+                                                                  {:event/type :go-back})
 
-                                    #{ENTER-KEY-CODE} (when (can-confirm-move? @state)
-                                                        {:event/type :confirm-move})
+                                         #{ENTER-KEY-CODE} (when (can-confirm-move? @state)
+                                                             {:event/type :confirm-move})
 
-                                    NUMBER-KEY-CODES (when (can-select-a-tile? @state)
-                                                       (let [hand (@state :player-hand)
-                                                             hand-index (dec (NUMBER-KEY-CODES key-code))]
-                                                         (when (< hand-index (count hand))
-                                                           {:event/type :select-tile
-                                                            :value      (nth hand hand-index)})))
-                                    nil)]
 
-                        (when event
-                          (put! game-event-chan event))))]
+                                         #{ZERO-KEY-CODE} (let [textarea (js/document.createElement "textarea")]
+                                                            (set! (.-value textarea)
+                                                                  (str "My Quinto game's state is: " (pr-str @state)))
+                                                            (.appendChild js/document.body textarea)
+                                                            (.select textarea)
+                                                            (js/document.execCommand "copy")
+                                                            (.removeChild js/document.body textarea))
+
+                                         NUMBER-KEY-CODES (when (can-select-a-tile? @state)
+                                                            (let [hand (@state :player-hand)
+                                                                  hand-index (dec (NUMBER-KEY-CODES key-code))]
+                                                              (when (< hand-index (count hand))
+                                                                {:event/type :select-tile
+                                                                 :value      (nth hand hand-index)})))
+                                         nil)]
+
+                        (when game-event
+                          (put! game-event-chan game-event))))]
 
     (r/render-component [draw-game state game-event-chan]
                         (js/document.getElementById "app"))
 
     ; Back out of modes if the user hits the escape key.
     (.addEventListener js/document "keyup" key-handler)
+
+    (.addEventListener js/document "keydown" #(when (= (.-keyCode %)
+                                                       LEFT-ARROW-KEY-CODE)
+                                                (.preventDefault %)))
     (reset! keyup-handler key-handler)
 
     (handle-game-events state game-event-chan)))

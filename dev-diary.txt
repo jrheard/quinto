@@ -1074,4 +1074,29 @@ DONE clare suggests having a this-is-how-much-your-move-will-be-worth readout wh
 DONE tentative-score coloration is misleading, needs to be gray if your move isn't valid
 
 TODO: let the player hover over a past score to see what their optimal move would have been
+new mode
+keys :original-grid, :original-hand, :original-mode
+display difference between moves as git diff does - red deletion, orange both-changed (but favor optimal), green added
+
 TODO: randomize the starting player
+
+TODO: _maybe_ save the game's state after every turn, and add a reset-board button; maybe don't do this, but maybe do it
+
+TODO: ther'es a bug where the back button doesn't correctly handle the new you-can-change-selected-cell-more-often
+code situation. fix it
+maybe call select-cell in back button code, to avoid duplication
+
+DONE left arrow preventdefault to avoid scrolling
+
+TODO have red tentative-score numbers be up to date, not just the last valid score
+
+HIGHEST PRIORITY
+DONE add save_state console function so clare can serialize her app's state when she triggers a crash
+maybe map it to the c key or something
+or like tilde, i dunno
+
+TODO add a win screen
+
+TODO leaderboard (last 5-10 games stored locally)
+
+TODO tutorial overlay
