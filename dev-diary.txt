@@ -1059,7 +1059,8 @@ there could be several moves tied for optimal, so just calculate the highest pos
 for your turn, and compare your actual score against that
 will have to change how scores are represented
 
-TODO if the player's starting hand doesn't contain a multiple of five, detect it and give them a new hand
+DONE if the player's starting hand doesn't contain a multiple of five, detect it and give them a new hand
+i looked into this and it basically never happens, not even when i drew fifty thousand hands
 
 DONE - rename escape-handler
 DONE kill console.log in event loop
@@ -1068,6 +1069,6 @@ DONE kill console.log in event loop
 
 1/2/18
 
-TODO clare suggests having a this-is-how-much-your-move-will-be-worth readout when you're in assembling-move mode
+DONE clare suggests having a this-is-how-much-your-move-will-be-worth readout when you're in assembling-move mode
 
 

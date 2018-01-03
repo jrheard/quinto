@@ -19,6 +19,7 @@
           :selected-cell   selected-cell
           :available-cells []
           :move-so-far     []
+          :tentative-score nil
           :original-hand   (state :player-hand)
           :original-grid   (state :grid)}))
 
@@ -31,6 +32,19 @@
       (assoc-in [:mode :selected-cell] cell)
       (assoc-in [:mode :available-cells] [])))
 
+(defn calculate-tentative-score
+  [grid move-so-far]
+  (cond
+    (nil? (seq move-so-far))
+    0
+
+    (and (g/is-grid-valid? (g/make-move grid move-so-far))
+         (= (mod (g/score-move grid move-so-far) 5) 0))
+    (g/score-move grid move-so-far)
+
+    :else
+    (calculate-tentative-score grid (butlast move-so-far))))
+
 (defn select-tile [state value]
   "Used when the board is in assembling-mode, the user has previously selected
   a tile to make a move on, and is now selecting a value to place on that tile."
@@ -42,6 +56,9 @@
       (assoc-in $ [:mode :selected-cell] nil)
       (update-in $ [:player-hand] remove-item value)
       (update-in $ [:mode :move-so-far] conj [[x y] value])
+      (assoc-in $ [:mode :tentative-score]
+                (calculate-tentative-score (get-in $ [:mode :original-grid])
+                                           (get-in $ [:mode :move-so-far])))
       (assoc-in $ [:mode :available-cells]
                 (g/find-next-open-cells-for-move
                   ($ :grid)
@@ -79,12 +96,16 @@
 
     (seq (get-in state [:mode :move-so-far]))
     (let [[[x y] value] (last (get-in state [:mode :move-so-far]))]
-      (-> state
-          (assoc-in [:grid x y] nil)
-          (update-in [:mode :move-so-far] pop)
-          (update-in [:player-hand] conj value)
-          (assoc-in [:mode :available-cells] [])
-          (assoc-in [:mode :selected-cell] [x y])))))
+      (as-> state $
+        (assoc-in $ [:grid x y] nil)
+        (update-in $ [:mode :move-so-far] pop)
+        (assoc-in $
+                  [:mode :tentative-score]
+                  (calculate-tentative-score (get-in $ [:mode :original-grid])
+                                             (get-in $ [:mode :move-so-far])))
+        (update-in $ [:player-hand] conj value)
+        (assoc-in $ [:mode :available-cells] [])
+        (assoc-in $ [:mode :selected-cell] [x y])))))
 
 (defn -make-ai-move [state]
   (let [move (ai/pick-move (state :grid) (state :ai-hand))

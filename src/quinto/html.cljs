@@ -109,8 +109,11 @@
                           {:event/type :cancel-mode}))}
       "✖"]]))
 
-(defn draw-scores [scores whose-score]
-  (let [scores (or (seq scores) [0])]
+(defn draw-scores [scores tentative-score whose-score]
+  (let [scores (if (and (not (seq scores))
+                        (not tentative-score))
+                 [0]
+                 scores)]
     [:div.scores
      [:h3 whose-score]
      [:ul
@@ -119,7 +122,9 @@
                        {:class (when (and (= index (dec (count scores)))
                                           (not= scores [0]))
                                  "most-recent-score")}
-                       value])]
+                       value])
+      (when tentative-score
+        [:li.tentative-score tentative-score])]
      (when (> (count scores) 1)
        [:hr])
      (when (> (count scores) 1)
@@ -135,7 +140,7 @@
      [draw-controls @state (@state :player-hand) game-event-chan]
 
      [:div.board-container
-      [draw-scores (@state :player-scores) "Player"]
+      [draw-scores (@state :player-scores) (get-in @state [:mode :tentative-score]) "Player"]
 
       [draw-grid
        game-event-chan
@@ -145,7 +150,7 @@
        (set (g/find-blocked-cells (@state :grid)))
        (get-in @state [:mode :selected-cell])]
 
-      [draw-scores (@state :ai-scores) "Computer"]]]))
+      [draw-scores (@state :ai-scores) nil "Computer"]]]))
 
 ;;; Event handling
 
@@ -185,27 +190,27 @@
 
   (let [game-event-chan (chan)
         key-handler (fn [event]
-                         (let [key-code (.-keyCode event)
+                      (let [key-code (.-keyCode event)
 
-                               event (condp contains? key-code
-                                       #{ESCAPE-KEY-CODE} {:event/type :cancel-mode}
+                            event (condp contains? key-code
+                                    #{ESCAPE-KEY-CODE} {:event/type :cancel-mode}
 
-                                       #{LEFT-ARROW-KEY-CODE} (when (can-go-back? @state)
-                                                                {:event/type :go-back})
+                                    #{LEFT-ARROW-KEY-CODE} (when (can-go-back? @state)
+                                                             {:event/type :go-back})
 
-                                       #{ENTER-KEY-CODE} (when (can-confirm-move? @state)
-                                                           {:event/type :confirm-move})
+                                    #{ENTER-KEY-CODE} (when (can-confirm-move? @state)
+                                                        {:event/type :confirm-move})
 
-                                       NUMBER-KEY-CODES (when (can-select-a-tile? @state)
-                                                          (let [hand (@state :player-hand)
-                                                                hand-index (dec (NUMBER-KEY-CODES key-code))]
-                                                            (when (< hand-index (count hand))
-                                                              {:event/type :select-tile
-                                                               :value      (nth hand hand-index)})))
-                                       nil)]
+                                    NUMBER-KEY-CODES (when (can-select-a-tile? @state)
+                                                       (let [hand (@state :player-hand)
+                                                             hand-index (dec (NUMBER-KEY-CODES key-code))]
+                                                         (when (< hand-index (count hand))
+                                                           {:event/type :select-tile
+                                                            :value      (nth hand hand-index)})))
+                                    nil)]
 
-                           (when event
-                             (put! game-event-chan event))))]
+                        (when event
+                          (put! game-event-chan event))))]
 
     (r/render-component [draw-game state game-event-chan]
                         (js/document.getElementById "app"))
