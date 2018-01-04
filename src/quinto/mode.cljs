@@ -60,13 +60,9 @@
                 :default))
 
   (cond
-    (and
-      (some? (get-in state [:mode :selected-cell]))
-      (= (count (get-in state [:mode :move-so-far]))
-         0))
-    (-> state
-        (assoc :grid (get-in state [:mode :original-grid]))
-        (assoc :mode {:mode/type :default}))
+    (and (some? (get-in state [:mode :selected-cell]))
+         (= (count (get-in state [:mode :move-so-far])) 0))
+    (cancel-mode state)
 
     (some? (get-in state [:mode :selected-cell]))
     (as-> state $
@@ -81,12 +77,14 @@
       (as-> state $
         (assoc-in $ [:grid x y] nil)
         (update-in $ [:mode :move-so-far] pop)
-        (assoc-in $
-                  [:mode :tentative-score]
+        (assoc-in $ [:mode :tentative-score]
                   (g/score-move (get-in $ [:mode :original-grid])
                                 (get-in $ [:mode :move-so-far])))
         (update-in $ [:player-hand] conj value)
-        (assoc-in $ [:mode :available-cells] [])
+        (assoc-in $ [:mode :available-cells]
+                  (g/find-next-open-cells-for-move
+                    ($ :grid)
+                    (get-in $ [:mode :move-so-far])))
         (assoc-in $ [:mode :selected-cell] [x y])))))
 
 (defn -make-ai-move [state]

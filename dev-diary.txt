@@ -1080,13 +1080,13 @@ display difference between moves as git diff does - red deletion, orange both-ch
 
 TODO: randomize the starting player
 
-TODO: ther'es a bug where the back button doesn't correctly handle the new you-can-change-selected-cell-more-often
+DONE: ther'es a bug where the back button doesn't correctly handle the new you-can-change-selected-cell-more-often
 code situation. fix it
 maybe call select-cell in back button code, to avoid duplication
 
 DONE left arrow preventdefault to avoid scrolling
 
-TODO have red tentative-score numbers be up to date, not just the last valid score
+DONE have red tentative-score numbers be up to date, not just the last valid score
 
 HIGHEST PRIORITY
 DONE add save_state console function so clare can serialize her app's state when she triggers a crash
