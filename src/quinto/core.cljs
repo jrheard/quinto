@@ -43,6 +43,8 @@
 
   (subvec '(1 2 3 4 ) 0 3)
 
+  (nth '(1 2 3) 4)
+
 
   (ai/pick-move (@app-state :grid) (@app-state :player-hand))
   )

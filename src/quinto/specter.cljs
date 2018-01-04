@@ -25,8 +25,8 @@
                (if (= x1 x2)
                  (let [column (nth structure x1)]
                    (doseq [value (if (< y1 y2)
-                                   (subvec column y1 (inc y2))
-                                   (reverse (subvec column y2 (inc y1))))]
+                                   (subvec (vec column) y1 (inc y2))
+                                   (reverse (subvec (vec column) y2 (inc y1))))]
                      (next-fn value)))
 
 
