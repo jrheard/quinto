@@ -1080,7 +1080,7 @@ display difference between moves as git diff does - red deletion, orange both-ch
 
 TODO hover over computer scores to see what they played for that turn
 
-TODO: randomize the starting player
+DONE: randomize the starting player
 
 DONE: ther'es a bug where the back button doesn't correctly handle the new you-can-change-selected-cell-more-often
 code situation. fix it

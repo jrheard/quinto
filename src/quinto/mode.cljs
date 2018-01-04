@@ -87,7 +87,7 @@
                     (get-in $ [:mode :move-so-far])))
         (assoc-in $ [:mode :selected-cell] [x y])))))
 
-(defn -make-ai-move [state]
+(defn make-ai-move [state]
   (let [move (ai/pick-move (state :grid) (state :ai-hand))
         move-tiles (select [ALL LAST] move)
         spent-hand (reduce remove-item (state :ai-hand) move-tiles)
@@ -127,7 +127,7 @@
                                   :was-optimal (= move-score optimal-score)})
                       (assoc :deck new-deck)
                       (assoc :player-hand new-hand)
-                      -make-ai-move)]
+                      make-ai-move)]
 
     (assert (g/is-grid-valid? (new-state :grid)))
     new-state))
