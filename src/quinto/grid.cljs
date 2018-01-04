@@ -196,25 +196,29 @@
   :ret pos-int?)
 
 (defn is-grid-valid? [grid]
-  (every?
-    identity
-    (apply concat
-           (for [x (range (count grid))]
-             (for [y (range (count (grid x)))]
-               (let [[[x-run-length x-run-sum] [y-run-length y-run-sum]] (find-runs grid x y)]
-                 (or (nil? (get-in grid [x y]))
-                     (and (<= 0 x-run-length MAX-RUN-LENGTH)
-                          (<= 0 y-run-length MAX-RUN-LENGTH)
+  (let [filled-cells (select [ALL ALL some?] grid)]
+    (if (= (count filled-cells) 1)
+      (= (mod (first filled-cells) 5) 0)
 
-                          ; If this cell isn't part of a 2+ length run, its run's sum
-                          ; doesn't have to be a multiple of 5.
-                          ; e.g. if the only filled cells on the board have values [5 3 2],
-                          ; and you're examining the cell with value 3 from an axis that's
-                          ; perpendicular to the axis of that run, it's fine that 3 isn't a multiple of 5.
-                          (or (<= x-run-length 1)
-                              (= 0 (mod x-run-sum 5)))
-                          (or (<= y-run-length 1)
-                              (= 0 (mod y-run-sum 5)))))))))))
+      (every?
+        identity
+        (apply concat
+               (for [x (range (count grid))]
+                 (for [y (range (count (grid x)))]
+                   (let [[[x-run-length x-run-sum] [y-run-length y-run-sum]] (find-runs grid x y)]
+                     (or (nil? (get-in grid [x y]))
+                         (and (<= 0 x-run-length MAX-RUN-LENGTH)
+                              (<= 0 y-run-length MAX-RUN-LENGTH)
+
+                              ; If this cell isn't part of a 2+ length run, its run's sum
+                              ; doesn't have to be a multiple of 5.
+                              ; e.g. if the only filled cells on the board have values [5 3 2],
+                              ; and you're examining the cell with value 3 from an axis that's
+                              ; perpendicular to the axis of that run, it's fine that 3 isn't a multiple of 5.
+                              (or (<= x-run-length 1)
+                                  (= 0 (mod x-run-sum 5)))
+                              (or (<= y-run-length 1)
+                                  (= 0 (mod y-run-sum 5)))))))))))))
 
 (s/fdef is-grid-valid?
   :args (s/cat :grid ::sp/grid)

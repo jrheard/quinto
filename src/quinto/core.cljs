@@ -1,5 +1,5 @@
 (ns quinto.core
-  (:require [com.rpl.specter :refer [select ALL srange nthpath multi-path STOP collect-one selected? FIRST LAST]]
+  (:require [com.rpl.specter :refer [select ALL srange nthpath multi-path STOP collect-one selected? FIRST LAST INDEXED-VALS]]
             [orchestra-cljs.spec.test :as stest]
             [reagent.core :as r]
             [quinto.deck :refer [make-deck draw-tiles MAX-HAND-SIZE]]
@@ -44,6 +44,9 @@
   (subvec '(1 2 3 4 ) 0 3)
 
   (nth '(1 2 3) 4)
+
+  (select [ALL ALL some?]
+          (@app-state :grid))
 
 
   (ai/pick-move (@app-state :grid) (@app-state :player-hand))

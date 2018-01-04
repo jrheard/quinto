@@ -1115,7 +1115,7 @@ zach ran into the crash clare saw when his board was like this
 
 doesn't repro locally though
 
-TODO eleanore managed to make a first move with just a 4, which shouldn't happen - bug, fix
+DONE eleanore managed to make a first move with just a 4, which shouldn't happen - bug, fix
 
 ok here's a dump of the state from a crashy game
 
@@ -1128,3 +1128,13 @@ whyyy
 the only place i use subvec is specter
 i think somewhere, a grid row or column is being turned into a seq rather than a vector?
 or maybe it's nil?
+
+========
+
+1/4/18
+
+probably a seq. can't get it to repro locally. coercing column to vector as a band-aid;
+added a noisy alert that attempts to detect the issue and pr-strs the column if it manifests.
+we'll see if that pops.
+
+next up, let's fix that 4-first-move bug
