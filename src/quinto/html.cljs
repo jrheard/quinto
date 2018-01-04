@@ -1,5 +1,5 @@
 (ns quinto.html
-  (:require [com.rpl.specter :refer [select ALL LAST FIRST]]
+  (:require [com.rpl.specter :refer [select ALL LAST FIRST transform]]
             [cljs.core.async :refer [chan <! put!]]
             [reagent.core :as r]
             [quinto.grid :as g]
@@ -23,16 +23,17 @@
 
 ;;; HTML rendering
 
-(defn draw-cell [game-event-chan state grid x y playable-cells blocked-cells selected-cell]
+(defn draw-cell [game-event-chan state grid x y cell-attributes]
   (let [cell (get-in grid [x y])
+        cell-attributes (or cell-attributes #{})
         mode (state :mode)
         cell-class (str "cell "
                         (if (nil? cell)
                           "empty "
                           "full ")
-                        (when (contains? blocked-cells [x y])
+                        (when (cell-attributes :blocked)
                           "blocked ")
-                        (when (contains? playable-cells [x y])
+                        (when (cell-attributes :playable)
                           "playable ")
                         (when (contains? (set (select [ALL FIRST]
                                                       (state :most-recent-computer-move)))
@@ -42,12 +43,12 @@
                                                       (mode :move-so-far)))
                                          [x y])
                           "speculative ")
-                        (when (= selected-cell [x y])
+                        (when (cell-attributes :selected)
                           "selected "))]
 
     [:div
      {:class    cell-class
-      :on-click (when (contains? playable-cells [x y])
+      :on-click (when (cell-attributes :playable)
                   #(put! game-event-chan
                          {:event/type :select-cell
                           :cell       [x y]}))}
@@ -55,7 +56,7 @@
        ""
        cell)]))
 
-(defn draw-grid [game-event-chan state grid playable-cells blocked-cells selected-cell]
+(defn draw-grid [game-event-chan state grid cell-attributes-map]
   [:div#grid
    (for [x (range (count grid))]
      ^{:key x}
@@ -63,7 +64,7 @@
 
       (for [y (range (count (grid x)))]
         ^{:key y}
-        [draw-cell game-event-chan state grid x y playable-cells blocked-cells selected-cell])])])
+        [draw-cell game-event-chan state grid x y (cell-attributes-map [x y])])])])
 
 (defn draw-tile [game-event-chan state value mode]
   [:div.tile
@@ -108,23 +109,31 @@
                           {:event/type :cancel-mode}))}
       "✖"]]))
 
-(defn draw-scores [scores mode whose-score]
+(defn draw-scores [scores mode whose-score game-event-chan]
   (let [tentative-score (mode :tentative-score)
+        DUMMY-SCORE {:value 0}
         scores (if (and (not (seq scores))
                         (not tentative-score))
-                 [{:value 0}]
+                 [DUMMY-SCORE]
                  scores)]
     [:div.scores
      [:h3 whose-score]
      [:ul
       (for [[index score] (map-indexed vector scores)]
         ^{:key index} [:li
-                       {:class (str (when (and (= index (dec (count scores)))
-                                               (not= scores [{:value 0}])
-                                               (= whose-score "Computer"))
-                                      "most-recent-score ")
-                                    (when (score :was-optimal)
-                                      "optimal "))}
+                       {:class         (str (when (and (= index (dec (count scores)))
+                                                       (not= scores [DUMMY-SCORE])
+                                                       (= whose-score "Computer"))
+                                              "most-recent-score ")
+                                            (when (score :was-optimal)
+                                              "optimal "))
+                        :on-mouse-over #(when (not= score DUMMY-SCORE)
+                                          (put! game-event-chan {:event/type   :view-move
+                                                                 :grid         (score :grid)
+                                                                 :move         (score :move)
+                                                                 :optimal-move (if (= whose-score "Computer")
+                                                                                 (score :move)
+                                                                                 (score :optimal-move))}))}
                        (score :value)])
 
       (when (and tentative-score
@@ -141,34 +150,41 @@
      (when (> (count scores) 1)
        [:p (apply + (map :value scores))])]))
 
-(defn draw-game [state game-event-chan]
+(defn assemble-cell-attributes-map
+  [state]
   (let [playable-cells (set
                          (if (= (get-in @state [:mode :mode/type]) :default)
                            (g/find-playable-cells (@state :grid))
-                           (get-in @state [:mode :available-cells])))]
+                           (get-in @state [:mode :available-cells])))
+        blocked-cells (set (g/find-blocked-cells (@state :grid)))]
+    (merge-with into {}
+                (map #(vector % #{:playable}) playable-cells)
+                (map #(vector % #{:blocked}) blocked-cells)
+                {(get-in @state [:mode :selected-cell]) #{:selected}})))
 
-    [:div.game
-     [draw-controls @state (@state :player-hand) game-event-chan]
+(defn draw-game [state game-event-chan]
+  [:div.game
+   [draw-controls @state (@state :player-hand) game-event-chan]
 
-     [:div.board-container
-      [draw-scores (@state :player-scores) (@state :mode) "Player"]
+   [:div.board-container
+    [draw-scores (@state :player-scores) (@state :mode) "Player" game-event-chan]
 
-      [draw-grid
-       game-event-chan
-       @state
-       (@state :grid)
-       playable-cells
-       (set (g/find-blocked-cells (@state :grid)))
-       (get-in @state [:mode :selected-cell])]
+    [draw-grid
+     game-event-chan
+     @state
+     (@state :grid)
+     (merge-with into
+                 (assemble-cell-attributes-map state)
+                 (get-in state [:mode :cell-attributes-map]))]
 
-      [draw-scores (@state :ai-scores) (@state :mode) "Computer"]]]))
+    [draw-scores (@state :ai-scores) (@state :mode) "Computer" game-event-chan]]])
 
 ;;; Event handling
 
 (defn handle-game-events [state game-event-chan]
   (go-loop []
     (let [event (<! game-event-chan)]
-      ;(js/console.log event)
+      (js/console.log event)
       (condp = (event :event/type)
         :select-cell (if (= (get-in @state [:mode :mode/type])
                             :default)
@@ -178,6 +194,7 @@
         :confirm-move (swap! state m/confirm-move)
         :go-back (swap! state m/go-back)
         :cancel-mode (swap! state m/cancel-mode)
+        :view-move (swap! state m/view-historical-move (event :grid) (event :move) (event :optimal-move))
         nil))
     (recur)))
 

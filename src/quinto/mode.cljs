@@ -6,10 +6,11 @@
             [quinto.grid :as g]
             [quinto.utils :refer [remove-item]]))
 
-(defn enter-assembling-move-mode [state selected-cell]
+(defn enter-assembling-move-mode
   "Used when the user selects a green (playable) cell in order to begin
   assembling a move. Creates an :assembling-move mode dict which records
   the selected cell and is ready for further user input."
+  [state selected-cell]
   (assert (contains? (set (g/find-playable-cells (state :grid)))
                      selected-cell))
   (assoc state
@@ -22,14 +23,16 @@
           :original-hand   (state :player-hand)
           :original-grid   (state :grid)}))
 
-(defn select-cell [state cell]
+(defn select-cell
   "Used when the board is already in assembling-move mode and the user
   has selected another cell they'd like to include in their move."
+  [state cell]
   (assoc-in state [:mode :selected-cell] cell))
 
-(defn select-tile [state value]
+(defn select-tile
   "Used when the board is in assembling-mode, the user has previously selected
   a tile to make a move on, and is now selecting a value to place on that tile."
+  [state value]
   (assert (some? (get-in state [:mode :selected-cell])))
 
   (let [[x y] (get-in state [:mode :selected-cell])]
@@ -46,16 +49,18 @@
                   ($ :grid)
                   (get-in $ [:mode :move-so-far]))))))
 
-(defn cancel-mode [state]
+(defn cancel-mode
   "Cancels out of assembling-mode and puts the board back into default mode."
+  [state]
   (cond-> state
     (contains? (state :mode) :original-grid) (assoc :grid (get-in state [:mode :original-grid]))
     (contains? (state :mode) :original-hand) (assoc :player-hand (get-in state [:mode :original-hand]))
     true (assoc :mode {:mode/type :default})))
 
-(defn go-back [state]
+(defn go-back
   "Basically an undo button for assembling-move mode - backs out the most-recently-added
   part of the under-assembly move."
+  [state]
   (assert (not= (get-in state [:mode :mode/type])
                 :default))
 
@@ -95,39 +100,59 @@
                                              spent-hand
                                              (count move-tiles))]
     (-> state
-        (update-in [:ai-scores] conj {:value (g/score-move (state :grid) move)})
+        (update-in [:ai-scores] conj {:value (g/score-move (state :grid) move)
+                                      :move  move
+                                      :grid  (state :grid)})
         (assoc :grid (g/make-move (state :grid) move))
         (assoc :most-recent-computer-move move)
         (assoc :ai-hand new-hand)
         (assoc :deck new-deck))))
 
-(defn confirm-move [state]
+(defn confirm-move
   "Used when the board is in assembling-move mode and a valid move has been assembled.
   Applies the move to the board, then has the AI make a move. Updates both players' scores."
+  [state]
   (let [move (get-in state [:mode :move-so-far])
         move-tiles (select [ALL LAST] move)
         [new-deck new-hand] (deck/draw-tiles (state :deck)
                                              (state :player-hand)
                                              (count move-tiles))
 
-        optimal-move (ai/pick-move (get-in state [:mode :original-grid])
-                                   (get-in state [:mode :original-hand]))
-        optimal-score (g/score-move (get-in state [:mode :original-grid])
-                                    optimal-move)
-        move-score (g/score-move (get-in state [:mode :original-grid])
-                                 move)
+        grid (get-in state [:mode :original-grid])
+        optimal-move (ai/pick-move grid (get-in state [:mode :original-hand]))
+        optimal-score (g/score-move grid optimal-move)
+        move-score (g/score-move grid move)
 
         new-state (-> state
-                      (assoc :grid (g/make-move (get-in state [:mode :original-grid])
-                                                move))
+                      (assoc :grid (g/make-move grid move))
                       (assoc :mode {:mode/type :default})
                       (update-in [:player-scores]
                                  conj
-                                 {:value       move-score
-                                  :was-optimal (= move-score optimal-score)})
+                                 {:value        move-score
+                                  :was-optimal  (= move-score optimal-score)
+                                  :grid         grid
+                                  :move         move
+                                  :optimal-move (when (not= move-score optimal-score)
+                                                  optimal-move)})
                       (assoc :deck new-deck)
                       (assoc :player-hand new-hand)
                       make-ai-move)]
 
     (assert (g/is-grid-valid? (new-state :grid)))
     new-state))
+
+(defn view-historical-move
+  "Displays a previous move on the board."
+  [state grid move optimal-move]
+  ()
+  ; xxxxx draw the move
+  ; xxxx somehow mark cells as green, red, or orange
+  ; xxxx save the preexisting state
+  ; XXX if no optimal move, draw move in green
+
+  )
+
+(defn stop-viewing-historical-move
+  [state]
+  (assert (= (get-in state [:mode :mode/type]) :viewing-historical-move))
+  (get-in state [:mode :original-state]))
