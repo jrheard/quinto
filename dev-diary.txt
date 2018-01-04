@@ -1080,8 +1080,6 @@ display difference between moves as git diff does - red deletion, orange both-ch
 
 TODO: randomize the starting player
 
-TODO: _maybe_ save the game's state after every turn, and add a reset-board button; maybe don't do this, but maybe do it
-
 TODO: ther'es a bug where the back button doesn't correctly handle the new you-can-change-selected-cell-more-often
 code situation. fix it
 maybe call select-cell in back button code, to avoid duplication
@@ -1100,3 +1098,31 @@ TODO add a win screen
 TODO leaderboard (last 5-10 games stored locally)
 
 TODO tutorial overlay
+
+=========
+
+1/3/18
+
+zach ran into the crash clare saw when his board was like this
+
+ 7 8 0
+     7
+     7
+     4
+     2
+
+doesn't repro locally though
+
+TODO eleanore managed to make a first move with just a 4, which shouldn't happen - bug, fix
+
+ok here's a dump of the state from a crashy game
+
+{:grid [[nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil 7 nil nil nil nil nil nil nil] [nil nil nil nil nil 4 9 8 7 7 nil nil nil] [nil nil nil nil nil 9 1 7 8 nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil]], :deck (4 2 4 1 5 9 2 7 8 8 8 2 0 1 2 9 0 7 9 3 7 9 1 0 7 7 5 9 8 7 3 0 4 2 7 0 7 4 4 5 3 5 8 3 9 1 8 3 0 9 7 8 0 8 8 4 9 9 1 4), :player-scores [{:value 9, :was-optimal false} {:value 20, :was-optimal false}], :player-hand (5 9 8 7 3), :ai-scores [{:value 35} {:value 65}], :ai-hand (4 2 4 3 5), :most-recent-computer-move #{[[7 6] 1] [[7 7] 7] [[7 8] 8]}, :mode {:mode/type :default}}
+
+doesn't repro on my machine, not even in advanced mode
+whyyy
+
+"must satisfy ivector" only appears in subvec-related code
+the only place i use subvec is specter
+i think somewhere, a grid row or column is being turned into a seq rather than a vector?
+or maybe it's nil?

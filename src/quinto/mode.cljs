@@ -12,7 +12,6 @@
   the selected cell and is ready for further user input."
   (assert (contains? (set (g/find-playable-cells (state :grid)))
                      selected-cell))
-
   (assoc state
          :mode
          {:mode/type       :assembling-move
@@ -26,15 +25,7 @@
 (defn select-cell [state cell]
   "Used when the board is already in assembling-move mode and the user
   has selected another cell they'd like to include in their move."
-  (-> state
-      (assoc-in [:mode :selected-cell] cell)))
-
-(defn calculate-tentative-score
-  [grid move-so-far]
-  (cond
-    (nil? (seq move-so-far)) 0
-    (g/is-move-valid? grid move-so-far) (g/score-move grid move-so-far)
-    :else (calculate-tentative-score grid (butlast move-so-far))))
+  (assoc-in state [:mode :selected-cell] cell))
 
 (defn select-tile [state value]
   "Used when the board is in assembling-mode, the user has previously selected
@@ -48,8 +39,8 @@
       (update-in $ [:player-hand] remove-item value)
       (update-in $ [:mode :move-so-far] conj [[x y] value])
       (assoc-in $ [:mode :tentative-score]
-                (calculate-tentative-score (get-in $ [:mode :original-grid])
-                                           (get-in $ [:mode :move-so-far])))
+                (g/score-move (get-in $ [:mode :original-grid])
+                              (get-in $ [:mode :move-so-far])))
       (assoc-in $ [:mode :available-cells]
                 (g/find-next-open-cells-for-move
                   ($ :grid)
@@ -92,8 +83,8 @@
         (update-in $ [:mode :move-so-far] pop)
         (assoc-in $
                   [:mode :tentative-score]
-                  (calculate-tentative-score (get-in $ [:mode :original-grid])
-                                             (get-in $ [:mode :move-so-far])))
+                  (g/score-move (get-in $ [:mode :original-grid])
+                                (get-in $ [:mode :move-so-far])))
         (update-in $ [:player-hand] conj value)
         (assoc-in $ [:mode :available-cells] [])
         (assoc-in $ [:mode :selected-cell] [x y])))))

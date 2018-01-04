@@ -41,6 +41,7 @@
 
   (pr-str @app-state)
 
+  (subvec '(1 2 3 4 ) 0 3)
 
 
   (ai/pick-move (@app-state :grid) (@app-state :player-hand))

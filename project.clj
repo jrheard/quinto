@@ -42,10 +42,13 @@
                ;; lein cljsbuild once min
                {:id           "min"
                 :source-paths ["src"]
-                :compiler     {:output-to     "resources/public/js/compiled/quinto.js"
-                               :main          quinto.core
-                               :optimizations :advanced
-                               :pretty-print  false}}]}
+                :compiler     {:output-to            "resources/public/js/compiled/quinto.js"
+                               :output-dir           "resources/public/js/compiled/out-min"
+                               :main                 quinto.core
+                               :optimizations        :advanced
+                               :source-map           "resources/public/js/compiled/quinto.js.map"
+                               :source-map-timestamp true
+                               :pretty-print         false}}]}
 
   :figwheel {;; :http-server-root "public" ;; default and assumes "resources"
              ;; :server-port 3449 ;; default
@@ -53,7 +56,7 @@
 
              ;:repl-eval-timeout 1000000000
 
-             :css-dirs          ["resources/public/css"]    ;; watch and update CSS
+             :css-dirs ["resources/public/css"]             ;; watch and update CSS
 
              ;; Start an nREPL server into the running figwheel process
              ;; :nrepl-port 7888
