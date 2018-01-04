@@ -24,6 +24,9 @@
                ; we can just grab your column and subvec it.
                (if (= x1 x2)
                  (let [column (nth structure x1)]
+                   (when-not (vector? column)
+                     (js/alert "PLEASE COPY PASTE THIS AND SEND IT TO jrrrheard@gmail.com: COLUMN IS " (pr-str column)))
+
                    (doseq [value (if (< y1 y2)
                                    (subvec (vec column) y1 (inc y2))
                                    (reverse (subvec (vec column) y2 (inc y1))))]
@@ -71,15 +74,15 @@
              (let [x2 (bound-between x2 0 (dec GRID-WIDTH))
                    y2 (bound-between y2 0 (dec GRID-HEIGHT))]
                (doseq [x (if (= x1 x2)
-                         [x1]
-                         (if (< x1 x2)
-                           (range x1 (inc x2))
-                           (reverse (range x2 (inc x1)))))
-                     y (if (= y1 y2)
-                         [y1]
-                         (if (< y1 y2)
-                           (range y1 (inc y2))
-                           (reverse (range y2 (inc y1)))))]
+                           [x1]
+                           (if (< x1 x2)
+                             (range x1 (inc x2))
+                             (reverse (range x2 (inc x1)))))
+                       y (if (= y1 y2)
+                           [y1]
+                           (if (< y1 y2)
+                             (range y1 (inc y2))
+                             (reverse (range y2 (inc y1)))))]
                  (next-fn [[x y] (get-in structure [x y])])))))
 
   (transform* [this structure next-fn]
