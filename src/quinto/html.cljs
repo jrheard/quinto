@@ -10,7 +10,7 @@
 ;;; Helper functions
 
 (defn can-go-back? [state]
-  (not= (get-in state [:mode :mode/type]) :default))
+  (= (get-in state [:mode :mode/type]) :assembling-move))
 
 (defn can-confirm-move? [state]
   (and (= (get-in state [:mode :mode/type]) :assembling-move)
@@ -125,7 +125,7 @@
       "◀"]
 
      [:div.button.cancel
-      {:class    (when (= (mode :mode/type) :default)
+      {:class    (when (not= (mode :mode/type) :assembling-move)
                    "inactive ")
        :on-click #(when (= (mode :mode/type) :assembling-move)
                     (put! game-event-chan
@@ -140,27 +140,27 @@
                  [DUMMY-SCORE]
                  scores)]
     [:div.scores
-     {:on-mouse-out #(when (= (mode :mode/type) :viewing-historical-move)
-                       (js/console.log %)
-                       (put! game-event-chan {:event/type :stop-viewing-move}))}
      [:h3 whose-score]
      [:ul
+      {:on-mouse-leave #(do
+                          (when (= (mode :mode/type) :viewing-historical-move)
+                            (put! game-event-chan {:event/type :stop-viewing-move})))}
+
       (for [[index score] (map-indexed vector scores)]
         ^{:key index} [:li
-                       {:class         (str (when (and (= index (dec (count scores)))
-                                                       (not= scores [DUMMY-SCORE])
-                                                       (= whose-score "Computer"))
-                                              "most-recent-score ")
-                                            (when (score :was-optimal)
-                                              "optimal "))
-                        :on-mouse-over #(when (and (not= score DUMMY-SCORE)
-                                                   (not= (mode :mode/type) :viewing-historical-move))
-                                          (put! game-event-chan {:event/type   :view-move
-                                                                 :grid         (score :grid)
-                                                                 :move         (score :move)
-                                                                 :optimal-move (if (= whose-score "Computer")
-                                                                                 (score :move)
-                                                                                 (score :optimal-move))}))}
+                       {:class          (str (when (and (= index (dec (count scores)))
+                                                        (not= scores [DUMMY-SCORE])
+                                                        (= whose-score "Computer"))
+                                               "most-recent-score ")
+                                             (when (score :was-optimal)
+                                               "optimal "))
+                        :on-mouse-enter #(when (not= score DUMMY-SCORE)
+                                           (put! game-event-chan {:event/type   :view-move
+                                                                  :grid         (score :grid)
+                                                                  :move         (score :move)
+                                                                  :optimal-move (if (= whose-score "Computer")
+                                                                                  (score :move)
+                                                                                  (score :optimal-move))}))}
                        (score :value)])
 
       (when (and tentative-score

@@ -1138,3 +1138,9 @@ added a noisy alert that attempts to detect the issue and pr-strs the column if 
 we'll see if that pops.
 
 next up, let's fix that 4-first-move bug
+
+TODO can we use a web worker to do the ai's move asynchronously?
+
+TODO use css grid for scores, board, etc; figure out how to work ghost board in there
+
+TODO think more about using :mode as a more formalized state machine; look up "your ui is a statechart" talk

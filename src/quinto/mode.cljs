@@ -144,12 +144,17 @@
 (defn view-historical-move
   "Displays a previous move on the board."
   [state grid move optimal-move]
-  (-> state
-      (assoc :grid (g/make-move grid move))
-      (assoc :mode {:mode/type      :viewing-historical-move
-                    :move           move
-                    :optimal-move   optimal-move
-                    :original-state state})))
+  (let [original-state (if (= (get-in state [:mode :mode/type])
+                              :viewing-historical-move)
+                         (get-in state [:mode :original-state])
+                         (assoc state :most-recent-computer-move []))]
+
+    (-> state
+        (assoc :grid (g/make-move grid move))
+        (assoc :mode {:mode/type      :viewing-historical-move
+                      :move           move
+                      :optimal-move   optimal-move
+                      :original-state original-state}))))
 
 (defn stop-viewing-historical-move
   [state]
