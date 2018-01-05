@@ -129,6 +129,7 @@
                       (update-in [:player-scores]
                                  conj
                                  {:value        move-score
+                                  ; xxx redundant, user of this data can just check for optimal-move being nil
                                   :was-optimal  (= move-score optimal-score)
                                   :grid         grid
                                   :move         move
@@ -146,9 +147,10 @@
   [state grid move optimal-move]
   (let [original-state (if (= (get-in state [:mode :mode/type]) :viewing-historical-move)
                          (get-in state [:mode :original-state])
-                         (assoc state :most-recent-computer-move []))]
+                         state)]
 
     (-> state
+        (assoc :most-recent-computer-move [])
         (assoc :grid (g/make-move grid move))
         (assoc :mode {:mode/type      :viewing-historical-move
                       :move           move

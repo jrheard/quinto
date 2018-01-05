@@ -1,5 +1,5 @@
 (ns quinto.html
-  (:require [com.rpl.specter :refer [select ALL LAST FIRST transform]]
+  (:require [com.rpl.specter :refer [select ALL LAST FIRST]]
             [cljs.core.async :refer [chan <! put!]]
             [reagent.core :as r]
             [quinto.grid :as g]
@@ -69,6 +69,7 @@
         [draw-cell game-event-chan state grid x y (cell-attributes-map [x y])])])])
 
 (defn draw-ghost-grid [grid move optimal-move]
+  ; If `move` _was_ an optimal move, then `optimal-move` will be nil.
   (let [relevant-cell-map (into {} (or optimal-move move))]
 
     [:div#ghost-grid
@@ -80,8 +81,12 @@
           (let [cell (relevant-cell-map [x y])
                 cell-class (if (contains? relevant-cell-map [x y])
                              (if optimal-move
+                               ; If `optimal-move` is non-nil, then we're drawing both the
+                               ; optimal move and the move that the player actually _made_.
+                               ; Since the two might overlap in that situation, we give the
+                               ; optimal move the "ghostly" class so that it can be a bit transparent.
                                "ghostly"
-                               "full-bodied")
+                               "optimal-historical-move")
                              "hidden")]
             ^{:key y} [:div.cell
                        {:class cell-class}
@@ -159,7 +164,9 @@
                                                                   :grid         (score :grid)
                                                                   :move         (score :move)
                                                                   :optimal-move (if (= whose-score "Computer")
-                                                                                  (score :move)
+                                                                                  ; The computer's moves
+                                                                                  ; are _always_ optimal. :)
+                                                                                  nil
                                                                                   (score :optimal-move))}))}
                        (score :value)])
 
@@ -178,6 +185,7 @@
        [:p (apply + (map :value scores))])]))
 
 (defn assemble-cell-attributes-map
+  "Yields a map like {[0 5] #{:playable :selected}}."
   [state]
   (if (= (get-in @state [:mode :mode/type]) :viewing-historical-move)
     (into {} (map #(vector (first %) #{:historical-move-cell})
@@ -188,6 +196,7 @@
                              (g/find-playable-cells (@state :grid))
                              (get-in @state [:mode :available-cells])))
           blocked-cells (set (g/find-blocked-cells (@state :grid)))]
+
       (merge-with into {}
                   (map #(vector % #{:playable}) playable-cells)
                   (map #(vector % #{:blocked}) blocked-cells)
@@ -219,7 +228,7 @@
 (defn handle-game-events [state game-event-chan]
   (go-loop []
     (let [event (<! game-event-chan)]
-      (js/console.log event)
+      ;(js/console.log event)
       (condp = (event :event/type)
         :select-cell (if (= (get-in @state [:mode :mode/type]) :default)
                        (swap! state m/enter-assembling-move-mode (event :cell))
