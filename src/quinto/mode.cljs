@@ -144,13 +144,12 @@
 (defn view-historical-move
   "Displays a previous move on the board."
   [state grid move optimal-move]
-  ()
-  ; xxxxx draw the move
-  ; xxxx somehow mark cells as green, red, or orange
-  ; xxxx save the preexisting state
-  ; XXX if no optimal move, draw move in green
-
-  )
+  (-> state
+      (assoc :grid (g/make-move grid move))
+      (assoc :mode {:mode/type      :viewing-historical-move
+                    :move           move
+                    :optimal-move   optimal-move
+                    :original-state state})))
 
 (defn stop-viewing-historical-move
   [state]

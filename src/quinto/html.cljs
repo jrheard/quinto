@@ -13,7 +13,7 @@
   (not= (get-in state [:mode :mode/type]) :default))
 
 (defn can-confirm-move? [state]
-  (and (not= (get-in state [:mode :mode/type]) :default)
+  (and (= (get-in state [:mode :mode/type]) :assembling-move)
        (g/is-grid-valid? (state :grid))
        (> (count (get-in state [:mode :move-so-far]))
           0)))
@@ -35,6 +35,8 @@
                           "blocked ")
                         (when (cell-attributes :playable)
                           "playable ")
+                        (when (cell-attributes :historical-move-cell)
+                          "historical-move-cell ")
                         (when (contains? (set (select [ALL FIRST]
                                                       (state :most-recent-computer-move)))
                                          [x y])
@@ -65,6 +67,12 @@
       (for [y (range (count (grid x)))]
         ^{:key y}
         [draw-cell game-event-chan state grid x y (cell-attributes-map [x y])])])])
+
+(defn draw-ghost-grid [mode move optimal-move]
+  [:div#ghost-grid
+
+   ]
+  )
 
 (defn draw-tile [game-event-chan state value mode]
   [:div.tile
@@ -104,7 +112,7 @@
      [:div.button.cancel
       {:class    (when (= (mode :mode/type) :default)
                    "inactive ")
-       :on-click #(when (not= (mode :mode/type) :default)
+       :on-click #(when (= (mode :mode/type) :assembling-move)
                     (put! game-event-chan
                           {:event/type :cancel-mode}))}
       "✖"]]))
@@ -133,7 +141,9 @@
                                                                  :move         (score :move)
                                                                  :optimal-move (if (= whose-score "Computer")
                                                                                  (score :move)
-                                                                                 (score :optimal-move))}))}
+                                                                                 (score :optimal-move))}))
+                        :on-mouse-out  #(when (= (mode :mode/type) :viewing-historical-move)
+                                          (put! game-event-chan {:event/type :stop-viewing-move}))}
                        (score :value)])
 
       (when (and tentative-score
@@ -152,15 +162,19 @@
 
 (defn assemble-cell-attributes-map
   [state]
-  (let [playable-cells (set
-                         (if (= (get-in @state [:mode :mode/type]) :default)
-                           (g/find-playable-cells (@state :grid))
-                           (get-in @state [:mode :available-cells])))
-        blocked-cells (set (g/find-blocked-cells (@state :grid)))]
-    (merge-with into {}
-                (map #(vector % #{:playable}) playable-cells)
-                (map #(vector % #{:blocked}) blocked-cells)
-                {(get-in @state [:mode :selected-cell]) #{:selected}})))
+  (if (= (get-in @state [:mode :mode/type]) :viewing-historical-move)
+    (into {} (map #(vector % #{:historical-move-cell})
+                  (get-in @state [:mode :move])))
+
+    (let [playable-cells (set
+                           (if (= (get-in @state [:mode :mode/type]) :default)
+                             (g/find-playable-cells (@state :grid))
+                             (get-in @state [:mode :available-cells])))
+          blocked-cells (set (g/find-blocked-cells (@state :grid)))]
+      (merge-with into {}
+                  (map #(vector % #{:playable}) playable-cells)
+                  (map #(vector % #{:blocked}) blocked-cells)
+                  {(get-in @state [:mode :selected-cell]) #{:selected}}))))
 
 (defn draw-game [state game-event-chan]
   [:div.game
@@ -169,13 +183,27 @@
    [:div.board-container
     [draw-scores (@state :player-scores) (@state :mode) "Player" game-event-chan]
 
+    ; ok okokok
+
+    ; if you made an optimal move,
+    ; :mode :optimal-move will be nil
+    ; just draw :mode :move on the ghost board in 100% opacity green
+
+    ; if you didn't make an optimal move
+    ; draw your non-optimal move on the regular board in orange
+    ; draw your optimal move on the ghost board in green, 30% opacity
+
+
     [draw-grid
      game-event-chan
      @state
      (@state :grid)
-     (merge-with into
-                 (assemble-cell-attributes-map state)
-                 (get-in state [:mode :cell-attributes-map]))]
+     (assemble-cell-attributes-map state)]
+
+    [draw-ghost-grid
+     (@state :grid)
+     (get-in @state [:mode :move])
+     (get-in @state [:mode :optimal-move])]
 
     [draw-scores (@state :ai-scores) (@state :mode) "Computer" game-event-chan]]])
 
@@ -186,8 +214,7 @@
     (let [event (<! game-event-chan)]
       (js/console.log event)
       (condp = (event :event/type)
-        :select-cell (if (= (get-in @state [:mode :mode/type])
-                            :default)
+        :select-cell (if (= (get-in @state [:mode :mode/type]) :default)
                        (swap! state m/enter-assembling-move-mode (event :cell))
                        (swap! state m/select-cell (event :cell)))
         :select-tile (swap! state m/select-tile (event :value))
@@ -195,6 +222,7 @@
         :go-back (swap! state m/go-back)
         :cancel-mode (swap! state m/cancel-mode)
         :view-move (swap! state m/view-historical-move (event :grid) (event :move) (event :optimal-move))
+        :stop-viewing-move (swap! state m/stop-viewing-historical-move)
         nil))
     (recur)))
 
