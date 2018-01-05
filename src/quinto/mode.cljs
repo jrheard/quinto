@@ -1,5 +1,13 @@
 (ns quinto.mode
-  "Functions for transitioning the board's state in response to user input."
+  "Functions for transitioning the app's state in response to user input.
+
+  At any given time, the app will be in one of these three modes:
+    * :default - the default mode; displays the current state of the board.
+    * :assembling-move - can be entered from :default mode. Allows the player
+      to build up a move, tile by tile.
+    * :viewing-historical-move - can be entered from either mode. Allows the player
+      to view past moves; if the player made a move that was non-optimal, allows
+      the player to see what their optimal move would have been. "
   (:require [com.rpl.specter :refer [select ALL LAST]]
             [quinto.ai :as ai]
             [quinto.deck :as deck]
@@ -65,10 +73,14 @@
                 :default))
 
   (cond
+    ; If the player has only selected a cell and hasn't actually
+    ; placed any tiles, then "backing out" means: "show's over, go back to :default mode."
     (and (some? (get-in state [:mode :selected-cell]))
          (= (count (get-in state [:mode :move-so-far])) 0))
     (cancel-mode state)
 
+    ; If the player has already placed some tiles and currently has a cell selected,
+    ; un-select that cell and we're done.
     (some? (get-in state [:mode :selected-cell]))
     (as-> state $
       (assoc-in $ [:mode :selected-cell] nil)
@@ -77,6 +89,8 @@
                   ($ :grid)
                   (get-in $ [:mode :move-so-far]))))
 
+    ; If there's no selected cell, then we need to remove the most-recently-placed
+    ; tile and put it back in the player's hand.
     (seq (get-in state [:mode :move-so-far]))
     (let [[[x y] value] (last (get-in state [:mode :move-so-far]))]
       (as-> state $
@@ -92,7 +106,9 @@
                     (get-in $ [:mode :move-so-far])))
         (assoc-in $ [:mode :selected-cell] [x y])))))
 
-(defn make-ai-move [state]
+(defn make-ai-move
+  "Causes the computer opponent to make a move."
+  [state]
   (let [move (ai/pick-move (state :grid) (state :ai-hand))
         move-tiles (select [ALL LAST] move)
         spent-hand (reduce remove-item (state :ai-hand) move-tiles)
@@ -129,8 +145,6 @@
                       (update-in [:player-scores]
                                  conj
                                  {:value        move-score
-                                  ; xxx redundant, user of this data can just check for optimal-move being nil
-                                  :was-optimal  (= move-score optimal-score)
                                   :grid         grid
                                   :move         move
                                   :optimal-move (when (not= move-score optimal-score)

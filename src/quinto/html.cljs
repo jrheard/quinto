@@ -157,7 +157,9 @@
                                                         (not= scores [DUMMY-SCORE])
                                                         (= whose-score "Computer"))
                                                "most-recent-score ")
-                                             (when (score :was-optimal)
+                                             (when (and (nil? (score :optimal-move))
+                                                        (= whose-score "Player")
+                                                        (not= score DUMMY-SCORE))
                                                "optimal "))
                         :on-mouse-enter #(when (not= score DUMMY-SCORE)
                                            (put! game-event-chan {:event/type   :view-move
@@ -243,7 +245,7 @@
     (recur)))
 
 ; Atom used for removing preexisting event handlers when fighweel reloads our code.
-(defonce keyup-handler (atom nil))
+(defonce keyup-handler-fn (atom nil))
 
 (def ESCAPE-KEY-CODE 27)
 (def LEFT-ARROW-KEY-CODE 37)
@@ -255,54 +257,58 @@
                        52 4
                        53 5})
 
+(defn make-key-handler [state game-event-chan]
+  (fn key-handler [event]
+    (let [key-code (.-keyCode event)
+
+          game-event (condp contains? key-code
+                       #{ESCAPE-KEY-CODE} {:event/type :cancel-mode}
+
+                       #{LEFT-ARROW-KEY-CODE} (when (can-go-back? @state)
+                                                {:event/type :go-back})
+
+                       #{ENTER-KEY-CODE} (when (can-confirm-move? @state)
+                                           {:event/type :confirm-move})
+
+
+                       #{ZERO-KEY-CODE} (let [textarea (js/document.createElement "textarea")]
+                                          (set! (.-value textarea)
+                                                (str "My Quinto game's state is: " (pr-str @state)))
+                                          (.appendChild js/document.body textarea)
+                                          (.select textarea)
+                                          (js/document.execCommand "copy")
+                                          (.removeChild js/document.body textarea))
+
+                       NUMBER-KEY-CODES (when (can-select-a-tile? @state)
+                                          (let [hand (@state :player-hand)
+                                                hand-index (dec (NUMBER-KEY-CODES key-code))]
+                                            (when (< hand-index (count hand))
+                                              {:event/type :select-tile
+                                               :value      (nth hand hand-index)})))
+                       nil)]
+
+      (when game-event
+        (put! game-event-chan game-event)))))
+
 ;;; Public API
 
 (defn render-game [state]
-  (when @keyup-handler
-    (.removeEventListener js/document "keyup" @keyup-handler))
+  (when @keyup-handler-fn
+    (.removeEventListener js/document "keyup" @keyup-handler-fn))
 
   (let [game-event-chan (chan)
-        key-handler (fn [event]
-                      (let [key-code (.-keyCode event)
-
-                            game-event (condp contains? key-code
-                                         #{ESCAPE-KEY-CODE} {:event/type :cancel-mode}
-
-                                         #{LEFT-ARROW-KEY-CODE} (when (can-go-back? @state)
-                                                                  {:event/type :go-back})
-
-                                         #{ENTER-KEY-CODE} (when (can-confirm-move? @state)
-                                                             {:event/type :confirm-move})
-
-
-                                         #{ZERO-KEY-CODE} (let [textarea (js/document.createElement "textarea")]
-                                                            (set! (.-value textarea)
-                                                                  (str "My Quinto game's state is: " (pr-str @state)))
-                                                            (.appendChild js/document.body textarea)
-                                                            (.select textarea)
-                                                            (js/document.execCommand "copy")
-                                                            (.removeChild js/document.body textarea))
-
-                                         NUMBER-KEY-CODES (when (can-select-a-tile? @state)
-                                                            (let [hand (@state :player-hand)
-                                                                  hand-index (dec (NUMBER-KEY-CODES key-code))]
-                                                              (when (< hand-index (count hand))
-                                                                {:event/type :select-tile
-                                                                 :value      (nth hand hand-index)})))
-                                         nil)]
-
-                        (when game-event
-                          (put! game-event-chan game-event))))]
+        key-handler (make-key-handler state game-event-chan)]
 
     (r/render-component [draw-game state game-event-chan]
                         (js/document.getElementById "app"))
 
-    ; Back out of modes if the user hits the escape key.
     (.addEventListener js/document "keyup" key-handler)
 
+    ; Clare says she likes to play the game in a small window while watching Youtube or something.
+    ; Prevent the left arrow key from scrolling the viewfinder to the left.
     (.addEventListener js/document "keydown" #(when (= (.-keyCode %)
                                                        LEFT-ARROW-KEY-CODE)
                                                 (.preventDefault %)))
-    (reset! keyup-handler key-handler)
+    (reset! keyup-handler-fn key-handler)
 
     (handle-game-events state game-event-chan)))

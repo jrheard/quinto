@@ -1144,3 +1144,37 @@ TODO can we use a web worker to do the ai's move asynchronously?
 TODO use css grid for scores, board, etc; figure out how to work ghost board in there
 
 TODO think more about using :mode as a more formalized state machine; look up "your ui is a statechart" talk
+
+========
+
+1/5/18
+
+have i found a bug?
+
+on this board
+
+        1
+        2
+9 9 3 7 7
+
+i made this move
+
+      4
+      7
+      4 1
+      8 2
+9 9 3 7 7
+
+and scored 45 points. but the game is telling me that this move would have been optimal
+
+        1
+        2
+9 9 3 7 7
+    7 8 0
+
+which looks to me like it would be a score of 35....
+oh right.
+main axis is worth an additional 15.
+so that would have been 50 points.
+
+no bug! game's better than i am!
