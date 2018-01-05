@@ -94,6 +94,7 @@ html {
 .board-container {
     overflower: hidden;
     margin: 20px auto;
+    position: relative;
 }
 
 .scores {
@@ -133,6 +134,16 @@ html {
     float: left;
 }
 
+#ghost-grid {
+    width: 612px;
+    overflow: hidden;
+    float: left;
+    top: 0;
+    left: 144px;
+    position: absolute;
+    pointer-events: none;
+}
+
 .column {
     overflow: hidden;
     float: left;
@@ -149,6 +160,19 @@ html {
     font-size: 35px;
     line-height: 45px;
     text-align: center;
+}
+
+.cell.hidden {
+    visibility: hidden;
+}
+
+.cell.ghostly {
+    opacity: 0.75;
+    background-color: #B4FFB4;
+}
+
+.cell.full-bodied {
+    background-color: #B4FFB4;
 }
 
 .cell.full {
@@ -179,7 +203,7 @@ html {
 }
 
 .cell.historical-move-cell {
-    background-color: #FFB36C;
+    background-color: #FFC691;
 }
 
 .cell.just-played {

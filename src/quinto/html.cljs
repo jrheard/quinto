@@ -68,7 +68,7 @@
         ^{:key y}
         [draw-cell game-event-chan state grid x y (cell-attributes-map [x y])])])])
 
-(defn draw-ghost-grid [mode move optimal-move]
+(defn draw-ghost-grid [grid move optimal-move]
   ; ok okokok
 
   ; if you made an optimal move,
@@ -78,10 +78,28 @@
   ; if you didn't make an optimal move
   ; draw your non-optimal move on the regular board in orange
   ; draw your optimal move on the ghost board in green, 30% opacity
-  [:div#ghost-grid
+  (let [relevant-cell-map (into {}
+                                (or optimal-move move))]
+    (js/console.log "SUP" relevant-cell-map)
 
-   ]
-  )
+    [:div#ghost-grid
+     (for [x (range (count grid))]
+       ^{:key x}
+       [:div.column
+
+        (for [y (range (count (grid x)))]
+          (let [cell (relevant-cell-map [x y])
+                cell-class (if (contains? relevant-cell-map [x y])
+                             (if optimal-move
+                               "ghostly"
+                               ; xxxx full-bodied is noop, remove
+                               "full-bodied")
+                             "hidden")]
+            ^{:key y} [:div.cell
+                       {:class cell-class}
+                       (if (nil? cell)
+                         ""
+                         cell)]))])]))
 
 (defn draw-tile [game-event-chan state value mode]
   [:div.tile
@@ -134,6 +152,8 @@
                  [DUMMY-SCORE]
                  scores)]
     [:div.scores
+     {:on-mouse-out #(when (= (mode :mode/type) :viewing-historical-move)
+                       (put! game-event-chan {:event/type :stop-viewing-move}))}
      [:h3 whose-score]
      [:ul
       (for [[index score] (map-indexed vector scores)]
@@ -151,9 +171,7 @@
                                                                  :move         (score :move)
                                                                  :optimal-move (if (= whose-score "Computer")
                                                                                  (score :move)
-                                                                                 (score :optimal-move))}))
-                        :on-mouse-out  #(when (= (mode :mode/type) :viewing-historical-move)
-                                          (put! game-event-chan {:event/type :stop-viewing-move}))}
+                                                                                 (score :optimal-move))}))}
                        (score :value)])
 
       (when (and tentative-score
