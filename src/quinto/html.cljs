@@ -69,18 +69,7 @@
         [draw-cell game-event-chan state grid x y (cell-attributes-map [x y])])])])
 
 (defn draw-ghost-grid [grid move optimal-move]
-  ; ok okokok
-
-  ; if you made an optimal move,
-  ; :mode :optimal-move will be nil
-  ; just draw :mode :move on the ghost board in 100% opacity green
-
-  ; if you didn't make an optimal move
-  ; draw your non-optimal move on the regular board in orange
-  ; draw your optimal move on the ghost board in green, 30% opacity
-  (let [relevant-cell-map (into {}
-                                (or optimal-move move))]
-    (js/console.log "SUP" relevant-cell-map)
+  (let [relevant-cell-map (into {} (or optimal-move move))]
 
     [:div#ghost-grid
      (for [x (range (count grid))]
@@ -92,7 +81,6 @@
                 cell-class (if (contains? relevant-cell-map [x y])
                              (if optimal-move
                                "ghostly"
-                               ; xxxx full-bodied is noop, remove
                                "full-bodied")
                              "hidden")]
             ^{:key y} [:div.cell
@@ -153,6 +141,7 @@
                  scores)]
     [:div.scores
      {:on-mouse-out #(when (= (mode :mode/type) :viewing-historical-move)
+                       (js/console.log %)
                        (put! game-event-chan {:event/type :stop-viewing-move}))}
      [:h3 whose-score]
      [:ul

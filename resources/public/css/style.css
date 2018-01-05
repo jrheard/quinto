@@ -224,6 +224,10 @@ html {
     animation: 5s glow-text;
 }
 
+.scores li:hover {
+    background-color: #EEEE;
+}
+
 @keyframes glow-text {
     from {
         color: #333;

@@ -153,5 +153,6 @@
 
 (defn stop-viewing-historical-move
   [state]
-  (assert (= (get-in state [:mode :mode/type]) :viewing-historical-move))
-  (get-in state [:mode :original-state]))
+  (if (= (get-in state [:mode :mode/type]) :viewing-historical-move)
+    (get-in state [:mode :original-state])
+    state))
