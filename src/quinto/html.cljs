@@ -69,6 +69,15 @@
         [draw-cell game-event-chan state grid x y (cell-attributes-map [x y])])])])
 
 (defn draw-ghost-grid [mode move optimal-move]
+  ; ok okokok
+
+  ; if you made an optimal move,
+  ; :mode :optimal-move will be nil
+  ; just draw :mode :move on the ghost board in 100% opacity green
+
+  ; if you didn't make an optimal move
+  ; draw your non-optimal move on the regular board in orange
+  ; draw your optimal move on the ghost board in green, 30% opacity
   [:div#ghost-grid
 
    ]
@@ -135,7 +144,8 @@
                                               "most-recent-score ")
                                             (when (score :was-optimal)
                                               "optimal "))
-                        :on-mouse-over #(when (not= score DUMMY-SCORE)
+                        :on-mouse-over #(when (and (not= score DUMMY-SCORE)
+                                                   (not= (mode :mode/type) :viewing-historical-move))
                                           (put! game-event-chan {:event/type   :view-move
                                                                  :grid         (score :grid)
                                                                  :move         (score :move)
@@ -163,7 +173,7 @@
 (defn assemble-cell-attributes-map
   [state]
   (if (= (get-in @state [:mode :mode/type]) :viewing-historical-move)
-    (into {} (map #(vector % #{:historical-move-cell})
+    (into {} (map #(vector (first %) #{:historical-move-cell})
                   (get-in @state [:mode :move])))
 
     (let [playable-cells (set
@@ -182,16 +192,6 @@
 
    [:div.board-container
     [draw-scores (@state :player-scores) (@state :mode) "Player" game-event-chan]
-
-    ; ok okokok
-
-    ; if you made an optimal move,
-    ; :mode :optimal-move will be nil
-    ; just draw :mode :move on the ghost board in 100% opacity green
-
-    ; if you didn't make an optimal move
-    ; draw your non-optimal move on the regular board in orange
-    ; draw your optimal move on the ghost board in green, 30% opacity
 
 
     [draw-grid

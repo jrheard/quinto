@@ -178,6 +178,10 @@ html {
     background-color: #FFB36C;
 }
 
+.cell.historical-move-cell {
+    background-color: #FFB36C;
+}
+
 .cell.just-played {
     animation: 5s glow-background;
 }
