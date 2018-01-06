@@ -105,6 +105,8 @@
   :ret (s/coll-of ::sp/move))
 
 (defn moves-in-direction
+  "Returns all of the possible moves starting at [x, y] and heading in [xdir, ydir]
+  with the given values of `grid` and `hand`."
   [grid hand x y xdir ydir]
   (let [[[horizontal-length _] [vertical-length _]] (g/find-runs grid x y)
         move-direction (if (= xdir 0) :vertical :horizontal)

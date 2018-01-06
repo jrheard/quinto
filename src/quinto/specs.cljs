@@ -25,5 +25,5 @@
                 :count GRID-WIDTH))
 
 
-(s/def :mode/type #{:default :assembling-move})
+(s/def :mode/type #{:default :assembling-move :viewing-historical-move})
 (s/def ::mode (s/keys :req [:mode/type]))
