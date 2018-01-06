@@ -193,7 +193,7 @@
 
 (s/fdef score-move
   :args (s/cat :grid ::sp/grid :move ::sp/move)
-  :ret pos-int?)
+  :ret nat-int?)
 
 (defn is-grid-valid? [grid]
   (let [filled-cells (select [ALL ALL some?] grid)]

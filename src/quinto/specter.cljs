@@ -9,6 +9,7 @@
   grid-values
   [x1 y1 x2 y2]
 
+  ; XXXX STRUCTURE IS NULL???
   (select* [this structure next-fn]
            (assert (or (= x1 x2)
                        (= y1 y2)))
@@ -25,7 +26,9 @@
                (if (= x1 x2)
                  (let [column (nth structure x1)]
                    (when-not (vector? column)
-                     (js/alert "PLEASE COPY PASTE THIS AND SEND IT TO jrrrheard@gmail.com: COLUMN IS " (pr-str column)))
+                     (js/console.log x1 y1 x2 y2 column)
+                     ;(js/alert "PLEASE COPY PASTE THIS AND SEND IT TO jrrrheard@gmail.com: COLUMN IS " (pr-str column))
+                     (js-debugger))
 
                    (doseq [value (if (< y1 y2)
                                    (subvec (vec column) y1 (inc y2))
