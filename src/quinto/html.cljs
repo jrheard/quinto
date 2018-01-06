@@ -230,9 +230,10 @@
 ;;; Event handling
 
 (defn handle-game-events [state game-event-chan]
+  ;(js/console.log "handle-game-events" game-event-chan)
   (go-loop []
     (let [event (<! game-event-chan)]
-      ;(js/console.log event)
+      (js/console.log "got event" event)
       (condp = (event :event/type)
         :select-cell (if (= (get-in @state [:mode :mode/type]) :default)
                        (swap! state m/enter-assembling-move-mode (event :cell))
@@ -294,11 +295,11 @@
 
 ;;; Public API
 
-(defn render-game [state]
+(defn render-game [state game-event-chan]
   (when @keyup-handler-fn
     (.removeEventListener js/document "keyup" @keyup-handler-fn))
 
-  (let [game-event-chan (chan)
+  (let [                                                    ;game-event-chan (chan)
         key-handler (make-key-handler state game-event-chan)]
 
     (r/render-component [draw-game state game-event-chan]

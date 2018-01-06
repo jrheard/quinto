@@ -1197,3 +1197,16 @@ TODO the computer just made a first move whose value was 9!!!!! it was just the 
 TODO: take another stab at generating UI inputs, just using a random function like
 (generate-next-ui-event last-ui-event)
 
+ok this reliably triggers a crash with the same stacktrace (although it may not be completely the same crash):
+
+(let [good-move (ai/pick-move (@app-state :grid) (@app-state :player-hand))]
+    (swap! app-state assoc-in [:mode :move-so-far] good-move)
+    (swap! app-state confirm-move))
+
+this is because that code is incomplete - it doesn't set up a :mode :original-grid
+so -find-runs gets called with a nil grid
+
+so i guess the heisenbug happens when someone calls -find-runs with a nil grid
+but when can that happen?
+
+i'm gonna write the code to generate UI events now
