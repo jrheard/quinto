@@ -4,36 +4,20 @@
             [reagent.core :as r]
             [quinto.grid :as g]
             [quinto.input :as i]
+            [quinto.mode :as m]
             [quinto.utils :refer [remove-item]]))
 
 ;;; HTML rendering
 
-; xxxxx remove `state` arg, move stuff to cell-attributes
-; xxxxx can remove grid arg too, in favor of `value`
-(defn draw-cell [game-event-chan state grid x y cell-attributes]
-  (let [cell (get-in grid [x y])
-        cell-attributes (or cell-attributes #{})
-        mode (state :mode)
+(defn draw-cell [game-event-chan x y value cell-attributes]
+  (let [cell-attributes (or cell-attributes #{})
         cell-class (str "cell "
-                        (if (nil? cell)
+                        (if (nil? value)
                           "empty "
                           "full ")
-                        (when (cell-attributes :blocked)
-                          "blocked ")
-                        (when (cell-attributes :playable)
-                          "playable ")
-                        (when (cell-attributes :historical-move-cell)
-                          "historical-move-cell ")
-                        (when (contains? (set (select [ALL FIRST]
-                                                      (state :most-recent-computer-move)))
-                                         [x y])
-                          "just-played ")
-                        (when (contains? (set (select [ALL FIRST]
-                                                      (mode :move-so-far)))
-                                         [x y])
-                          "speculative ")
-                        (when (cell-attributes :selected)
-                          "selected "))]
+
+                        (apply str (interleave (map name cell-attributes)
+                                               (repeat " "))))]
 
     [:div
      {:class    cell-class
@@ -41,11 +25,11 @@
                   #(put! game-event-chan
                          {:event/type :select-cell
                           :cell       [x y]}))}
-     (if (nil? cell)
+     (if (nil? value)
        ""
-       cell)]))
+       value)]))
 
-(defn draw-grid [game-event-chan state grid cell-attributes-map]
+(defn draw-grid [game-event-chan grid cell-attributes-map]
   [:div#grid
    (for [x (range (count grid))]
      ^{:key x}
@@ -53,7 +37,7 @@
 
       (for [y (range (count (grid x)))]
         ^{:key y}
-        [draw-cell game-event-chan state grid x y (cell-attributes-map [x y])])])])
+        [draw-cell game-event-chan x y (get-in grid [x y]) (cell-attributes-map [x y])])])])
 
 (defn draw-ghost-grid [grid move optimal-move]
   ; If `move` _was_ an optimal move, then `optimal-move` will be nil.
@@ -85,7 +69,7 @@
   [:div.tile
    {:class    (when-not (mode :selected-cell)
                 "inactive")
-    :on-click (when (can-select-a-tile? state)
+    :on-click (when (m/can-select-a-tile? state)
                 #(put! game-event-chan
                        {:event/type :select-tile
                         :value      value}))}
@@ -93,7 +77,7 @@
 
 (defn draw-controls [state hand game-event-chan]
   (let [mode (state :mode)
-        confirm-button-active (can-confirm-move? state)]
+        confirm-button-active (m/can-confirm-move? state)]
     [:div#controls
      {:class (when (mode :selected-cell)
                "assembling-move")}
@@ -110,9 +94,9 @@
       "✔"]
 
      [:div.button.back
-      {:class    (when-not (can-go-back? state)
+      {:class    (when-not (m/can-go-back? state)
                    "inactive ")
-       :on-click #(when (can-go-back? state)
+       :on-click #(when (m/can-go-back? state)
                     (put! game-event-chan {:event/type :go-back}))}
       "◀"]
 
@@ -181,11 +165,17 @@
                            (if (= (get-in @state [:mode :mode/type]) :default)
                              (g/find-playable-cells (@state :grid))
                              (get-in @state [:mode :available-cells])))
-          blocked-cells (set (g/find-blocked-cells (@state :grid)))]
+          blocked-cells (set (g/find-blocked-cells (@state :grid)))
+          recent-computer-move-cells (set (select [ALL FIRST]
+                                                  (@state :most-recent-computer-move)))
+          speculative-cells (set (select [ALL FIRST]
+                                         (get-in @state [:mode :move-so-far])))]
 
       (merge-with into {}
                   (map #(vector % #{:playable}) playable-cells)
                   (map #(vector % #{:blocked}) blocked-cells)
+                  (map #(vector % #{:just-played}) recent-computer-move-cells)
+                  (map #(vector % #{:speculative}) speculative-cells)
                   {(get-in @state [:mode :selected-cell]) #{:selected}}))))
 
 (defn draw-game
@@ -200,7 +190,6 @@
 
     [draw-grid
      game-event-chan
-     @state
      (@state :grid)
      (assemble-cell-attributes-map state)]
 
@@ -231,7 +220,7 @@
     ; Clare likes to play the game in a small window while watching Youtube or something.
     ; Prevent the left arrow key from scrolling the viewfinder to the left.
     (.addEventListener js/document "keydown" #(when (= (.-keyCode %)
-                                                       LEFT-ARROW-KEY-CODE)
+                                                       i/LEFT-ARROW-KEY-CODE)
                                                 (.preventDefault %)))
     (reset! keyup-handler-fn key-handler)
 
