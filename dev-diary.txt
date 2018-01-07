@@ -1222,4 +1222,33 @@ so TODO:
 look through all of the places where the game's state can be transitioned (except for historical mode)
 and see if there's some transition in there that i haven't noticed that can cause the heisenbug behavior
 
+maybe there's some sort of race condition?
+i was able to trigger a race condition between confirming moves and the back button just now
+ok well race conditions will be difficult to reproduce
+but let's try to trigger one just for grins, to see if we can end up causing a situation with the same crash signature
 
+ok - confirming a move when you're in default mode triggers the exact same behavior
+and i think it's because :mode :original-grid is nil
+
+no other transition is able to trigger this behavior
+so obviously the fix is to just prevent that transition from happening
+
+but like, how can this race condition happen?
+i don't think the kids even know about the keyboard shortcuts
+
+the confirm button and enter are only active when this is true
+
+(defn can-confirm-move? [state]
+  (and (= (get-in state [:mode :mode/type]) :assembling-move)
+       (g/is-grid-valid? (state :grid))
+       (> (count (get-in state [:mode :move-so-far]))
+          0)))
+
+which seems pretty airtight
+
+god this is so boring, i've been having a hard time keeping focused on this friggin bug
+
+i seriously cannot figure out how to reproduce this by using the app
+but it seems like it could be the source of the crash, even if i'm unable to trigger it
+(but how did they manage to do it?)
+anyway i'll just have the event-handling loop discard invalid confirm events

@@ -232,9 +232,12 @@
         :select-cell (if (= (get-in @state [:mode :mode/type]) :default)
                        (swap! state m/enter-assembling-move-mode (event :cell))
                        (swap! state m/select-cell (event :cell)))
-        :select-tile (swap! state m/select-tile (event :value))
-        :confirm-move (swap! state m/confirm-move)
-        :go-back (swap! state m/go-back)
+        :select-tile (when (can-select-a-tile? state)
+                       (swap! state m/select-tile (event :value)))
+        :confirm-move (when (can-confirm-move? state)
+                        (swap! state m/confirm-move))
+        :go-back (when (can-go-back? state)
+                   (swap! state m/go-back))
         :cancel-mode (swap! state m/cancel-mode)
         :view-move (swap! state m/view-historical-move (event :grid) (event :move) (event :optimal-move))
         :stop-viewing-move (swap! state m/stop-viewing-historical-move)
@@ -266,7 +269,6 @@
 
                        #{ENTER-KEY-CODE} (when (can-confirm-move? @state)
                                            {:event/type :confirm-move})
-
 
                        #{ZERO-KEY-CODE} (let [textarea (js/document.createElement "textarea")]
                                           (set! (.-value textarea)
