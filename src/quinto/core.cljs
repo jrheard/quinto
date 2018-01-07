@@ -19,5 +19,4 @@
 
   (ai/pick-move (@app-state :grid) (@app-state :player-hand))
   (swap! app-state assoc :player-hand [])
-  (swap! app-state update :player-scores conj {:value 100})
-  )
+  (swap! app-state update :player-scores conj {:value 100}))

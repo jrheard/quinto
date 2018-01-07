@@ -1243,9 +1243,8 @@ anyway i'll just have the event-handling loop discard invalid confirm events
 pulling todos down here
 
 DONE add a win screen
-TODO detect when player can't make a move
 
-TODO leaderboard (last 5-10 games stored locally)
+DECIDED NOT TO DO THIS leaderboard (last 5-10 games stored locally)
 maybe don't do this
 
 DONE can we use a web worker to do the ai's move asynchronously?
@@ -1259,12 +1258,12 @@ http://dev.solita.fi/2016/02/01/testing-clojurescript-concurrency-with-servant.h
 if this was well-supported i'd look into it, but i don't actually need this feature so it's not worth it
 seems to not work when run in no-optimizations mode, which is what figwheel needs afaik
 
-TODO attempt to apply http://blog.cognitect.com/blog/2017/5/22/restate-your-ui-using-state-machines-to-simplify-user-interface-development
-
 DONE the computer just made a first move whose value was 9!!!!! it was just the tile 9!
 
 =====
 
 1/7/18
 
-
+DONE try to repro double-submit bug just to convince myself that it was a double-submit bug
+yesssss it was a double submit!
+wheeeeeeeee
