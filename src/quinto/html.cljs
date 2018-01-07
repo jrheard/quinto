@@ -60,8 +60,6 @@
 
 (defn draw-grid [game-event-chan state grid cell-attributes-map]
   [:div#grid
-   {:on-mouse-enter #(when (= (get-in state [:mode :mode/type]) :viewing-historical-move)
-                       (put! game-event-chan {:event/type :stop-viewing-move}))}
    (for [x (range (count grid))]
      ^{:key x}
      [:div.column
@@ -110,10 +108,8 @@
   (let [mode (state :mode)
         confirm-button-active (can-confirm-move? state)]
     [:div#controls
-     {:class          (when (mode :selected-cell)
-                        "assembling-move")
-      :on-mouse-enter #(when (= (get-in state [:mode :mode/type]) :viewing-historical-move)
-                         (put! game-event-chan {:event/type :stop-viewing-move}))}
+     {:class (when (mode :selected-cell)
+               "assembling-move")}
 
      [:div#hand
       (for [[index value] (map-indexed vector hand)]
@@ -149,8 +145,7 @@
                  [DUMMY-SCORE]
                  scores)]
     [:div.scores
-     {:on-mouse-leave #(when (= (mode :mode/type) :viewing-historical-move)
-                         (put! game-event-chan {:event/type :stop-viewing-move}))}
+     {:on-mouse-leave #(put! game-event-chan {:event/type :stop-viewing-move})}
      [:h3 whose-score]
      [:ul
       (for [[index score] (map-indexed vector scores)]
