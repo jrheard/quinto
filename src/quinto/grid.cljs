@@ -104,11 +104,17 @@
         playable-cells (set (find-playable-cells grid))
         blocked-cells (set (find-blocked-cells grid))
         directions-to-check (if (= (count move) 1)
+                              ; If you've only placed one tile so far, your move could
+                              ; end up pointing in any of the four cardinal directions.
                               [[-1 0] [1 0] [0 -1] [0 1]]
 
+                              ; Otherwise, you've placed more than one tile, so you've
+                              ; committed to making a move that's either vertical or horizontal.
                               (let [xs (set (select [ALL FIRST FIRST] move))]
                                 (if (= (count xs) 1)
+                                  ; It's vertical!
                                   [[0 1] [0 -1]]
+                                  ; It's horizontal!
                                   [[1 0] [-1 0]])))]
 
     (for [[xdir ydir] directions-to-check
