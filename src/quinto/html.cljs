@@ -1,6 +1,6 @@
 (ns quinto.html
   (:require [com.rpl.specter :refer [select ALL LAST FIRST]]
-            [cljs.core.async :refer [chan <! put!]]
+            [cljs.core.async :refer [chan <! put! go >! close!]]
             [reagent.core :as r]
             [quinto.grid :as g]
             [quinto.mode :as m]
@@ -230,7 +230,6 @@
 ;;; Event handling
 
 (defn handle-game-events [state game-event-chan]
-  ;(js/console.log "handle-game-events" game-event-chan)
   (go-loop []
     (let [event (<! game-event-chan)]
       (js/console.log "got event" event)
@@ -260,6 +259,60 @@
                        52 4
                        53 5})
 
+
+; https://stackoverflow.com/questions/14464011/idiomatic-clojure-for-picking-between-random-weighted-choices
+(defn weighted-rand-choice [m]
+  (let [w (reductions #(+ % %2) (vals m))
+        r (rand-int (last w))]
+    (nth (keys m) (count (take-while #(<= % r) w)))))
+
+(defn generate-next-game-event
+  [state]
+  (let [mode (get-in state [:mode :mode/type])]
+    (cond
+      (= mode :default)
+      {:event/type :select-cell
+       :cell       (rand-nth (g/find-playable-cells (state :grid)))}
+
+      (= mode :assembling-move)
+      (let [options-map {{:event/type :go-back}     2
+                         {:event/type :cancel-mode} 2}
+
+            options-map (if (seq (get-in state [:mode :available-cells]))
+                          (assoc options-map
+                                 {:event/type :select-cell
+                                  :cell       (rand-nth (get-in state [:mode :available-cells]))}
+                                 5)
+                          options-map)
+            options-map (if (and (can-select-a-tile? state)
+                                 (seq (state :player-hand)))
+                          (assoc options-map
+                                 {:event/type :select-tile
+                                  :value      (rand-nth (state :player-hand))}
+                                 10)
+                          options-map)
+
+            options-map (if (can-confirm-move? state)
+                          (assoc options-map
+                                 {:event/type :confirm-move}
+                                 10)
+                          options-map)]
+
+        (weighted-rand-choice options-map)))))
+
+(defn timeout [ms]
+  (let [c (chan)]
+    (js/setTimeout (fn [] (close! c)) ms)
+    c))
+
+(defn play-game [state-atom game-event-chan num-events]
+  (go
+    (dotimes [i num-events]
+      (<! (timeout 50))
+      (let [event (generate-next-game-event @state-atom)]
+        (js/console.log "sending event" event)
+        (>! game-event-chan event)))))
+
 (defn make-key-handler [state game-event-chan]
   (fn key-handler [event]
     (let [key-code (.-keyCode event)
@@ -273,14 +326,9 @@
                        #{ENTER-KEY-CODE} (when (can-confirm-move? @state)
                                            {:event/type :confirm-move})
 
-
-                       #{ZERO-KEY-CODE} (let [textarea (js/document.createElement "textarea")]
-                                          (set! (.-value textarea)
-                                                (str "My Quinto game's state is: " (pr-str @state)))
-                                          (.appendChild js/document.body textarea)
-                                          (.select textarea)
-                                          (js/document.execCommand "copy")
-                                          (.removeChild js/document.body textarea))
+                       #{ZERO-KEY-CODE} (do
+                                          (play-game state game-event-chan 1500)
+                                          nil)
 
                        NUMBER-KEY-CODES (when (can-select-a-tile? @state)
                                           (let [hand (@state :player-hand)
@@ -299,7 +347,7 @@
   (when @keyup-handler-fn
     (.removeEventListener js/document "keyup" @keyup-handler-fn))
 
-  (let [                                                    ;game-event-chan (chan)
+  (let [;game-event-chan (chan)
         key-handler (make-key-handler state game-event-chan)]
 
     (r/render-component [draw-game state game-event-chan]

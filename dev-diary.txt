@@ -1210,3 +1210,16 @@ so i guess the heisenbug happens when someone calls -find-runs with a nil grid
 but when can that happen?
 
 i'm gonna write the code to generate UI events now
+
+ok, got that working, even in advanced mode
+but the bug doesn't repro!
+this only happens on other peoples' machines, not on mine
+i think that the most likely explanation isn't that my computer is perfect
+but instead that other people are somehow going through a state transition that i'm not thinking of
+and didn't program into this UI-event-generator just now
+
+so TODO:
+look through all of the places where the game's state can be transitioned (except for historical mode)
+and see if there's some transition in there that i haven't noticed that can cause the heisenbug behavior
+
+

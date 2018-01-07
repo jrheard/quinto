@@ -4,7 +4,7 @@
             [reagent.core :as r]
             [orchestra-cljs.spec.test :as st]
             [quinto.deck :refer [make-deck draw-tiles MAX-HAND-SIZE]]
-            [quinto.html :refer [render-game can-confirm-move? can-select-a-tile?]]
+            [quinto.html :refer [render-game play-game]]
             [quinto.mode :refer [make-ai-move confirm-move]]
             [quinto.specter :refer [grid-values indexed-grid-values]]
             [quinto.ai :as ai]
@@ -40,58 +40,11 @@
 (defn on-js-reload []
   (render-game app-state game-event-chan))
 
-; https://stackoverflow.com/questions/14464011/idiomatic-clojure-for-picking-between-random-weighted-choices
-(defn weighted-rand-choice [m]
-  (let [w (reductions #(+ % %2) (vals m))
-        r (rand-int (last w))]
-    (nth (keys m) (count (take-while #(<= % r) w)))))
-
-(defn generate-next-game-event
-  [state]
-  (let [mode (get-in state [:mode :mode/type])]
-    (cond
-      (= mode :default)
-      {:event/type :select-cell
-       :cell       (rand-nth (g/find-playable-cells (state :grid)))}
-
-      (= mode :assembling-move)
-      (let [options-map {{:event/type :go-back}     2
-                         {:event/type :cancel-mode} 2}
-
-            options-map (if (seq (get-in state [:mode :available-cells]))
-                          (assoc options-map
-                                 {:event/type :select-cell
-                                  :cell       (rand-nth (get-in state [:mode :available-cells]))}
-                                 5)
-                          options-map)
-            options-map (if (and (can-select-a-tile? state)
-                                 (seq (state :player-hand)))
-                          (assoc options-map
-                                 {:event/type :select-tile
-                                  :value      (rand-nth (state :player-hand))}
-                                 10)
-                          options-map)
-
-            options-map (if (can-confirm-move? state)
-                          (assoc options-map
-                                 {:event/type :confirm-move}
-                                 10)
-                          options-map)]
-
-        (weighted-rand-choice options-map)))))
-
-(defn timeout [ms]
-  (let [c (chan)]
-    (js/setTimeout (fn [] (close! c)) ms)
-    c))
-
 (comment
 
-  (go
-    (dotimes [i 100]
-      (<! (timeout 50))
-      (let [event (generate-next-game-event @app-state)]
-        (>! game-event-chan event))))
+  (play-game app-state game-event-chan 100)
+
+
 
 
   (identity @app-state)
