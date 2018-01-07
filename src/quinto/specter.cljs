@@ -24,14 +24,10 @@
                ; we can just grab your column and subvec it.
                (if (= x1 x2)
                  (let [column (nth structure x1)]
-                   (when-not (vector? column)
-                     (js/alert "PLEASE COPY PASTE THIS AND SEND IT TO jrrrheard@gmail.com: COLUMN IS " (pr-str column)))
-
                    (doseq [value (if (< y1 y2)
                                    (subvec (vec column) y1 (inc y2))
                                    (reverse (subvec (vec column) y2 (inc y1))))]
                      (next-fn value)))
-
 
                  ; If we're going horizontally, we need to do two `nth` calls per element.
                  ; This isn't great for performance, so we have some hand-optimizied `loop`s here.

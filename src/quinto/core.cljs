@@ -27,7 +27,7 @@
     (swap! app-state assoc :deck new-deck)
     (swap! app-state assoc :ai-hand new-hand))
 
-  (when (= (rand-nth [:heads :tails]) :tails)
+  (when (rand-nth [true false])
     (swap! app-state make-ai-move))
 
   (render-game app-state))

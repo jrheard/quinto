@@ -1095,12 +1095,6 @@ DONE add save_state console function so clare can serialize her app's state when
 maybe map it to the c key or something
 or like tilde, i dunno
 
-TODO add a win screen
-
-TODO leaderboard (last 5-10 games stored locally)
-
-TODO tutorial overlay
-
 =========
 
 1/3/18
@@ -1139,10 +1133,6 @@ we'll see if that pops.
 
 next up, let's fix that 4-first-move bug
 
-TODO can we use a web worker to do the ai's move asynchronously?
-
-TODO use css grid for scores, board, etc; figure out how to work ghost board in there
-
 DONE think more about using :mode as a more formalized state machine; look up "your ui is a statechart" talk
 
 ========
@@ -1179,22 +1169,19 @@ so that would have been 50 points.
 
 no bug! game's better than i am!
 
-TODO attempt to apply http://blog.cognitect.com/blog/2017/5/22/restate-your-ui-using-state-machines-to-simplify-user-interface-development
 
 DONE holden's game got stuck in this state
 {:grid [[nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil 8 1 8 8 nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil]], :deck (2 7 7 0 3 3 7 1 9 1 9 3 2 8 3 9 8 5 0 5 1 3 1 8 0 4 9 7 9 8 1 8 4 2 5 0 7 7 4 9 3 0 4 2 7 4 0 9 7 8 7 4 8 2 4 7 5 9 4 9 9 7 3 9 7 5), :player-scores [], :player-hand (4 7 0), :ai-scores [{:value 25, :move #{[[6 6] 8] [[6 7] 1] [[6 8] 8] [[6 9] 8]}, :grid [[nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil]]}], :ai-hand (4 8 8 5 2), :most-recent-computer-move [], :mode {:mode/type :viewing-historical-move, :move #{[[6 6] 8] [[6 7] 1] [[6 8] 8] [[6 9] 8]}, :optimal-move nil, :original-state {:grid [[nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil 7 9 nil nil nil nil nil] [nil nil nil nil nil nil 8 1 8 8 nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil]], :deck (2 7 7 0 3 3 7 1 9 1 9 3 2 8 3 9 8 5 0 5 1 3 1 8 0 4 9 7 9 8 1 8 4 2 5 0 7 7 4 9 3 0 4 2 7 4 0 9 7 8 7 4 8 2 4 7 5 9 4 9 9 7 3 9 7 5), :player-scores [], :player-hand (4 7 0), :ai-scores [{:value 25, :move #{[[6 6] 8] [[6 7] 1] [[6 8] 8] [[6 9] 8]}, :grid [[nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil]]}], :ai-hand (4 8 8 5 2), :most-recent-computer-move #{[[6 6] 8] [[6 7] 1] [[6 8] 8] [[6 9] 8]}, :mode {:mode/type :assembling-move, :selected-cell nil, :available-cells ([5 8] [5 5]), :move-so-far [[[5 6] 7] [[5 7] 9]], :tentative-score 41, :original-hand (4 9 7 7 0), :original-grid [[nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil 8 1 8 8 nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil] [nil nil nil nil nil nil nil nil nil nil nil nil nil]]}}}}
 
-TODO we have two options for tracking down this bug:
+DONE we have two options for tracking down this bug:
 DIDNT WORK OUT) generate a bunch of random moves (with spec?) and play them, add a js-debugger line where the alert is
-2) remove this specter code in favor of the preexisting reduce
-
-TODO the computer just made a first move whose value was 9!!!!! it was just the tile 9!
+2) remove this specter code in favor of the preexisting reduce [turned out to not be specter's fault]
 
 =====
 
 1/6/18
 
-TODO: take another stab at generating UI inputs, just using a random function like
+DONE: take another stab at generating UI inputs, just using a random function like
 (generate-next-ui-event last-ui-event)
 
 ok this reliably triggers a crash with the same stacktrace (although it may not be completely the same crash):
@@ -1218,7 +1205,7 @@ i think that the most likely explanation isn't that my computer is perfect
 but instead that other people are somehow going through a state transition that i'm not thinking of
 and didn't program into this UI-event-generator just now
 
-so TODO:
+so DONE:
 look through all of the places where the game's state can be transitioned (except for historical mode)
 and see if there's some transition in there that i haven't noticed that can cause the heisenbug behavior
 
@@ -1252,3 +1239,19 @@ i seriously cannot figure out how to reproduce this by using the app
 but it seems like it could be the source of the crash, even if i'm unable to trigger it
 (but how did they manage to do it?)
 anyway i'll just have the event-handling loop discard invalid confirm events
+
+pulling todos down here
+
+TODO add a win screen
+
+TODO leaderboard (last 5-10 games stored locally)
+
+TODO tutorial overlay
+
+TODO can we use a web worker to do the ai's move asynchronously?
+
+TODO use css grid for scores, board, etc; figure out how to work ghost board in there
+
+TODO attempt to apply http://blog.cognitect.com/blog/2017/5/22/restate-your-ui-using-state-machines-to-simplify-user-interface-development
+
+DONE the computer just made a first move whose value was 9!!!!! it was just the tile 9!

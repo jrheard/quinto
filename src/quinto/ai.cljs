@@ -161,7 +161,15 @@
   [grid hand]
   (let [playable-cells (g/find-playable-cells grid)
         moves (into #{}
-                    (mapcat #(apply moves-for-cell grid hand %) playable-cells))]
+                    (mapcat #(apply moves-for-cell grid hand %) playable-cells))
+
+        ; Special case to prevent the AI from placing e.g. a single 9
+        ; when it's going first and there's nothing else on the board.
+        moves (if (seq (g/find-filled-cells grid))
+                moves
+                (filter #(= (mod (apply + (map second %)) 5)
+                            0)
+                        moves))]
 
     (apply max-key #(g/score-move grid %) moves)))
 

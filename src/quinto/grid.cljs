@@ -91,6 +91,11 @@
   [grid]
   (filter #(cell-is-blocked? grid %) (find-empty-cells grid)))
 
+(defn find-filled-cells
+  "Returns a list of all of the cells that contain a non-nil value."
+  [grid]
+  (select [ALL ALL some?] grid))
+
 (defn find-next-open-cells-for-move
   "Returns a vector like [[3 5] [3 7] [4 6]] indicating which cells on `grid` can
   be used as part of a `move` that's being assembled by the user."
@@ -196,7 +201,7 @@
   :ret pos-int?)
 
 (defn is-grid-valid? [grid]
-  (let [filled-cells (select [ALL ALL some?] grid)]
+  (let [filled-cells (find-filled-cells grid)]
     (if (= (count filled-cells) 1)
       (= (mod (first filled-cells) 5) 0)
 
