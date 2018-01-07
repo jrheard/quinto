@@ -14,6 +14,30 @@
             [quinto.grid :as g]
             [quinto.utils :refer [remove-item]]))
 
+(declare make-ai-move)
+
+(defn fresh-game-state []
+  (let [initial-state {:grid                      g/empty-grid
+                       :deck                      (deck/make-deck)
+                       :player-scores             []
+                       :player-hand               []
+                       :ai-scores                 []
+                       :ai-hand                   []
+                       :most-recent-computer-move []
+                       :mode                      {:mode/type :default}}
+
+        [new-deck player-hand] (deck/draw-tiles (initial-state :deck) [] deck/MAX-HAND-SIZE)
+        [new-deck ai-hand] (deck/draw-tiles new-deck [] deck/MAX-HAND-SIZE)
+
+        state (-> initial-state
+                  (assoc :deck new-deck)
+                  (assoc :player-hand player-hand)
+                  (assoc :ai-hand ai-hand))]
+
+    (if (rand-nth [true false])
+      (make-ai-move state)
+      state)))
+
 ;;; Helper functions
 
 (defn can-go-back? [state]

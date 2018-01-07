@@ -3,6 +3,16 @@
             [quinto.mode :as m])
   (:require-macros [cljs.core.async :refer [go-loop]]))
 
+(def ESCAPE-KEY-CODE 27)
+(def LEFT-ARROW-KEY-CODE 37)
+(def ENTER-KEY-CODE 13)
+(def ZERO-KEY-CODE 48)
+(def NUMBER-KEY-CODES {49 1
+                       50 2
+                       51 3
+                       52 4
+                       53 5})
+
 (defn handle-game-events
   "Kicks off a go-loop that processes incoming events on `game-event-chan`
   and transitions the `state` atom based on those events."
@@ -23,18 +33,9 @@
         :cancel-mode (swap! state m/cancel-mode)
         :view-move (swap! state m/view-historical-move (event :grid) (event :move) (event :optimal-move))
         :stop-viewing-move (swap! state m/stop-viewing-historical-move)
+        :new-game (reset! state (m/fresh-game-state))
         nil))
     (recur)))
-
-(def ESCAPE-KEY-CODE 27)
-(def LEFT-ARROW-KEY-CODE 37)
-(def ENTER-KEY-CODE 13)
-(def ZERO-KEY-CODE 48)
-(def NUMBER-KEY-CODES {49 1
-                       50 2
-                       51 3
-                       52 4
-                       53 5})
 
 (defn make-key-handler
   "Returns a function that, when given a event, send the corresponding game event to `game-event-chan`."

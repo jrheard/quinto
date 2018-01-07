@@ -1,45 +1,18 @@
 (ns quinto.core
-  (:require [com.rpl.specter :refer [select ALL srange nthpath multi-path STOP collect-one selected? FIRST LAST INDEXED-VALS]]
-            [reagent.core :as r]
-            [quinto.deck :refer [make-deck draw-tiles MAX-HAND-SIZE]]
+  (:require [reagent.core :as r]
             [quinto.html :refer [render-game]]
-            [quinto.mode :as m :refer [make-ai-move]]
-            [quinto.specter :refer [grid-values indexed-grid-values]]
-            [quinto.ai :as ai]
-            [quinto.grid :as g]))
+            [quinto.mode :as m]))
 
-(defonce app-state
-         (r/atom {:grid                      g/empty-grid
-                  :deck                      (make-deck)
-                  :player-scores             []
-                  :player-hand               []
-                  :ai-scores                 []
-                  :ai-hand                   []
-                  :most-recent-computer-move []
-                  :mode                      {:mode/type :default}}))
+(defonce app-state (r/atom (m/fresh-game-state)))
 
 (defn ^:export main []
-  (let [[new-deck new-hand] (draw-tiles (@app-state :deck) (@app-state :player-hand) MAX-HAND-SIZE)]
-    (swap! app-state assoc :deck new-deck)
-    (swap! app-state assoc :player-hand new-hand))
-
-  (let [[new-deck new-hand] (draw-tiles (@app-state :deck) (@app-state :ai-hand) MAX-HAND-SIZE)]
-    (swap! app-state assoc :deck new-deck)
-    (swap! app-state assoc :ai-hand new-hand))
-
-  (when (rand-nth [true false])
-    (swap! app-state make-ai-move))
-
   (render-game app-state))
 
 (defn on-js-reload []
   (render-game app-state))
 
 (comment
+  (swap! app-state m/end-game-if-player-hand-empty)
 
-  (m/select-tile @app-state 9)
-
-  (m/confirm-move @app-state)
-
-  (ai/pick-move (@app-state :grid) (@app-state :player-hand))
+  (identity @app-state)
   )

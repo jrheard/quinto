@@ -1243,6 +1243,7 @@ anyway i'll just have the event-handling loop discard invalid confirm events
 pulling todos down here
 
 TODO add a win screen
+TODO detect when player can't make a move
 
 TODO leaderboard (last 5-10 games stored locally)
 maybe don't do this

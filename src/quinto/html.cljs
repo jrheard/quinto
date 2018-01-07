@@ -1,4 +1,5 @@
 (ns quinto.html
+  "Draws the game on the screen and allows the user to interact with it."
   (:require [com.rpl.specter :refer [select ALL LAST FIRST]]
             [cljs.core.async :refer [chan put!]]
             [reagent.core :as r]
@@ -6,8 +7,6 @@
             [quinto.input :as i]
             [quinto.mode :as m]
             [quinto.utils :refer [remove-item]]))
-
-;;; HTML rendering
 
 (defn draw-cell [game-event-chan x y value cell-attributes]
   (let [cell-attributes (or cell-attributes #{})
@@ -178,11 +177,33 @@
                   (map #(vector % #{:speculative}) speculative-cells)
                   {(get-in @state [:mode :selected-cell]) #{:selected}}))))
 
+(defn draw-game-over
+  [state game-event-chan]
+  (let [player-score (get-in state [:mode :player-score])
+        ai-score (get-in state [:mode :ai-score])
+        result (cond
+                 (> player-score ai-score) :player-won
+                 (= player-score ai-score) :draw
+                 (< player-score ai-score) :ai-won)]
+    [:div.game-over
+     {:class (name result)}
+     [:div.message
+      (condp = result
+        :player-won "You win!"
+        :draw "It's a draw!"
+        :ai-won "The computer wins!")]
+
+     [:div.new-game-button.button
+      {:on-click #(put! game-event-chan {:event/type :new-game})}
+      "New Game"]]))
+
 (defn draw-game
   "Top-level Reagent component. Draws the game."
   [state game-event-chan]
   [:div.game
    [draw-controls @state (@state :player-hand) game-event-chan]
+   (when (= (get-in @state [:mode :mode/type]) :game-over)
+     [draw-game-over @state game-event-chan])
 
    [:div.board-container
     [draw-scores (@state :player-scores) (@state :mode) "Player" game-event-chan]

@@ -21,6 +21,33 @@ html {
     /*border: solid 4px #EE821D;*/
 }
 
+.game-over {
+    width: 588px;
+    margin: 20px auto;
+    background-color: #EEE;
+    padding: 15px 30px;
+    overflow: hidden;
+    font-size: 20px;
+}
+
+.game-over.player-won {
+    background-color: #B4FFB4;
+}
+
+.game-over.ai-won {
+    background-color: pink;
+}
+
+.game-over .message {
+    float: left;
+    height: 30px;
+    line-height: 42px;
+}
+
+.game-over .button:hover {
+    background-color: #555;
+}
+
 #hand {
     overflow: hidden;
     float: left;
@@ -50,7 +77,7 @@ html {
 
 .button {
     float: right;
-    font-size: 30px;
+    font-size: 20px;
     background-color: #333;
     color: white;
     padding: 10px;
