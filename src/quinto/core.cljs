@@ -1,5 +1,6 @@
 (ns quinto.core
   (:require [reagent.core :as r]
+            [quinto.ai :as ai]
             [quinto.html :refer [render-game]]
             [quinto.mode :as m]))
 
@@ -15,4 +16,8 @@
   (swap! app-state m/end-game-if-player-hand-empty)
 
   (identity @app-state)
+
+  (ai/pick-move (@app-state :grid) (@app-state :player-hand))
+  (swap! app-state assoc :player-hand [])
+  (swap! app-state update :player-scores conj {:value 100})
   )

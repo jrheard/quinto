@@ -160,15 +160,12 @@
     (into {} (map #(vector (first %) #{:historical-move-cell})
                   (get-in @state [:mode :move])))
 
-    (let [playable-cells (set
-                           (if (= (get-in @state [:mode :mode/type]) :default)
-                             (g/find-playable-cells (@state :grid))
-                             (get-in @state [:mode :available-cells])))
-          blocked-cells (set (g/find-blocked-cells (@state :grid)))
-          recent-computer-move-cells (set (select [ALL FIRST]
-                                                  (@state :most-recent-computer-move)))
-          speculative-cells (set (select [ALL FIRST]
-                                         (get-in @state [:mode :move-so-far])))]
+    (let [playable-cells (if (= (get-in @state [:mode :mode/type]) :default)
+                           (g/find-playable-cells (@state :grid))
+                           (get-in @state [:mode :available-cells]))
+          blocked-cells (g/find-blocked-cells (@state :grid))
+          recent-computer-move-cells (select [ALL FIRST] (@state :most-recent-computer-move))
+          speculative-cells (select [ALL FIRST] (get-in @state [:mode :move-so-far]))]
 
       (merge-with into {}
                   (map #(vector % #{:playable}) playable-cells)

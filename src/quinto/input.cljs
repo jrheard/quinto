@@ -38,7 +38,7 @@
     (recur)))
 
 (defn make-key-handler
-  "Returns a function that, when given a event, send the corresponding game event to `game-event-chan`."
+  "Returns a function that, when given a keyup event, send the corresponding game event to `game-event-chan`."
   [state game-event-chan]
   (fn key-handler [event]
     (let [key-code (.-keyCode event)
