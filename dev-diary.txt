@@ -1245,12 +1245,18 @@ pulling todos down here
 TODO add a win screen
 
 TODO leaderboard (last 5-10 games stored locally)
+maybe don't do this
 
-TODO tutorial overlay
-
-TODO can we use a web worker to do the ai's move asynchronously?
-
-TODO use css grid for scores, board, etc; figure out how to work ghost board in there
+DONE can we use a web worker to do the ai's move asynchronously?
+this looks like an unsupported pain in the ass.
+i looked into it a bit
+there are several libraries, all of them abandoned
+https://github.com/MarcoPolo/servant is the primary one
+https://github.com/federkasten/butler secondary, unused afaict
+https://github.com/MarcoPolo/servant-demo/blob/master/src/cljs/servant-demo/core.cljs useful demo code for servant
+http://dev.solita.fi/2016/02/01/testing-clojurescript-concurrency-with-servant.html also good writeup
+if this was well-supported i'd look into it, but i don't actually need this feature so it's not worth it
+seems to not work when run in no-optimizations mode, which is what figwheel needs afaik
 
 TODO attempt to apply http://blog.cognitect.com/blog/2017/5/22/restate-your-ui-using-state-machines-to-simplify-user-interface-development
 
