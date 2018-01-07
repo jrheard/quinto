@@ -46,8 +46,8 @@
                                :output-dir           "resources/public/js/compiled/out-min"
                                :main                 quinto.core
                                :optimizations        :advanced
-                               :source-map           "resources/public/js/compiled/quinto.js.map"
-                               :source-map-timestamp true
+                               ;:source-map           "resources/public/js/compiled/quinto.js.map"
+                               ;:source-map-timestamp true
                                :pretty-print         false}}]}
 
   :figwheel {;; :http-server-root "public" ;; default and assumes "resources"
