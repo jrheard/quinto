@@ -24,7 +24,8 @@
                        :ai-scores                 []
                        :ai-hand                   []
                        :most-recent-computer-move []
-                       :mode                      {:mode/type :default}}
+                       :mode                      {:mode/type :default}
+                       :game-over                 false}
 
         [new-deck player-hand] (deck/draw-tiles (initial-state :deck) [] deck/MAX-HAND-SIZE)
         [new-deck ai-hand] (deck/draw-tiles new-deck [] deck/MAX-HAND-SIZE)
@@ -41,16 +42,19 @@
 ;;; Helper functions
 
 (defn can-go-back? [state]
-  (= (get-in state [:mode :mode/type]) :assembling-move))
+  (and (not (state :game-over))
+       (= (get-in state [:mode :mode/type]) :assembling-move)))
 
 (defn can-confirm-move? [state]
-  (and (= (get-in state [:mode :mode/type]) :assembling-move)
+  (and (not (state :game-over))
+       (= (get-in state [:mode :mode/type]) :assembling-move)
        (g/is-grid-valid? (state :grid))
        (> (count (get-in state [:mode :move-so-far]))
           0)))
 
 (defn can-select-a-tile? [state]
-  (some? (get-in state [:mode :selected-cell])))
+  (and (not (state :game-over))
+       (some? (get-in state [:mode :selected-cell]))))
 
 ;;; State transition functions
 
@@ -164,14 +168,13 @@
         (assoc :ai-hand new-hand)
         (assoc :deck new-deck))))
 
-(defn end-game-if-player-hand-empty
-  "Checks to see if the player's hand is empty, and puts the game in :game-over mode if so."
+(defn maybe-end-game
+  "Ends the game if the player is unable to make a move."
   [state]
-  (if (seq (state :player-hand))
+  (if (and (seq (state :player-hand))
+           (ai/pick-move (state :grid) (state :player-hand)))
     state
-    (assoc state :mode {:mode/type    :game-over
-                        :player-score (apply + (map :value (state :player-scores)))
-                        :ai-score     (apply + (map :value (state :ai-scores)))})))
+    (assoc state :game-over true)))
 
 (defn confirm-move
   "Used when the board is in assembling-move mode and a valid move has been assembled.
@@ -201,7 +204,7 @@
                       (assoc :deck new-deck)
                       (assoc :player-hand new-hand)
                       make-ai-move
-                      end-game-if-player-hand-empty)]
+                      maybe-end-game)]
 
     (assert (g/is-grid-valid? (new-state :grid)))
     new-state))

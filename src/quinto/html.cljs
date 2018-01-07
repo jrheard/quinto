@@ -20,8 +20,8 @@
 
     [:div
      {:class    cell-class
-      :on-click (when (cell-attributes :playable)
-                  #(put! game-event-chan
+      :on-click #(when (cell-attributes :playable)
+                   (put! game-event-chan
                          {:event/type :select-cell
                           :cell       [x y]}))}
      (if (nil? value)
@@ -68,8 +68,8 @@
   [:div.tile
    {:class    (when-not (mode :selected-cell)
                 "inactive")
-    :on-click (when (m/can-select-a-tile? state)
-                #(put! game-event-chan
+    :on-click #(when (m/can-select-a-tile? state)
+                 (put! game-event-chan
                        {:event/type :select-tile
                         :value      value}))}
    value])
@@ -160,9 +160,11 @@
     (into {} (map #(vector (first %) #{:historical-move-cell})
                   (get-in @state [:mode :move])))
 
-    (let [playable-cells (if (= (get-in @state [:mode :mode/type]) :default)
-                           (g/find-playable-cells (@state :grid))
-                           (get-in @state [:mode :available-cells]))
+    (let [playable-cells (if (@state :game-over)
+                           []
+                           (if (= (get-in @state [:mode :mode/type]) :default)
+                             (g/find-playable-cells (@state :grid))
+                             (get-in @state [:mode :available-cells])))
           blocked-cells (g/find-blocked-cells (@state :grid))
           recent-computer-move-cells (select [ALL FIRST] (@state :most-recent-computer-move))
           speculative-cells (select [ALL FIRST] (get-in @state [:mode :move-so-far]))]
@@ -176,8 +178,8 @@
 
 (defn draw-game-over
   [state game-event-chan]
-  (let [player-score (get-in state [:mode :player-score])
-        ai-score (get-in state [:mode :ai-score])
+  (let [player-score (apply + (map :value (state :player-scores)))
+        ai-score (apply + (map :value (state :ai-scores)))
         result (cond
                  (> player-score ai-score) :player-won
                  (= player-score ai-score) :draw
@@ -199,7 +201,7 @@
   [state game-event-chan]
   [:div.game
    [draw-controls @state (@state :player-hand) game-event-chan]
-   (when (= (get-in @state [:mode :mode/type]) :game-over)
+   (when (@state :game-over)
      [draw-game-over @state game-event-chan])
 
    [:div.board-container
