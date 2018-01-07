@@ -1,28 +1,15 @@
 (ns quinto.html
   (:require [com.rpl.specter :refer [select ALL LAST FIRST]]
-            [cljs.core.async :refer [chan <! put!]]
+            [cljs.core.async :refer [chan put!]]
             [reagent.core :as r]
             [quinto.grid :as g]
-            [quinto.mode :as m]
-            [quinto.utils :refer [remove-item]])
-  (:require-macros [cljs.core.async :refer [go-loop]]))
-
-;;; Helper functions
-
-(defn can-go-back? [state]
-  (= (get-in state [:mode :mode/type]) :assembling-move))
-
-(defn can-confirm-move? [state]
-  (and (= (get-in state [:mode :mode/type]) :assembling-move)
-       (g/is-grid-valid? (state :grid))
-       (> (count (get-in state [:mode :move-so-far]))
-          0)))
-
-(defn can-select-a-tile? [state]
-  (some? (get-in state [:mode :selected-cell])))
+            [quinto.input :as i]
+            [quinto.utils :refer [remove-item]]))
 
 ;;; HTML rendering
 
+; xxxxx remove `state` arg, move stuff to cell-attributes
+; xxxxx can remove grid arg too, in favor of `value`
 (defn draw-cell [game-event-chan state grid x y cell-attributes]
   (let [cell (get-in grid [x y])
         cell-attributes (or cell-attributes #{})
@@ -201,7 +188,9 @@
                   (map #(vector % #{:blocked}) blocked-cells)
                   {(get-in @state [:mode :selected-cell]) #{:selected}}))))
 
-(defn draw-game [state game-event-chan]
+(defn draw-game
+  "Top-level Reagent component. Draws the game."
+  [state game-event-chan]
   [:div.game
    [draw-controls @state (@state :player-hand) game-event-chan]
 
@@ -222,72 +211,8 @@
 
     [draw-scores (@state :ai-scores) (@state :mode) "Computer" game-event-chan]]])
 
-;;; Event handling
-
-(defn handle-game-events [state game-event-chan]
-  (go-loop []
-    (let [event (<! game-event-chan)]
-      ;(js/console.log event)
-      (condp = (event :event/type)
-        :select-cell (if (= (get-in @state [:mode :mode/type]) :default)
-                       (swap! state m/enter-assembling-move-mode (event :cell))
-                       (swap! state m/select-cell (event :cell)))
-        :select-tile (when (can-select-a-tile? @state)
-                       (swap! state m/select-tile (event :value)))
-        :confirm-move (when (can-confirm-move? @state)
-                        (swap! state m/confirm-move))
-        :go-back (when (can-go-back? @state)
-                   (swap! state m/go-back))
-        :cancel-mode (swap! state m/cancel-mode)
-        :view-move (swap! state m/view-historical-move (event :grid) (event :move) (event :optimal-move))
-        :stop-viewing-move (swap! state m/stop-viewing-historical-move)
-        nil))
-    (recur)))
-
 ; Atom used for removing preexisting event handlers when fighweel reloads our code.
 (defonce keyup-handler-fn (atom nil))
-
-(def ESCAPE-KEY-CODE 27)
-(def LEFT-ARROW-KEY-CODE 37)
-(def ENTER-KEY-CODE 13)
-(def ZERO-KEY-CODE 48)
-(def NUMBER-KEY-CODES {49 1
-                       50 2
-                       51 3
-                       52 4
-                       53 5})
-
-(defn make-key-handler [state game-event-chan]
-  (fn key-handler [event]
-    (let [key-code (.-keyCode event)
-
-          game-event (condp contains? key-code
-                       #{ESCAPE-KEY-CODE} {:event/type :cancel-mode}
-
-                       #{LEFT-ARROW-KEY-CODE} (when (can-go-back? @state)
-                                                {:event/type :go-back})
-
-                       #{ENTER-KEY-CODE} (when (can-confirm-move? @state)
-                                           {:event/type :confirm-move})
-
-                       #{ZERO-KEY-CODE} (let [textarea (js/document.createElement "textarea")]
-                                          (set! (.-value textarea)
-                                                (str "My Quinto game's state is: " (pr-str @state)))
-                                          (.appendChild js/document.body textarea)
-                                          (.select textarea)
-                                          (js/document.execCommand "copy")
-                                          (.removeChild js/document.body textarea))
-
-                       NUMBER-KEY-CODES (when (can-select-a-tile? @state)
-                                          (let [hand (@state :player-hand)
-                                                hand-index (dec (NUMBER-KEY-CODES key-code))]
-                                            (when (< hand-index (count hand))
-                                              {:event/type :select-tile
-                                               :value      (nth hand hand-index)})))
-                       nil)]
-
-      (when game-event
-        (put! game-event-chan game-event)))))
 
 ;;; Public API
 
@@ -296,18 +221,18 @@
     (.removeEventListener js/document "keyup" @keyup-handler-fn))
 
   (let [game-event-chan (chan)
-        key-handler (make-key-handler state game-event-chan)]
+        key-handler (i/make-key-handler state game-event-chan)]
 
     (r/render-component [draw-game state game-event-chan]
                         (js/document.getElementById "app"))
 
     (.addEventListener js/document "keyup" key-handler)
 
-    ; Clare says she likes to play the game in a small window while watching Youtube or something.
+    ; Clare likes to play the game in a small window while watching Youtube or something.
     ; Prevent the left arrow key from scrolling the viewfinder to the left.
     (.addEventListener js/document "keydown" #(when (= (.-keyCode %)
                                                        LEFT-ARROW-KEY-CODE)
                                                 (.preventDefault %)))
     (reset! keyup-handler-fn key-handler)
 
-    (handle-game-events state game-event-chan)))
+    (i/handle-game-events state game-event-chan)))

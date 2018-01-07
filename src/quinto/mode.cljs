@@ -14,6 +14,22 @@
             [quinto.grid :as g]
             [quinto.utils :refer [remove-item]]))
 
+;;; Helper functions
+
+(defn can-go-back? [state]
+  (= (get-in state [:mode :mode/type]) :assembling-move))
+
+(defn can-confirm-move? [state]
+  (and (= (get-in state [:mode :mode/type]) :assembling-move)
+       (g/is-grid-valid? (state :grid))
+       (> (count (get-in state [:mode :move-so-far]))
+          0)))
+
+(defn can-select-a-tile? [state]
+  (some? (get-in state [:mode :selected-cell])))
+
+;;; State transition functions
+
 (defn enter-assembling-move-mode
   "Used when the user selects a green (playable) cell in order to begin
   assembling a move. Creates an :assembling-move mode dict which records
@@ -124,6 +140,15 @@
         (assoc :ai-hand new-hand)
         (assoc :deck new-deck))))
 
+(defn end-game-if-player-hand-empty
+  "Checks to see if the player's hand is empty, and puts the game in :game-over mode if so."
+  [state]
+  (if (seq (state :player-hand))
+    state
+    (assoc state :mode {:mode/type    :game-over
+                        :player-score (apply + (map :value (state :player-scores)))
+                        :ai-score     (apply + (map :value (state :ai-scores)))})))
+
 (defn confirm-move
   "Used when the board is in assembling-move mode and a valid move has been assembled.
   Applies the move to the board, then has the AI make a move. Updates both players' scores."
@@ -151,7 +176,8 @@
                                                   optimal-move)})
                       (assoc :deck new-deck)
                       (assoc :player-hand new-hand)
-                      make-ai-move)]
+                      make-ai-move
+                      end-game-if-player-hand-empty)]
 
     (assert (g/is-grid-valid? (new-state :grid)))
     new-state))

@@ -1261,3 +1261,9 @@ seems to not work when run in no-optimizations mode, which is what figwheel need
 TODO attempt to apply http://blog.cognitect.com/blog/2017/5/22/restate-your-ui-using-state-machines-to-simplify-user-interface-development
 
 DONE the computer just made a first move whose value was 9!!!!! it was just the tile 9!
+
+=====
+
+1/7/18
+
+
