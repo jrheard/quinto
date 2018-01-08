@@ -29,7 +29,7 @@
        value)]))
 
 (defn draw-grid [game-event-chan grid cell-attributes-map]
-  [:div#grid
+  [:div.grid
    (for [x (range (count grid))]
      ^{:key x}
      [:div.column

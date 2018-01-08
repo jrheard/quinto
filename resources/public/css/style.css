@@ -155,7 +155,6 @@ html {
 }
 
 #grid {
-    width: 612px;
     background-color: #EEE;
     overflow: hidden;
     float: left;
@@ -215,8 +214,6 @@ html {
 }
 
 .cell.playable:hover {
-    cursor: pointer;
-    background-color: #8BE58B;
 }
 
 .cell.selected,
