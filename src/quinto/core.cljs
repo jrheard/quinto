@@ -58,6 +58,16 @@
                  [5 3] #{:playable}
                  })
 
+(def cell-class (r/atom "red"))
+
+(defn colorful-cell []
+  [:div.cell
+   {:class    @cell-class
+    :on-click #(if (= @cell-class "red")
+                 (reset! cell-class "green")
+                 (reset! cell-class "red"))}
+   ""])
+
 (defn ^:export main []
   ;(render-game app-state)
 
@@ -75,6 +85,9 @@
                       (js/document.getElementById "grid-6"))
   (r/render-component (draw-grid nil grid-7 cell-map-7)
                       (js/document.getElementById "grid-7"))
+
+  (r/render-component [:div.grid [colorful-cell]]
+                      (js/document.getElementById "reagent-example"))
 
   )
 

@@ -273,3 +273,11 @@ html {
 .tentative-score.valid {
     color: #777;
 }
+
+.cell.red {
+    background-color: red;
+}
+
+.cell.green {
+    background-color: green;
+}
