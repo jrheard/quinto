@@ -1,7 +1,5 @@
 (ns quinto.ai
-  (:require [clojure.set :refer [intersection]]
-            [clojure.spec.alpha :as s]
-            [com.rpl.specter :refer [select ALL]]
+  (:require [clojure.spec.alpha :as s]
             [quinto.grid :as g]
             [quinto.specs :as sp :refer [MAX-RUN-LENGTH]]
             [quinto.utils :refer [remove-item cell-is-on-grid]]))

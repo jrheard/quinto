@@ -5,8 +5,7 @@
             [reagent.core :as r]
             [quinto.grid :as g]
             [quinto.input :as i]
-            [quinto.mode :as m]
-            [quinto.utils :refer [remove-item]]))
+            [quinto.mode :as m]))
 
 (defn draw-cell [game-event-chan x y value cell-attributes]
   (let [cell-attributes (or cell-attributes #{})
@@ -206,7 +205,6 @@
 
    [:div.board-container
     [draw-scores (@state :player-scores) (@state :mode) "Player" game-event-chan]
-
 
     [draw-grid
      game-event-chan

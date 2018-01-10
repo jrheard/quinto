@@ -1279,4 +1279,10 @@ how do we reconcile the two modes?
 
 i guess we just make a :game-over flag, as opposed to a separate mode
 
+=======
 
+1/9/17
+
+in http://timothypratley.blogspot.com/2017/01/reagent-deep-dive-part-3-sequences.html ,
+he recommends doing `into` instead of using keys if you don't have a natural ID
+TODO investigate

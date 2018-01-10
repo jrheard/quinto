@@ -1,6 +1,5 @@
 (ns quinto.grid
   (:require [com.rpl.specter :refer [select collect-one selected? INDEXED-VALS FIRST LAST ALL]]
-            [clojure.set :refer [intersection]]
             [clojure.spec.alpha :as s]
             [quinto.specs :as sp :refer [MAX-RUN-LENGTH GRID-HEIGHT GRID-WIDTH]]
             [quinto.specter :refer [grid-values indexed-grid-values]]
