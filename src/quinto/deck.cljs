@@ -15,6 +15,9 @@
                                     3 7
                                     4 10
                                     5 6
+                                    ; The poster didn't list any 6s, but I think it may have just
+                                    ; been an error on their part?
+                                    6 10
                                     7 14
                                     8 12
                                     9 12}]

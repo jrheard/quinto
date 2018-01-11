@@ -20,21 +20,27 @@
   (go-loop []
     (let [event (<! game-event-chan)]
       ;(js/console.log event)
-      (condp = (event :event/type)
-        :select-cell (if (= (get-in @state [:mode :mode/type]) :default)
-                       (swap! state m/enter-assembling-move-mode (event :cell))
-                       (swap! state m/select-cell (event :cell)))
-        :select-tile (when (m/can-select-a-tile? @state)
-                       (swap! state m/select-tile (event :value)))
-        :confirm-move (when (m/can-confirm-move? @state)
-                        (swap! state m/confirm-move))
-        :go-back (when (m/can-go-back? @state)
-                   (swap! state m/go-back))
-        :cancel-mode (swap! state m/cancel-mode)
-        :view-move (swap! state m/view-historical-move (event :grid) (event :move) (event :optimal-move))
-        :stop-viewing-move (swap! state m/stop-viewing-historical-move)
-        :new-game (reset! state (m/fresh-game-state))
-        nil))
+      (try
+        (condp = (event :event/type)
+          :select-cell (if (= (get-in @state [:mode :mode/type]) :default)
+                         (swap! state m/enter-assembling-move-mode (event :cell))
+                         (swap! state m/select-cell (event :cell)))
+          :select-tile (when (m/can-select-a-tile? @state)
+                         (swap! state m/select-tile (event :value)))
+          :confirm-move (when (m/can-confirm-move? @state)
+                          (swap! state m/confirm-move))
+          :go-back (when (m/can-go-back? @state)
+                     (swap! state m/go-back))
+          :cancel-mode (swap! state m/cancel-mode)
+          :view-move (swap! state m/view-historical-move (event :grid) (event :move) (event :optimal-move))
+          :stop-viewing-move (swap! state m/stop-viewing-historical-move)
+          :new-game (reset! state (m/fresh-game-state))
+          nil)
+        ; Don't permanently destroy the go-loop if an exception happens.
+        ; TODO - detect if we're in dev, and if so, _do_ crash
+        (catch js/Object e
+          (js/console.log event)
+          (js/console.log e))))
     (recur)))
 
 (defn make-key-handler
