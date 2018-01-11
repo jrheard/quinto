@@ -235,11 +235,6 @@
 
     (.addEventListener js/document "keyup" key-handler)
 
-    ; Clare likes to play the game in a small window while watching Youtube or something.
-    ; Prevent the left arrow key from scrolling the viewfinder to the left.
-    (.addEventListener js/document "keydown" #(when (= (.-keyCode %)
-                                                       i/LEFT-ARROW-KEY-CODE)
-                                                (.preventDefault %)))
     (reset! keyup-handler-fn key-handler)
 
     (i/handle-game-events state game-event-chan)))
