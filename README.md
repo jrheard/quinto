@@ -1,6 +1,6 @@
 # Quinto
 
-an implementation of an old abandoned board game.
+An implementation of an old abandoned board game.
 
 ![quinto board game box][box-image]
 
