@@ -194,8 +194,19 @@ html {
 }
 
 .cell.ghostly {
-    opacity: 0.75;
+    animation: 3s pulse infinite;
     background-color: #B4FFB4;
+    opacity: 0;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0;
+    }
+
+    30%, 70% {
+        opacity: 1;
+    }
 }
 
 .cell.optimal-historical-move {
